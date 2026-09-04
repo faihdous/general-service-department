@@ -1030,9 +1030,9 @@ function escapeHtml(value){
 
 /*
     إنشاء رقم البلاغ:
-    BLG 1
-    BLG 2
-    BLG 3
+    BLG- 1
+    BLG- 2
+    BLG- 3
     ويستمر بدون نهاية.
 */
 function getNextReportId(){
@@ -1042,7 +1042,7 @@ function getNextReportId(){
     ];
 
     const highestExistingId=allReports.reduce((highest,report)=>{
-        const match=String(report.id||"").match(/^BLG\s+(\d+)$/i);
+        const match=String(report.id||"").match(/^BLG-\s+(\d+)$/i);
 
         const number=match
             ?Number(match[1])
@@ -1053,7 +1053,7 @@ function getNextReportId(){
 
     const nextNumber=highestExistingId+1;
 
-    return "BLG "+nextNumber;
+    return "BLG- "+nextNumber;
 }
 
 function loadFormOptions(){
