@@ -846,9 +846,13 @@ footer{
                         <option value="">كل الإدارات والمواقع</option>
                     </select>
 
-                    <input id="dateFilter" type="date" onchange="renderAdmin">
+                    <input id="dateFilter" type="date" onchange="renderAdmin()">
 
                 </div>
+
+                <button class="btn-primary" onclick="refreshAdmin()">
+                    تحديث البلاغات
+                </button>
 
                 <button class="btn-primary" onclick="exportExcel()">
                     تنزيل البلاغات الحالية
@@ -1030,9 +1034,9 @@ function escapeHtml(value){
 
 /*
     إنشاء رقم البلاغ:
-    BLG- 1
-    BLG- 2
-    BLG- 3
+    blg 1
+    blg 2
+    blg 3
     ويستمر بدون نهاية.
 */
 function getNextReportId(){
@@ -1042,7 +1046,7 @@ function getNextReportId(){
     ];
 
     const highestExistingId=allReports.reduce((highest,report)=>{
-        const match=String(report.id||"").match(/^BLG-\s+(\d+)$/i);
+        const match=String(report.id||"").match(/^blg\s+(\d+)$/i);
 
         const number=match
             ?Number(match[1])
@@ -1053,7 +1057,7 @@ function getNextReportId(){
 
     const nextNumber=highestExistingId+1;
 
-    return "BLG- "+nextNumber;
+    return "blg "+nextNumber;
 }
 
 function loadFormOptions(){
@@ -1369,6 +1373,31 @@ function deleteReportType(index){
         loadFilterOptions();
         renderSettings();
     }
+}
+
+function refreshAdmin(){
+    reports=JSON.parse(
+        localStorage.getItem(STORAGE_KEY)
+    )||[];
+
+    archivedReports=JSON.parse(
+        localStorage.getItem(ARCHIVE_KEY)
+    )||[];
+
+    departments=JSON.parse(
+        localStorage.getItem(DEPARTMENTS_KEY)
+    )||departments;
+
+    reportTypes=JSON.parse(
+        localStorage.getItem(TYPES_KEY)
+    )||reportTypes;
+
+    loadFormOptions();
+    loadFilterOptions();
+    renderSettings();
+    renderAdmin();
+
+    alert("تم تحديث البلاغات بنجاح.");
 }
 
 function renderAdmin(){
