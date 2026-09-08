@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>بلاغ قسم الخدمات العامة</title>
-
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -21,9 +20,7 @@
     --border:#d9e0e9;
 }
 
-*{
-    box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
     margin:0;
@@ -35,12 +32,7 @@ body{
     var(--bg);
 }
 
-button,
-input,
-select,
-textarea{
-    font-family:inherit;
-}
+button,input,select,textarea{font-family:inherit}
 
 button{
     border:0;
@@ -53,13 +45,8 @@ button:hover{
     filter:brightness(1.04);
 }
 
-.page{
-    display:none;
-}
-
-.page.active{
-    display:block;
-}
+.page{display:none}
+.page.active{display:block}
 
 .hero{
     position:relative;
@@ -143,11 +130,15 @@ button:hover{
 }
 
 .hero-buttons{
+    position:absolute;
+    top:25px;
+    right:5%;
+    z-index:10;
     display:flex;
-    justify-content:center;
+    align-items:center;
     gap:13px;
     flex-wrap:wrap;
-    margin-top:34px;
+    margin:0;
 }
 
 .btn-primary,
@@ -182,9 +173,9 @@ button:hover{
 }
 
 .archive-button{
-    color:#17202b !important;
-    background:#fff !important;
-    border:1px solid #d9e0e9 !important;
+    color:#17202b!important;
+    background:#fff!important;
+    border:1px solid #d9e0e9!important;
 }
 
 .topbar{
@@ -214,14 +205,8 @@ button:hover{
     background:#fff;
 }
 
-.topbar h2{
-    margin:0;
-    font-size:19px;
-}
-
-.topbar small{
-    color:#bfccda;
-}
+.topbar h2{margin:0;font-size:19px}
+.topbar small{color:#bfccda}
 
 .topbar-actions{
     display:flex;
@@ -242,20 +227,9 @@ button:hover{
     box-shadow:0 8px 28px rgba(15,39,66,.08);
 }
 
-.form-card,
-.login-card{
-    border-top:4px solid var(--gold);
-}
-
-.form-card{
-    max-width:900px;
-    margin:auto;
-}
-
-.login-card{
-    max-width:460px;
-    margin:65px auto;
-}
+.form-card,.login-card{border-top:4px solid var(--gold)}
+.form-card{max-width:900px;margin:auto}
+.login-card{max-width:460px;margin:65px auto}
 
 .section-title{
     margin:0 0 9px;
@@ -281,22 +255,12 @@ button:hover{
     gap:7px;
 }
 
-.field.full{
-    grid-column:1/-1;
-}
+.field.full{grid-column:1/-1}
 
-label{
-    color:#263b53;
-    font-weight:bold;
-}
+label{color:#263b53;font-weight:bold}
+label span{color:var(--danger)}
 
-label span{
-    color:var(--danger);
-}
-
-input,
-select,
-textarea{
+input,select,textarea{
     width:100%;
     padding:13px;
     color:var(--text);
@@ -307,9 +271,7 @@ textarea{
     outline:none;
 }
 
-input:focus,
-select:focus,
-textarea:focus{
+input:focus,select:focus,textarea:focus{
     border-color:var(--gold);
     box-shadow:0 0 0 3px rgba(200,169,81,.14);
 }
@@ -319,9 +281,7 @@ textarea{
     resize:vertical;
 }
 
-.submit-row{
-    margin-top:25px;
-}
+.submit-row{margin-top:25px}
 
 .alert{
     display:none;
@@ -345,21 +305,10 @@ textarea{
     border:1px solid #e5aaa5;
 }
 
-.other-field{
-    display:none;
-}
-
-.other-field.show{
-    display:flex;
-}
-
-.admin-panel{
-    display:none;
-}
-
-.admin-panel.active{
-    display:block;
-}
+.other-field{display:none}
+.other-field.show{display:flex}
+.admin-panel{display:none}
+.admin-panel.active{display:block}
 
 .toolbar{
     display:flex;
@@ -406,9 +355,7 @@ td{
     border-bottom:1px solid #edf0f4;
 }
 
-tr:hover td{
-    background:#fafbfd;
-}
+tr:hover td{background:#fafbfd}
 
 .empty{
     padding:40px;
@@ -453,9 +400,7 @@ tr:hover td{
     box-shadow:0 6px 20px rgba(15,39,66,.06);
 }
 
-.stat small{
-    color:var(--muted);
-}
+.stat small{color:var(--muted)}
 
 .stat strong{
     display:block;
@@ -525,9 +470,7 @@ tr:hover td{
     margin-bottom:13px;
 }
 
-.add-row input{
-    flex:1;
-}
+.add-row input{flex:1}
 
 .items-list{
     display:flex;
@@ -561,9 +504,7 @@ footer{
 }
 
 @media(max-width:800px){
-    .hero{
-        min-height:570px;
-    }
+    .hero{min-height:570px}
 
     .logo-frame{
         width:155px;
@@ -571,37 +512,30 @@ footer{
     }
 
     .hero-buttons{
-        flex-direction:column;
+        position:relative;
+        top:auto;
+        right:auto;
+        justify-content:center;
         width:min(300px,100%);
-        margin-right:auto;
-        margin-left:auto;
+        margin:34px auto 0;
     }
 
-    .hero-buttons button{
-        width:100%;
-    }
+    .hero-buttons button{width:100%}
 
     .topbar{
         align-items:flex-start;
         flex-direction:column;
     }
 
-    .topbar-actions{
-        width:100%;
-    }
-
-    .topbar-actions button{
-        flex:1;
-    }
+    .topbar-actions{width:100%}
+    .topbar-actions button{flex:1}
 
     .content{
         width:94%;
         margin:20px auto;
     }
 
-    .card{
-        padding:19px;
-    }
+    .card{padding:19px}
 
     .form-grid,
     .filters,
@@ -611,17 +545,9 @@ footer{
         grid-template-columns:1fr;
     }
 
-    .field.full{
-        grid-column:auto;
-    }
-
-    .add-row{
-        flex-direction:column;
-    }
-
-    .toolbar button{
-        width:100%;
-    }
+    .field.full{grid-column:auto}
+    .add-row{flex-direction:column}
+    .toolbar button{width:100%}
 }
 </style>
 </head>
@@ -631,14 +557,6 @@ footer{
 <section id="homePage" class="page active">
     <div class="hero">
         <div class="hero-content">
-            <div class="logo-frame">
-                <img src="logo.png" alt="شعار شرطة الكويت">
-            </div>
-
-            <div class="hero-line"></div>
-
-            <h1>بلاغ قسم الخدمات العامة</h1>
-
             <div class="hero-buttons">
                 <button class="btn-primary" onclick="showPage('reportPage')">
                     تقديم بلاغ
@@ -648,6 +566,14 @@ footer{
                     الصفحة الإدارية
                 </button>
             </div>
+
+            <div class="logo-frame">
+                <img src="logo.png" alt="شعار شرطة الكويت">
+            </div>
+
+            <div class="hero-line"></div>
+
+            <h1>بلاغ قسم الخدمات العامة</h1>
         </div>
     </div>
 
@@ -684,7 +610,6 @@ footer{
 
             <form id="reportForm">
                 <div class="form-grid">
-
                     <div class="field">
                         <label for="location">
                             الإدارة أو موقع البلاغ <span>*</span>
@@ -744,7 +669,6 @@ footer{
 
                         <input id="reporterPhone" type="tel" required placeholder="رقم الهاتف">
                     </div>
-
                 </div>
 
                 <div class="submit-row">
@@ -780,7 +704,6 @@ footer{
     </div>
 
     <main class="content">
-
         <div id="loginBox" class="card login-card">
             <h2 class="section-title">تسجيل الدخول</h2>
 
@@ -797,7 +720,7 @@ footer{
                     id="adminPassword"
                     type="password"
                     placeholder="أدخل كلمة المرور"
-                    onkeydown="if(event.key==='Enter') loginAdmin()"
+                    onkeydown="if(event.key==='Enter')loginAdmin()"
                 >
             </div>
 
@@ -809,10 +732,7 @@ footer{
         </div>
 
         <div id="adminPanel" class="admin-panel">
-
-            <h2 class="section-title">
-                قائمة البلاغات الحالية
-            </h2>
+            <h2 class="section-title">قائمة البلاغات الحالية</h2>
 
             <div class="table-wrapper">
                 <table>
@@ -837,7 +757,6 @@ footer{
 
             <div class="toolbar">
                 <div class="filters">
-
                     <select id="typeFilter" onchange="renderAdmin()">
                         <option value="">كل أنواع البلاغات</option>
                     </select>
@@ -847,7 +766,6 @@ footer{
                     </select>
 
                     <input id="dateFilter" type="date" onchange="renderAdmin()">
-
                 </div>
 
                 <button class="btn-primary" onclick="refreshAdmin()">
@@ -862,7 +780,6 @@ footer{
                     تنزيل الأرشيف
                 </button>
 
-                <!-- تم استبدال حذف البلاغات الحالية بحذف الأرشيف -->
                 <button class="btn-danger" onclick="clearArchive()">
                     حذف الأرشيف
                 </button>
@@ -876,7 +793,6 @@ footer{
                 </p>
 
                 <div class="settings-grid">
-
                     <div class="settings-box">
                         <h3>الإدارات والمواقع</h3>
 
@@ -904,7 +820,6 @@ footer{
 
                         <div id="reportTypesList" class="items-list"></div>
                     </div>
-
                 </div>
             </div>
 
@@ -955,14 +870,12 @@ footer{
                     <strong id="archiveCount">0</strong>
                 </p>
             </div>
-
         </div>
     </main>
 </section>
 
 <script>
 const ADMIN_PASSWORD="1234";
-
 const STORAGE_KEY="public_services_reports";
 const ARCHIVE_KEY="public_services_archive";
 const DEPARTMENTS_KEY="public_services_departments";
@@ -1032,32 +945,17 @@ function escapeHtml(value){
         .replaceAll("'","&#039;");
 }
 
-/*
-    إنشاء رقم البلاغ:
-    BLG- 1
-    BLG- 2
-    BLG- 3
-    ويستمر بدون نهاية.
-*/
 function getNextReportId(){
-    const allReports=[
-        ...reports,
-        ...archivedReports
-    ];
+    const allReports=[...reports,...archivedReports];
 
     const highestExistingId=allReports.reduce((highest,report)=>{
         const match=String(report.id||"").match(/^BLG-\s+(\d+)$/i);
-
-        const number=match
-            ?Number(match[1])
-            :0;
+        const number=match?Number(match[1]):0;
 
         return Math.max(highest,number);
     },0);
 
-    const nextNumber=highestExistingId+1;
-
-    return "BLG- "+nextNumber;
+    return "BLG- "+(highestExistingId+1);
 }
 
 function loadFormOptions(){
@@ -1068,10 +966,8 @@ function loadFormOptions(){
 
     departments.forEach(item=>{
         const option=document.createElement("option");
-
         option.value=item;
         option.textContent=item;
-
         location.appendChild(option);
     });
 
@@ -1081,10 +977,8 @@ function loadFormOptions(){
 
     reportTypes.forEach(item=>{
         const option=document.createElement("option");
-
         option.value=item;
         option.textContent=item;
-
         type.appendChild(option);
     });
 
@@ -1099,10 +993,8 @@ function loadFilterOptions(){
 
     reportTypes.forEach(item=>{
         const option=document.createElement("option");
-
         option.value=item;
         option.textContent=item;
-
         typeFilter.appendChild(option);
     });
 
@@ -1110,10 +1002,8 @@ function loadFilterOptions(){
 
     departments.forEach(item=>{
         const option=document.createElement("option");
-
         option.value=item;
         option.textContent=item;
-
         departmentFilter.appendChild(option);
     });
 }
@@ -1126,9 +1016,7 @@ function handleOtherLocation(){
     field.classList.toggle("show",selected==="أخرى");
     input.required=selected==="أخرى";
 
-    if(selected!=="أخرى"){
-        input.value="";
-    }
+    if(selected!=="أخرى")input.value="";
 }
 
 function handleOtherType(){
@@ -1139,9 +1027,7 @@ function handleOtherType(){
     field.classList.toggle("show",selected==="أخرى");
     input.required=selected==="أخرى";
 
-    if(selected!=="أخرى"){
-        input.value="";
-    }
+    if(selected!=="أخرى")input.value="";
 }
 
 document.getElementById("reportForm").addEventListener("submit",function(event){
@@ -1178,12 +1064,7 @@ document.getElementById("reportForm").addEventListener("submit",function(event){
         !report.reporterName||
         !report.reporterPhone
     ){
-        showAlert(
-            "formAlert",
-            "يرجى تعبئة جميع الخانات المطلوبة.",
-            "error"
-        );
-
+        showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
         return;
     }
 
@@ -1215,11 +1096,7 @@ function loginAdmin(){
         renderSettings();
         renderAdmin();
     }else{
-        showAlert(
-            "loginAlert",
-            "كلمة المرور غير صحيحة.",
-            "error"
-        );
+        showAlert("loginAlert","كلمة المرور غير صحيحة.","error");
     }
 }
 
@@ -1240,18 +1117,14 @@ function getFilteredReports(){
         const matchesDepartment=!department||report.location===department;
 
         const matchesDate=!date||
-            new Date(report.createdAt)
-            .toISOString()
-            .substring(0,10)===date;
+            new Date(report.createdAt).toISOString().substring(0,10)===date;
 
         return matchesType&&matchesDepartment&&matchesDate;
     });
 }
 
 function formatDate(value){
-    if(!value){
-        return "-";
-    }
+    if(!value)return "-";
 
     return new Intl.DateTimeFormat("ar-KW",{
         dateStyle:"medium",
@@ -1264,19 +1137,13 @@ function mostFrequent(list,property){
 
     list.forEach(item=>{
         const value=item[property]||"غير محدد";
-
         counts[value]=(counts[value]||0)+1;
     });
 
     const result=Object.entries(counts)
         .sort((a,b)=>b[1]-a[1])[0];
 
-    return result
-        ?{
-            name:result[0],
-            count:result[1]
-        }
-        :null;
+    return result?{name:result[0],count:result[1]}:null;
 }
 
 function renderSettings(){
@@ -1285,9 +1152,7 @@ function renderSettings(){
             <div class="setting-item">
                 <span>${escapeHtml(item)}</span>
 
-                <button
-                    class="delete-item"
-                    onclick="deleteDepartment(${index})">
+                <button class="delete-item" onclick="deleteDepartment(${index})">
                     ×
                 </button>
             </div>
@@ -1298,9 +1163,7 @@ function renderSettings(){
             <div class="setting-item">
                 <span>${escapeHtml(item)}</span>
 
-                <button
-                    class="delete-item"
-                    onclick="deleteReportType(${index})">
+                <button class="delete-item" onclick="deleteReportType(${index})">
                     ×
                 </button>
             </div>
@@ -1376,21 +1239,10 @@ function deleteReportType(index){
 }
 
 function refreshAdmin(){
-    reports=JSON.parse(
-        localStorage.getItem(STORAGE_KEY)
-    )||[];
-
-    archivedReports=JSON.parse(
-        localStorage.getItem(ARCHIVE_KEY)
-    )||[];
-
-    departments=JSON.parse(
-        localStorage.getItem(DEPARTMENTS_KEY)
-    )||departments;
-
-    reportTypes=JSON.parse(
-        localStorage.getItem(TYPES_KEY)
-    )||reportTypes;
+    reports=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
+    archivedReports=JSON.parse(localStorage.getItem(ARCHIVE_KEY))||[];
+    departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||departments;
+    reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||reportTypes;
 
     loadFormOptions();
     loadFilterOptions();
@@ -1412,16 +1264,12 @@ function renderAdmin(){
     document.getElementById("todayReports").textContent=
         reports.filter(report=>
             report.createdAt&&
-            new Date(report.createdAt)
-            .toISOString()
-            .substring(0,10)===today
+            new Date(report.createdAt).toISOString().substring(0,10)===today
         ).length;
 
     document.getElementById("uniqueReporters").textContent=
         new Set(
-            reports
-            .map(report=>report.reporterName)
-            .filter(Boolean)
+            reports.map(report=>report.reporterName).filter(Boolean)
         ).size;
 
     const type=mostFrequent(reports,"type");
@@ -1429,24 +1277,16 @@ function renderAdmin(){
     const reporter=mostFrequent(reports,"reporterName");
 
     document.getElementById("mostType").textContent=
-        type
-        ?`${type.name} (${type.count})`
-        :"—";
+        type?`${type.name} (${type.count})`:"—";
 
     document.getElementById("topLocations").textContent=
-        location
-        ?`${location.name} — ${location.count} بلاغ`
-        :"لا توجد بيانات حالياً";
+        location?`${location.name} — ${location.count} بلاغ`:"لا توجد بيانات حالياً";
 
     document.getElementById("topReportType").textContent=
-        type
-        ?`${type.name} — ${type.count} بلاغ`
-        :"لا توجد بيانات حالياً";
+        type?`${type.name} — ${type.count} بلاغ`:"لا توجد بيانات حالياً";
 
     document.getElementById("topReporter").textContent=
-        reporter
-        ?`${reporter.name} — ${reporter.count} بلاغ`
-        :"لا توجد بيانات حالياً";
+        reporter?`${reporter.name} — ${reporter.count} بلاغ`:"لا توجد بيانات حالياً";
 
     if(!filtered.length){
         body.innerHTML=`
@@ -1456,28 +1296,20 @@ function renderAdmin(){
                 </td>
             </tr>
         `;
-
         return;
     }
 
     body.innerHTML=filtered.map(report=>`
         <tr>
             <td>
-                <span class="badge">
-                    ${escapeHtml(report.id)}
-                </span>
+                <span class="badge">${escapeHtml(report.id)}</span>
             </td>
 
             <td>${formatDate(report.createdAt)}</td>
-
             <td>${escapeHtml(report.location)}</td>
-
             <td>${escapeHtml(report.type)}</td>
-
             <td>${escapeHtml(report.description)}</td>
-
             <td>${escapeHtml(report.reporterName)}</td>
-
             <td>${escapeHtml(report.reporterPhone)}</td>
 
             <td>
@@ -1512,9 +1344,7 @@ function renderAdmin(){
 function completeReport(id){
     const report=reports.find(item=>item.id===id);
 
-    if(!report){
-        return;
-    }
+    if(!report)return;
 
     const technician=document
         .getElementById("technician-"+id)
@@ -1529,9 +1359,7 @@ function completeReport(id){
         return;
     }
 
-    if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟")){
-        return;
-    }
+    if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟"))return;
 
     archivedReports.unshift({
         ...report,
@@ -1571,16 +1399,8 @@ function exportExcel(){
     const sheet=XLSX.utils.json_to_sheet(rows);
     const book=XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(
-        book,
-        sheet,
-        "البلاغات الحالية"
-    );
-
-    XLSX.writeFile(
-        book,
-        "البلاغات_الحالية.xlsx"
-    );
+    XLSX.utils.book_append_sheet(book,sheet,"البلاغات الحالية");
+    XLSX.writeFile(book,"البلاغات_الحالية.xlsx");
 }
 
 function exportArchiveExcel(){
@@ -1606,22 +1426,10 @@ function exportArchiveExcel(){
     const sheet=XLSX.utils.json_to_sheet(rows);
     const book=XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(
-        book,
-        sheet,
-        "الأرشيف"
-    );
-
-    XLSX.writeFile(
-        book,
-        "أرشيف_البلاغات.xlsx"
-    );
+    XLSX.utils.book_append_sheet(book,sheet,"الأرشيف");
+    XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
 }
 
-/*
-    حذف الأرشيف فقط.
-    البلاغات الحالية لا يتم حذفها.
-*/
 function clearArchive(){
     if(!archivedReports.length){
         alert("لا توجد بلاغات مؤرشفة.");
@@ -1632,9 +1440,7 @@ function clearArchive(){
         "هل أنت متأكد من حذف جميع البلاغات الموجودة في الأرشيف؟\n\nلا يمكن التراجع عن هذا الإجراء."
     );
 
-    if(!confirmed){
-        return;
-    }
+    if(!confirmed)return;
 
     archivedReports=[];
 
