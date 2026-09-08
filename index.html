@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>بلاغ قسم الخدمات العامة</title>
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -130,15 +131,18 @@ button:hover{
 }
 
 .hero-buttons{
+    display:flex;
+    justify-content:center;
+    gap:13px;
+    flex-wrap:wrap;
+    margin-top:34px;
+}
+
+.admin-home-button{
     position:absolute;
     top:25px;
     right:5%;
     z-index:10;
-    display:flex;
-    align-items:center;
-    gap:13px;
-    flex-wrap:wrap;
-    margin:0;
 }
 
 .btn-primary,
@@ -511,11 +515,13 @@ footer{
         height:155px;
     }
 
+    .admin-home-button{
+        top:18px;
+        right:18px;
+    }
+
     .hero-buttons{
-        position:relative;
-        top:auto;
-        right:auto;
-        justify-content:center;
+        flex-direction:column;
         width:min(300px,100%);
         margin:34px auto 0;
     }
@@ -556,17 +562,14 @@ footer{
 
 <section id="homePage" class="page active">
     <div class="hero">
+
+        <button
+            class="btn-secondary admin-home-button"
+            onclick="showPage('adminPage')">
+            الصفحة الإدارية
+        </button>
+
         <div class="hero-content">
-            <div class="hero-buttons">
-                <button class="btn-primary" onclick="showPage('reportPage')">
-                    تقديم بلاغ
-                </button>
-
-                <button class="btn-secondary" onclick="showPage('adminPage')">
-                    الصفحة الإدارية
-                </button>
-            </div>
-
             <div class="logo-frame">
                 <img src="logo.png" alt="شعار شرطة الكويت">
             </div>
@@ -574,6 +577,12 @@ footer{
             <div class="hero-line"></div>
 
             <h1>بلاغ قسم الخدمات العامة</h1>
+
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="showPage('reportPage')">
+                    تقديم بلاغ
+                </button>
+            </div>
         </div>
     </div>
 
@@ -610,6 +619,7 @@ footer{
 
             <form id="reportForm">
                 <div class="form-grid">
+
                     <div class="field">
                         <label for="location">
                             الإدارة أو موقع البلاغ <span>*</span>
@@ -651,7 +661,11 @@ footer{
                             وصف المشكلة <span>*</span>
                         </label>
 
-                        <textarea id="description" required placeholder="اكتب وصفاً واضحاً للمشكلة..."></textarea>
+                        <textarea
+                            id="description"
+                            required
+                            placeholder="اكتب وصفاً واضحاً للمشكلة..."
+                        ></textarea>
                     </div>
 
                     <div class="field">
@@ -659,7 +673,12 @@ footer{
                             اسم المبلغ <span>*</span>
                         </label>
 
-                        <input id="reporterName" type="text" required placeholder="الاسم الكامل">
+                        <input
+                            id="reporterName"
+                            type="text"
+                            required
+                            placeholder="الاسم الكامل"
+                        >
                     </div>
 
                     <div class="field">
@@ -667,8 +686,14 @@ footer{
                             رقم المبلغ <span>*</span>
                         </label>
 
-                        <input id="reporterPhone" type="tel" required placeholder="رقم الهاتف">
+                        <input
+                            id="reporterPhone"
+                            type="tel"
+                            required
+                            placeholder="رقم الهاتف"
+                        >
                     </div>
+
                 </div>
 
                 <div class="submit-row">
@@ -693,7 +718,11 @@ footer{
         </div>
 
         <div class="topbar-actions">
-            <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
+            <button
+                id="logoutButton"
+                class="btn-secondary"
+                onclick="logoutAdmin()"
+                style="display:none">
                 تسجيل الخروج
             </button>
 
@@ -704,6 +733,7 @@ footer{
     </div>
 
     <main class="content">
+
         <div id="loginBox" class="card login-card">
             <h2 class="section-title">تسجيل الدخول</h2>
 
@@ -732,7 +762,10 @@ footer{
         </div>
 
         <div id="adminPanel" class="admin-panel">
-            <h2 class="section-title">قائمة البلاغات الحالية</h2>
+
+            <h2 class="section-title">
+                قائمة البلاغات الحالية
+            </h2>
 
             <div class="table-wrapper">
                 <table>
@@ -757,6 +790,7 @@ footer{
 
             <div class="toolbar">
                 <div class="filters">
+
                     <select id="typeFilter" onchange="renderAdmin()">
                         <option value="">كل أنواع البلاغات</option>
                     </select>
@@ -765,7 +799,12 @@ footer{
                         <option value="">كل الإدارات والمواقع</option>
                     </select>
 
-                    <input id="dateFilter" type="date" onchange="renderAdmin()">
+                    <input
+                        id="dateFilter"
+                        type="date"
+                        onchange="renderAdmin()"
+                    >
+
                 </div>
 
                 <button class="btn-primary" onclick="refreshAdmin()">
@@ -776,7 +815,9 @@ footer{
                     تنزيل البلاغات الحالية
                 </button>
 
-                <button class="btn-secondary archive-button" onclick="exportArchiveExcel()">
+                <button
+                    class="btn-secondary archive-button"
+                    onclick="exportArchiveExcel()">
                     تنزيل الأرشيف
                 </button>
 
@@ -793,13 +834,20 @@ footer{
                 </p>
 
                 <div class="settings-grid">
+
                     <div class="settings-box">
                         <h3>الإدارات والمواقع</h3>
 
                         <div class="add-row">
-                            <input id="newDepartment" type="text" placeholder="اسم الإدارة أو الموقع">
+                            <input
+                                id="newDepartment"
+                                type="text"
+                                placeholder="اسم الإدارة أو الموقع"
+                            >
 
-                            <button class="btn-primary" onclick="addDepartment()">
+                            <button
+                                class="btn-primary"
+                                onclick="addDepartment()">
                                 إضافة
                             </button>
                         </div>
@@ -811,19 +859,27 @@ footer{
                         <h3>أنواع البلاغات</h3>
 
                         <div class="add-row">
-                            <input id="newReportType" type="text" placeholder="نوع البلاغ">
+                            <input
+                                id="newReportType"
+                                type="text"
+                                placeholder="نوع البلاغ"
+                            >
 
-                            <button class="btn-primary" onclick="addReportType()">
+                            <button
+                                class="btn-primary"
+                                onclick="addReportType()">
                                 إضافة
                             </button>
                         </div>
 
                         <div id="reportTypesList" class="items-list"></div>
                     </div>
+
                 </div>
             </div>
 
             <div class="stats">
+
                 <div class="stat">
                     <small>إجمالي البلاغات الحالية</small>
                     <strong id="totalReports">0</strong>
@@ -843,9 +899,11 @@ footer{
                     <small>عدد المبلغين</small>
                     <strong id="uniqueReporters">0</strong>
                 </div>
+
             </div>
 
             <div class="summary">
+
                 <div class="summary-card">
                     <h3>أكثر المواقع طلباً للبلاغات</h3>
                     <p id="topLocations">لا توجد بيانات حالياً</p>
@@ -860,6 +918,7 @@ footer{
                     <h3>أكثر شخص يطلب إصلاحات</h3>
                     <p id="topReporter">لا توجد بيانات حالياً</p>
                 </div>
+
             </div>
 
             <div class="summary-card">
@@ -870,12 +929,14 @@ footer{
                     <strong id="archiveCount">0</strong>
                 </p>
             </div>
+
         </div>
     </main>
 </section>
 
 <script>
 const ADMIN_PASSWORD="1234";
+
 const STORAGE_KEY="public_services_reports";
 const ARCHIVE_KEY="public_services_archive";
 const DEPARTMENTS_KEY="public_services_departments";
@@ -946,11 +1007,17 @@ function escapeHtml(value){
 }
 
 function getNextReportId(){
-    const allReports=[...reports,...archivedReports];
+    const allReports=[
+        ...reports,
+        ...archivedReports
+    ];
 
     const highestExistingId=allReports.reduce((highest,report)=>{
         const match=String(report.id||"").match(/^BLG-\s+(\d+)$/i);
-        const number=match?Number(match[1]):0;
+
+        const number=match
+            ?Number(match[1])
+            :0;
 
         return Math.max(highest,number);
     },0);
@@ -962,48 +1029,62 @@ function loadFormOptions(){
     const location=document.getElementById("location");
     const type=document.getElementById("reportType");
 
-    location.innerHTML='<option value="">اختر الإدارة أو الموقع</option>';
+    location.innerHTML=
+        '<option value="">اختر الإدارة أو الموقع</option>';
 
     departments.forEach(item=>{
         const option=document.createElement("option");
+
         option.value=item;
         option.textContent=item;
+
         location.appendChild(option);
     });
 
-    location.innerHTML+='<option value="أخرى">أخرى</option>';
+    location.innerHTML+=
+        '<option value="أخرى">أخرى</option>';
 
-    type.innerHTML='<option value="">اختر نوع البلاغ</option>';
+    type.innerHTML=
+        '<option value="">اختر نوع البلاغ</option>';
 
     reportTypes.forEach(item=>{
         const option=document.createElement("option");
+
         option.value=item;
         option.textContent=item;
+
         type.appendChild(option);
     });
 
-    type.innerHTML+='<option value="أخرى">أخرى</option>';
+    type.innerHTML+=
+        '<option value="أخرى">أخرى</option>';
 }
 
 function loadFilterOptions(){
     const typeFilter=document.getElementById("typeFilter");
     const departmentFilter=document.getElementById("departmentFilter");
 
-    typeFilter.innerHTML='<option value="">كل أنواع البلاغات</option>';
+    typeFilter.innerHTML=
+        '<option value="">كل أنواع البلاغات</option>';
 
     reportTypes.forEach(item=>{
         const option=document.createElement("option");
+
         option.value=item;
         option.textContent=item;
+
         typeFilter.appendChild(option);
     });
 
-    departmentFilter.innerHTML='<option value="">كل الإدارات والمواقع</option>';
+    departmentFilter.innerHTML=
+        '<option value="">كل الإدارات والمواقع</option>';
 
     departments.forEach(item=>{
         const option=document.createElement("option");
+
         option.value=item;
         option.textContent=item;
+
         departmentFilter.appendChild(option);
     });
 }
@@ -1016,7 +1097,9 @@ function handleOtherLocation(){
     field.classList.toggle("show",selected==="أخرى");
     input.required=selected==="أخرى";
 
-    if(selected!=="أخرى")input.value="";
+    if(selected!=="أخرى"){
+        input.value="";
+    }
 }
 
 function handleOtherType(){
@@ -1027,64 +1110,105 @@ function handleOtherType(){
     field.classList.toggle("show",selected==="أخرى");
     input.required=selected==="أخرى";
 
-    if(selected!=="أخرى")input.value="";
+    if(selected!=="أخرى"){
+        input.value="";
+    }
 }
 
-document.getElementById("reportForm").addEventListener("submit",function(event){
-    event.preventDefault();
+document.getElementById("reportForm").addEventListener(
+    "submit",
+    function(event){
+        event.preventDefault();
 
-    let location=document.getElementById("location").value.trim();
-    let type=document.getElementById("reportType").value.trim();
+        let location=document
+            .getElementById("location")
+            .value
+            .trim();
 
-    if(location==="أخرى"){
-        location=document.getElementById("otherLocation").value.trim();
+        let type=document
+            .getElementById("reportType")
+            .value
+            .trim();
+
+        if(location==="أخرى"){
+            location=document
+                .getElementById("otherLocation")
+                .value
+                .trim();
+        }
+
+        if(type==="أخرى"){
+            type=document
+                .getElementById("otherType")
+                .value
+                .trim();
+        }
+
+        const report={
+            id:getNextReportId(),
+            location,
+            type,
+            description:document
+                .getElementById("description")
+                .value
+                .trim(),
+            reporterName:document
+                .getElementById("reporterName")
+                .value
+                .trim(),
+            reporterPhone:document
+                .getElementById("reporterPhone")
+                .value
+                .trim(),
+            technician:"",
+            notes:"",
+            status:"قيد التنفيذ",
+            createdAt:new Date().toISOString()
+        };
+
+        if(
+            !report.location||
+            !report.type||
+            !report.description||
+            !report.reporterName||
+            !report.reporterPhone
+        ){
+            showAlert(
+                "formAlert",
+                "يرجى تعبئة جميع الخانات المطلوبة.",
+                "error"
+            );
+
+            return;
+        }
+
+        reports.unshift(report);
+        saveAll();
+
+        this.reset();
+
+        document
+            .getElementById("otherLocationField")
+            .classList
+            .remove("show");
+
+        document
+            .getElementById("otherTypeField")
+            .classList
+            .remove("show");
+
+        showAlert(
+            "formAlert",
+            "تم إرسال البلاغ بنجاح. رقم البلاغ: "+report.id,
+            "success"
+        );
     }
-
-    if(type==="أخرى"){
-        type=document.getElementById("otherType").value.trim();
-    }
-
-    const report={
-        id:getNextReportId(),
-        location,
-        type,
-        description:document.getElementById("description").value.trim(),
-        reporterName:document.getElementById("reporterName").value.trim(),
-        reporterPhone:document.getElementById("reporterPhone").value.trim(),
-        technician:"",
-        notes:"",
-        status:"قيد التنفيذ",
-        createdAt:new Date().toISOString()
-    };
-
-    if(
-        !report.location||
-        !report.type||
-        !report.description||
-        !report.reporterName||
-        !report.reporterPhone
-    ){
-        showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
-        return;
-    }
-
-    reports.unshift(report);
-    saveAll();
-
-    this.reset();
-
-    document.getElementById("otherLocationField").classList.remove("show");
-    document.getElementById("otherTypeField").classList.remove("show");
-
-    showAlert(
-        "formAlert",
-        "تم إرسال البلاغ بنجاح. رقم البلاغ: "+report.id,
-        "success"
-    );
-});
+);
 
 function loginAdmin(){
-    const password=document.getElementById("adminPassword").value;
+    const password=document
+        .getElementById("adminPassword")
+        .value;
 
     if(password===ADMIN_PASSWORD){
         document.getElementById("loginBox").style.display="none";
@@ -1096,14 +1220,27 @@ function loginAdmin(){
         renderSettings();
         renderAdmin();
     }else{
-        showAlert("loginAlert","كلمة المرور غير صحيحة.","error");
+        showAlert(
+            "loginAlert",
+            "كلمة المرور غير صحيحة.",
+            "error"
+        );
     }
 }
 
 function logoutAdmin(){
-    document.getElementById("adminPanel").classList.remove("active");
-    document.getElementById("loginBox").style.display="block";
-    document.getElementById("logoutButton").style.display="none";
+    document.getElementById("adminPanel")
+        .classList
+        .remove("active");
+
+    document.getElementById("loginBox")
+        .style
+        .display="block";
+
+    document.getElementById("logoutButton")
+        .style
+        .display="none";
+
     document.getElementById("adminPassword").value="";
 }
 
@@ -1114,17 +1251,22 @@ function getFilteredReports(){
 
     return reports.filter(report=>{
         const matchesType=!type||report.type===type;
-        const matchesDepartment=!department||report.location===department;
+        const matchesDepartment=
+            !department||report.location===department;
 
         const matchesDate=!date||
-            new Date(report.createdAt).toISOString().substring(0,10)===date;
+            new Date(report.createdAt)
+            .toISOString()
+            .substring(0,10)===date;
 
         return matchesType&&matchesDepartment&&matchesDate;
     });
 }
 
 function formatDate(value){
-    if(!value)return "-";
+    if(!value){
+        return "-";
+    }
 
     return new Intl.DateTimeFormat("ar-KW",{
         dateStyle:"medium",
@@ -1137,13 +1279,19 @@ function mostFrequent(list,property){
 
     list.forEach(item=>{
         const value=item[property]||"غير محدد";
+
         counts[value]=(counts[value]||0)+1;
     });
 
     const result=Object.entries(counts)
         .sort((a,b)=>b[1]-a[1])[0];
 
-    return result?{name:result[0],count:result[1]}:null;
+    return result
+        ?{
+            name:result[0],
+            count:result[1]
+        }
+        :null;
 }
 
 function renderSettings(){
@@ -1152,7 +1300,9 @@ function renderSettings(){
             <div class="setting-item">
                 <span>${escapeHtml(item)}</span>
 
-                <button class="delete-item" onclick="deleteDepartment(${index})">
+                <button
+                    class="delete-item"
+                    onclick="deleteDepartment(${index})">
                     ×
                 </button>
             </div>
@@ -1163,7 +1313,9 @@ function renderSettings(){
             <div class="setting-item">
                 <span>${escapeHtml(item)}</span>
 
-                <button class="delete-item" onclick="deleteReportType(${index})">
+                <button
+                    class="delete-item"
+                    onclick="deleteReportType(${index})">
                     ×
                 </button>
             </div>
@@ -1239,10 +1391,21 @@ function deleteReportType(index){
 }
 
 function refreshAdmin(){
-    reports=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
-    archivedReports=JSON.parse(localStorage.getItem(ARCHIVE_KEY))||[];
-    departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||departments;
-    reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||reportTypes;
+    reports=JSON.parse(
+        localStorage.getItem(STORAGE_KEY)
+    )||[];
+
+    archivedReports=JSON.parse(
+        localStorage.getItem(ARCHIVE_KEY)
+    )||[];
+
+    departments=JSON.parse(
+        localStorage.getItem(DEPARTMENTS_KEY)
+    )||departments;
+
+    reportTypes=JSON.parse(
+        localStorage.getItem(TYPES_KEY)
+    )||reportTypes;
 
     loadFormOptions();
     loadFilterOptions();
@@ -1256,37 +1419,54 @@ function renderAdmin(){
     const body=document.getElementById("reportsTableBody");
     const filtered=getFilteredReports();
 
-    document.getElementById("totalReports").textContent=reports.length;
-    document.getElementById("archiveCount").textContent=archivedReports.length;
+    document.getElementById("totalReports")
+        .textContent=reports.length;
 
-    const today=new Date().toISOString().substring(0,10);
+    document.getElementById("archiveCount")
+        .textContent=archivedReports.length;
 
-    document.getElementById("todayReports").textContent=
-        reports.filter(report=>
+    const today=new Date()
+        .toISOString()
+        .substring(0,10);
+
+    document.getElementById("todayReports")
+        .textContent=reports.filter(report=>
             report.createdAt&&
-            new Date(report.createdAt).toISOString().substring(0,10)===today
+            new Date(report.createdAt)
+            .toISOString()
+            .substring(0,10)===today
         ).length;
 
-    document.getElementById("uniqueReporters").textContent=
-        new Set(
-            reports.map(report=>report.reporterName).filter(Boolean)
+    document.getElementById("uniqueReporters")
+        .textContent=new Set(
+            reports
+            .map(report=>report.reporterName)
+            .filter(Boolean)
         ).size;
 
     const type=mostFrequent(reports,"type");
     const location=mostFrequent(reports,"location");
     const reporter=mostFrequent(reports,"reporterName");
 
-    document.getElementById("mostType").textContent=
-        type?`${type.name} (${type.count})`:"—";
+    document.getElementById("mostType")
+        .textContent=type
+        ?`${type.name} (${type.count})`
+        :"—";
 
-    document.getElementById("topLocations").textContent=
-        location?`${location.name} — ${location.count} بلاغ`:"لا توجد بيانات حالياً";
+    document.getElementById("topLocations")
+        .textContent=location
+        ?`${location.name} — ${location.count} بلاغ`
+        :"لا توجد بيانات حالياً";
 
-    document.getElementById("topReportType").textContent=
-        type?`${type.name} — ${type.count} بلاغ`:"لا توجد بيانات حالياً";
+    document.getElementById("topReportType")
+        .textContent=type
+        ?`${type.name} — ${type.count} بلاغ`
+        :"لا توجد بيانات حالياً";
 
-    document.getElementById("topReporter").textContent=
-        reporter?`${reporter.name} — ${reporter.count} بلاغ`:"لا توجد بيانات حالياً";
+    document.getElementById("topReporter")
+        .textContent=reporter
+        ?`${reporter.name} — ${reporter.count} بلاغ`
+        :"لا توجد بيانات حالياً";
 
     if(!filtered.length){
         body.innerHTML=`
@@ -1296,13 +1476,16 @@ function renderAdmin(){
                 </td>
             </tr>
         `;
+
         return;
     }
 
     body.innerHTML=filtered.map(report=>`
         <tr>
             <td>
-                <span class="badge">${escapeHtml(report.id)}</span>
+                <span class="badge">
+                    ${escapeHtml(report.id)}
+                </span>
             </td>
 
             <td>${formatDate(report.createdAt)}</td>
@@ -1344,22 +1527,28 @@ function renderAdmin(){
 function completeReport(id){
     const report=reports.find(item=>item.id===id);
 
-    if(!report)return;
+    if(!report){
+        return;
+    }
 
     const technician=document
         .getElementById("technician-"+id)
-        .value.trim();
+        .value
+        .trim();
 
     const notes=document
         .getElementById("notes-"+id)
-        .value.trim();
+        .value
+        .trim();
 
     if(!technician){
         alert("يرجى كتابة اسم القائم بالإنجاز.");
         return;
     }
 
-    if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟"))return;
+    if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟")){
+        return;
+    }
 
     archivedReports.unshift({
         ...report,
@@ -1399,8 +1588,16 @@ function exportExcel(){
     const sheet=XLSX.utils.json_to_sheet(rows);
     const book=XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(book,sheet,"البلاغات الحالية");
-    XLSX.writeFile(book,"البلاغات_الحالية.xlsx");
+    XLSX.utils.book_append_sheet(
+        book,
+        sheet,
+        "البلاغات الحالية"
+    );
+
+    XLSX.writeFile(
+        book,
+        "البلاغات_الحالية.xlsx"
+    );
 }
 
 function exportArchiveExcel(){
@@ -1426,8 +1623,16 @@ function exportArchiveExcel(){
     const sheet=XLSX.utils.json_to_sheet(rows);
     const book=XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(book,sheet,"الأرشيف");
-    XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
+    XLSX.utils.book_append_sheet(
+        book,
+        sheet,
+        "الأرشيف"
+    );
+
+    XLSX.writeFile(
+        book,
+        "أرشيف_البلاغات.xlsx"
+    );
 }
 
 function clearArchive(){
@@ -1440,7 +1645,9 @@ function clearArchive(){
         "هل أنت متأكد من حذف جميع البلاغات الموجودة في الأرشيف؟\n\nلا يمكن التراجع عن هذا الإجراء."
     );
 
-    if(!confirmed)return;
+    if(!confirmed){
+        return;
+    }
 
     archivedReports=[];
 
