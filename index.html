@@ -49,7 +49,7 @@ button:hover{
 .page{display:none}
 .page.active{display:block}
 
-/* ================= HERO ================= */
+/* ======== HERO ======== */
 .hero{
     position:relative;
     min-height:620px;
@@ -159,7 +159,6 @@ button:hover{
 .btn-primary{
     color:#17202b;
     background:linear-gradient(135deg,var(--gold-light),var(--gold));
-    box-shadow:0 10px 22px rgba(200,169,81,.25);
 }
 
 .btn-secondary{
@@ -171,13 +170,11 @@ button:hover{
 .btn-danger{
     color:#fff;
     background:var(--danger);
-    box-shadow:0 10px 22px rgba(180,35,24,.18);
 }
 
 .btn-success{
     color:#fff;
     background:var(--success);
-    box-shadow:0 10px 22px rgba(20,122,75,.18);
 }
 
 .archive-button{
@@ -186,6 +183,7 @@ button:hover{
     border:1px solid #d9e0e9!important;
 }
 
+/* ======== TOPBAR / LAYOUT ======== */
 .topbar{
     min-height:86px;
     padding:16px 5%;
@@ -393,7 +391,7 @@ tr:hover td{background:#fafbfd}
     resize:vertical;
 }
 
-/* =================== STATS (UPDATED) =================== */
+/* ================== NEW STATS TILES ================== */
 .stats{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -401,61 +399,62 @@ tr:hover td{background:#fafbfd}
     margin:20px 0;
 }
 
-.stat{
+.stat-tile{
     position:relative;
-    padding:20px;
+    padding:18px 16px;
+    border-radius:14px;
     background:#fff;
-    border-radius:12px;
+    border:1px solid rgba(217,224,233,.9);
     box-shadow:0 6px 20px rgba(15,39,66,.06);
-    border:1px solid rgba(217,224,233,.8);
-    overflow:hidden;
-
-    /* يجعلها “مربعات” فيها ضغط */
-    text-align:center;
     cursor:pointer;
+    text-align:center;
 
-    /* حركة */
-    transform:translateZ(0);
-    animation: statIn .55s ease both;
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    overflow:hidden;
+    animation: tileIn .45s ease both;
 }
 
-@keyframes statIn{
+@keyframes tileIn{
     from{opacity:0; transform:translateY(10px) scale(.98)}
     to{opacity:1; transform:translateY(0) scale(1)}
 }
 
-.stat::before{
+.stat-tile:before{
     content:"";
     position:absolute;
-    top:-60px; left:-80px;
-    width:180px; height:180px;
-    background:radial-gradient(circle at center, rgba(200,169,81,.45), transparent 60%);
+    top:-70px;
+    left:-90px;
+    width:200px;
+    height:200px;
+    background:radial-gradient(circle at center, rgba(200,169,81,.35), transparent 60%);
     filter:blur(2px);
-    transition:.35s;
+    opacity:.65;
     pointer-events:none;
+    transition:.3s ease;
 }
 
-.stat::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(135deg, rgba(200,169,81,.18), transparent 45%);
-    opacity:.0;
-    transition:.35s;
-    pointer-events:none;
-}
+.stat-tile[data-accent="gold"]{ border-top:4px solid rgba(200,169,81,.95); }
+.stat-tile[data-accent="success"]{ border-top:4px solid rgba(20,122,75,.95); }
+.stat-tile[data-accent="navy"]{ border-top:4px solid rgba(7,26,51,.95); }
+.stat-tile[data-accent="danger"]{ border-top:4px solid rgba(180,35,24,.95); }
 
-.stat:hover{
+.stat-tile:hover{
     transform:translateY(-4px);
     box-shadow:0 16px 42px rgba(15,39,66,.10);
-    border-color:rgba(200,169,81,.55);
+    border-color:rgba(200,169,81,.6);
 }
 
-.stat:hover::before{transform:scale(1.08)}
-.stat:hover::after{opacity:1}
+.stat-tile:hover:before{
+    transform:scale(1.08);
+}
 
-.stat small{color:var(--muted); display:block; font-weight:bold}
-.stat strong{
+.stat-tile small{
+    color:var(--muted);
+    font-weight:bold;
+    display:block;
+}
+
+.stat-tile strong{
     display:block;
     margin-top:8px;
     color:var(--navy);
@@ -463,22 +462,27 @@ tr:hover td{background:#fafbfd}
     letter-spacing:.2px;
 }
 
-.stat .tile-actions{
-    display:flex;
-    justify-content:center;
-    gap:10px;
+.tile-actions{
     margin-top:14px;
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
 }
 
+/* أزرار التفاصيل/الطباعة داخل المربع */
 .tile-btn{
     padding:10px 12px;
     border-radius:10px;
     font-weight:bold;
     font-size:13px;
+
     border:1px solid rgba(217,224,233,.95);
     background:#f7f9fc;
     color:var(--navy);
     box-shadow:0 10px 20px rgba(15,39,66,.06);
+
+    transition:transform .2s ease, filter .2s ease;
 }
 
 .tile-btn:active{transform:translateY(0)}
@@ -488,13 +492,119 @@ tr:hover td{background:#fafbfd}
     background:linear-gradient(135deg,var(--gold-light),var(--gold));
 }
 
-/* خط ذهبي على حسب المربع (نخليه يبرز) */
-.stat[data-accent="gold"]{border-top:4px solid rgba(200,169,81,.95)}
-.stat[data-accent="success"]{border-top:4px solid rgba(20,122,75,.95)}
-.stat[data-accent="navy"]{border-top:4px solid rgba(7,26,51,.95)}
-.stat[data-accent="danger"]{border-top:4px solid rgba(180,35,24,.95)}
+/* ================== NEW MODAL ================== */
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(2,8,18,.55);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    z-index:9999;
+    backdrop-filter: blur(6px);
+}
 
-/* =================== SUMMARY =================== */
+.modal-overlay.show{display:flex}
+
+.modal{
+    width:min(980px, 100%);
+    background:#fff;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 30px 90px rgba(0,0,0,.35);
+    border:1px solid rgba(217,224,233,.9);
+
+    transform:translateY(10px) scale(.98);
+    opacity:0;
+    animation: modalIn .18s ease both;
+}
+
+@keyframes modalIn{
+    to{transform:translateY(0) scale(1); opacity:1}
+}
+
+.modal-header{
+    padding:16px 18px;
+    background:linear-gradient(135deg,var(--navy),var(--navy-light));
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.modal-header h3{margin:0; font-size:16px}
+
+.modal-tools{display:flex; gap:10px; align-items:center}
+
+.modal-close{
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.25);
+    color:#fff;
+    border-radius:10px;
+    padding:10px 12px;
+    font-weight:bold;
+}
+
+.modal-body{
+    padding:16px 18px 18px;
+    max-height:72vh;
+    overflow:auto;
+}
+
+.detail-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.detail-kpi{
+    background:#f7f9fc;
+    border:1px solid #edf0f4;
+    border-radius:12px;
+    padding:12px;
+}
+
+.detail-kpi small{color:var(--muted); display:block; font-weight:bold}
+.detail-kpi strong{display:block; margin-top:8px; color:var(--navy); font-size:18px}
+
+.detail-list{
+    padding:12px;
+    border-radius:12px;
+    background:#fff;
+    border:1px solid #edf0f4;
+}
+
+.detail-list table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.detail-list th{
+    background:#f2f5f9;
+    color:var(--navy);
+    font-weight:bold;
+    padding:10px;
+    border-bottom:1px solid #e7edf5;
+    text-align:right;
+}
+
+.detail-list td{
+    padding:10px;
+    border-bottom:1px solid #f0f3f8;
+    color:#2a3b52;
+    vertical-align:top;
+}
+
+.muted-note{
+    color:var(--muted);
+    font-size:13px;
+    margin:10px 0 0;
+}
+
+/* ================== SUMMARY / SETTINGS (باقي الكود كما هو) ================== */
 .summary{
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -589,125 +699,10 @@ footer{
     text-align:center;
 }
 
-/* =================== MODAL (UPDATED) =================== */
-.modal-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(2,8,18,.55);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-    z-index:9999;
-    backdrop-filter: blur(6px);
+@media(max-width:1100px){
+    .stats{grid-template-columns:repeat(2,1fr)}
 }
 
-.modal-overlay.show{display:flex}
-
-.modal{
-    width:min(860px, 100%);
-    background:#fff;
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow:0 30px 90px rgba(0,0,0,.35);
-    transform:translateY(10px) scale(.98);
-    opacity:0;
-    animation: modalIn .18s ease both;
-    border:1px solid rgba(217,224,233,.9);
-}
-
-@keyframes modalIn{
-    to{transform:translateY(0) scale(1); opacity:1}
-}
-
-.modal-header{
-    padding:16px 18px;
-    background:linear-gradient(135deg,var(--navy),var(--navy-light));
-    color:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-}
-
-.modal-header h3{
-    margin:0;
-    font-size:16px;
-}
-
-.modal-tools{
-    display:flex;
-    gap:10px;
-    align-items:center;
-}
-
-.modal-close{
-    background:rgba(255,255,255,.1);
-    border:1px solid rgba(255,255,255,.25);
-    color:#fff;
-    border-radius:10px;
-    padding:10px 12px;
-    font-weight:bold;
-}
-
-.modal-body{
-    padding:16px 18px 18px;
-    max-height:70vh;
-    overflow:auto;
-}
-
-.detail-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:12px;
-    margin-bottom:14px;
-}
-
-.detail-kpi{
-    background:#f7f9fc;
-    border:1px solid #edf0f4;
-    border-radius:12px;
-    padding:12px;
-}
-
-.detail-kpi small{color:var(--muted); display:block; font-weight:bold}
-.detail-kpi strong{display:block; margin-top:8px; color:var(--navy); font-size:18px}
-
-.detail-list{
-    margin-top:10px;
-    padding:12px;
-    border-radius:12px;
-    background:#fff;
-    border:1px solid #edf0f4;
-}
-
-.detail-list table{
-    width:100%;
-    min-width:auto;
-    border-collapse:collapse;
-}
-
-.detail-list th{
-    background:#f2f5f9;
-    color:var(--navy);
-    font-weight:bold;
-    padding:10px;
-    border-bottom:1px solid #e7edf5;
-}
-
-.detail-list td{
-    border-bottom:1px solid #f0f3f8;
-    padding:10px;
-    color:#2a3b52;
-}
-
-.muted-note{
-    color:var(--muted);
-    font-size:13px;
-    margin:10px 0 0;
-}
-
-/* =================== RESPONSIVE =================== */
 @media(max-width:800px){
     .hero{min-height:570px}
 
@@ -746,23 +741,16 @@ footer{
 
     .form-grid,
     .filters,
-    .stats,
     .summary,
     .settings-grid{
         grid-template-columns:1fr;
-    }
-
-    .stats{
-        gap:12px;
     }
 
     .field.full{grid-column:auto}
     .add-row{flex-direction:column}
     .toolbar button{width:100%}
 
-    .detail-grid{
-        grid-template-columns:1fr;
-    }
+    .detail-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -1087,90 +1075,64 @@ footer{
                 </div>
             </div>
 
-            <!-- ================= STATS TILES (UPDATED) ================= -->
+            <!-- ================== STATS (UPDATED) ================== -->
             <div class="stats">
-                <div class="stat"
-                     data-accent="gold"
-                     role="button"
-                     tabindex="0"
+                <div class="stat-tile" data-accent="gold"
+                     role="button" tabindex="0"
                      onclick="openStatsDetails('total')"
                      onkeydown="if(event.key==='Enter')openStatsDetails('total')">
-
                     <small>إجمالي البلاغات الحالية</small>
                     <strong id="totalReports">0</strong>
 
                     <div class="tile-actions" onclick="event.stopPropagation()">
-                        <button class="tile-btn" onclick="openStatsDetails('total')">
-                            تفاصيل
-                        </button>
-                        <button class="tile-btn primary" onclick="printStats('total')">
-                            طباعة
-                        </button>
+                        <button class="tile-btn" onclick="openStatsDetails('total')">تفاصيل</button>
+                        <button class="tile-btn primary" onclick="printStats('total')">طباعة</button>
                     </div>
                 </div>
 
-                <div class="stat"
-                     data-accent="success"
-                     role="button"
-                     tabindex="0"
+                <div class="stat-tile" data-accent="success"
+                     role="button" tabindex="0"
                      onclick="openStatsDetails('today')"
                      onkeydown="if(event.key==='Enter')openStatsDetails('today')">
-
                     <small>بلاغات اليوم</small>
                     <strong id="todayReports">0</strong>
 
                     <div class="tile-actions" onclick="event.stopPropagation()">
-                        <button class="tile-btn" onclick="openStatsDetails('today')">
-                            تفاصيل
-                        </button>
-                        <button class="tile-btn primary" onclick="printStats('today')">
-                            طباعة
-                        </button>
+                        <button class="tile-btn" onclick="openStatsDetails('today')">تفاصيل</button>
+                        <button class="tile-btn primary" onclick="printStats('today')">طباعة</button>
                     </div>
                 </div>
 
-                <div class="stat"
-                     data-accent="navy"
-                     role="button"
-                     tabindex="0"
+                <div class="stat-tile" data-accent="navy"
+                     role="button" tabindex="0"
                      onclick="openStatsDetails('mostType')"
                      onkeydown="if(event.key==='Enter')openStatsDetails('mostType')">
-
                     <small>أكثر نوع بلاغ</small>
                     <strong id="mostType">-</strong>
 
                     <div class="tile-actions" onclick="event.stopPropagation()">
-                        <button class="tile-btn" onclick="openStatsDetails('mostType')">
-                            تفاصيل
-                        </button>
-                        <button class="tile-btn primary" onclick="printStats('mostType')">
-                            طباعة
-                        </button>
+                        <button class="tile-btn" onclick="openStatsDetails('mostType')">تفاصيل</button>
+                        <button class="tile-btn primary" onclick="printStats('mostType')">طباعة</button>
                     </div>
                 </div>
 
-                <div class="stat"
-                     data-accent="danger"
-                     role="button"
-                     tabindex="0"
+                <div class="stat-tile" data-accent="danger"
+                     role="button" tabindex="0"
                      onclick="openStatsDetails('uniqueReporters')"
                      onkeydown="if(event.key==='Enter')openStatsDetails('uniqueReporters')">
-
                     <small>عدد المبلغين</small>
                     <strong id="uniqueReporters">0</strong>
 
                     <div class="tile-actions" onclick="event.stopPropagation()">
-                        <button class="tile-btn" onclick="openStatsDetails('uniqueReporters')">
-                            تفاصيل
-                        </button>
-                        <button class="tile-btn primary" onclick="printStats('uniqueReporters')">
-                            طباعة
-                        </button>
+                        <button class="tile-btn" onclick="openStatsDetails('uniqueReporters')">تفاصيل</button>
+                        <button class="tile-btn primary" onclick="printStats('uniqueReporters')">طباعة</button>
                     </div>
                 </div>
             </div>
+            <!-- ================== /STATS ================== -->
 
             <div class="summary">
+
                 <div class="summary-card">
                     <h3>أكثر المواقع طلباً للبلاغات</h3>
                     <p id="topLocations">لا توجد بيانات حالياً</p>
@@ -1201,29 +1163,27 @@ footer{
     </main>
 </section>
 
-<!-- ================= MODAL MARKUP (NEW) ================= -->
+<!-- ================== STATS MODAL (NEW) ================== -->
 <div id="statsModalOverlay" class="modal-overlay" onclick="closeStatsDetails(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <h3 id="statsModalTitle">التفاصيل</h3>
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 id="statsModalTitle">التفاصيل</h3>
 
-      <div class="modal-tools">
-        <button class="tile-btn" style="background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.22); color:#fff;"
-                onclick="printStats(statsModalState.type)">
-          طباعة
-        </button>
-        <button class="modal-close" onclick="closeStatsDetails()">
-          إغلاق
-        </button>
-      </div>
-    </div>
+            <div class="modal-tools">
+                <button class="tile-btn primary" style="padding:10px 14px;"
+                        onclick="printStats(statsModalState.type)">
+                    طباعة
+                </button>
+                <button class="modal-close" onclick="closeStatsDetails()">إغلاق</button>
+            </div>
+        </div>
 
-    <div class="modal-body">
-      <div class="detail-grid" id="statsModalKpis"></div>
-      <div class="detail-list" id="statsModalTableWrap"></div>
-      <div class="muted-note" id="statsModalNote"></div>
+        <div class="modal-body">
+            <div class="detail-grid" id="statsModalKpis"></div>
+            <div class="detail-list" id="statsModalTableWrap"></div>
+            <div class="muted-note" id="statsModalNote"></div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
@@ -1399,99 +1359,50 @@ function handleOtherType(){
     }
 }
 
-document.getElementById("reportForm").addEventListener(
-    "submit",
-    function(event){
-        event.preventDefault();
+document.getElementById("reportForm").addEventListener("submit", function(event){
+    event.preventDefault();
 
-        let location=document
-            .getElementById("location")
-            .value
-            .trim();
+    let location=document.getElementById("location").value.trim();
+    let type=document.getElementById("reportType").value.trim();
 
-        let type=document
-            .getElementById("reportType")
-            .value
-            .trim();
-
-        if(location==="أخرى"){
-            location=document
-                .getElementById("otherLocation")
-                .value
-                .trim();
-        }
-
-        if(type==="أخرى"){
-            type=document
-                .getElementById("otherType")
-                .value
-                .trim();
-        }
-
-        const report={
-            id:getNextReportId(),
-            location,
-            type,
-            description:document
-                .getElementById("description")
-                .value
-                .trim(),
-            reporterName:document
-                .getElementById("reporterName")
-                .value
-                .trim(),
-            reporterPhone:document
-                .getElementById("reporterPhone")
-                .value
-                .trim(),
-            technician:"",
-            notes:"",
-            status:"قيد التنفيذ",
-            createdAt:new Date().toISOString()
-        };
-
-        if(
-            !report.location||
-            !report.type||
-            !report.description||
-            !report.reporterName||
-            !report.reporterPhone
-        ){
-            showAlert(
-                "formAlert",
-                "يرجى تعبئة جميع الخانات المطلوبة.",
-                "error"
-            );
-            return;
-        }
-
-        reports.unshift(report);
-        saveAll();
-
-        this.reset();
-
-        document
-            .getElementById("otherLocationField")
-            .classList
-            .remove("show");
-
-        document
-            .getElementById("otherTypeField")
-            .classList
-            .remove("show");
-
-        showAlert(
-            "formAlert",
-            "تم إرسال البلاغ بنجاح. رقم البلاغ: "+report.id,
-            "success"
-        );
+    if(location==="أخرى"){
+        location=document.getElementById("otherLocation").value.trim();
     }
-);
+    if(type==="أخرى"){
+        type=document.getElementById("otherType").value.trim();
+    }
+
+    const report={
+        id:getNextReportId(),
+        location,
+        type,
+        description:document.getElementById("description").value.trim(),
+        reporterName:document.getElementById("reporterName").value.trim(),
+        reporterPhone:document.getElementById("reporterPhone").value.trim(),
+        technician:"",
+        notes:"",
+        status:"قيد التنفيذ",
+        createdAt:new Date().toISOString()
+    };
+
+    if(!report.location||!report.type||!report.description||!report.reporterName||!report.reporterPhone){
+        showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
+        return;
+    }
+
+    reports.unshift(report);
+    saveAll();
+
+    this.reset();
+
+    document.getElementById("otherLocationField").classList.remove("show");
+    document.getElementById("otherTypeField").classList.remove("show");
+
+    showAlert("formAlert","تم إرسال البلاغ بنجاح. رقم البلاغ: "+report.id,"success");
+});
 
 function loginAdmin(){
-    const password=document
-        .getElementById("adminPassword")
-        .value;
+    const password=document.getElementById("adminPassword").value;
 
     if(password===ADMIN_PASSWORD){
         document.getElementById("loginBox").style.display="none";
@@ -1508,18 +1419,9 @@ function loginAdmin(){
 }
 
 function logoutAdmin(){
-    document.getElementById("adminPanel")
-        .classList
-        .remove("active");
-
-    document.getElementById("loginBox")
-        .style
-        .display="block";
-
-    document.getElementById("logoutButton")
-        .style
-        .display="none";
-
+    document.getElementById("adminPanel").classList.remove("active");
+    document.getElementById("loginBox").style.display="block";
+    document.getElementById("logoutButton").style.display="none";
     document.getElementById("adminPassword").value="";
 }
 
@@ -1540,16 +1442,12 @@ function getFilteredReports(){
 }
 
 function formatDate(value){
-    if(!value){return "-";}
-    return new Intl.DateTimeFormat("ar-KW",{
-        dateStyle:"medium",
-        timeStyle:"short"
-    }).format(new Date(value));
+    if(!value){ return "-"; }
+    return new Intl.DateTimeFormat("ar-KW",{dateStyle:"medium", timeStyle:"short"}).format(new Date(value));
 }
 
 function mostFrequent(list,property){
     const counts={};
-
     list.forEach(item=>{
         const value=item[property]||"غير محدد";
         counts[value]=(counts[value]||0)+1;
@@ -1558,9 +1456,7 @@ function mostFrequent(list,property){
     const result=Object.entries(counts)
         .sort((a,b)=>b[1]-a[1])[0];
 
-    return result
-        ?{ name:result[0], count:result[1] }
-        :null;
+    return result ? {name:result[0], count:result[1]} : null;
 }
 
 function renderSettings(){
@@ -1636,6 +1532,7 @@ function deleteReportType(index){
 function refreshAdmin(){
     reports=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
     archivedReports=JSON.parse(localStorage.getItem(ARCHIVE_KEY))||[];
+
     departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||departments;
     reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||reportTypes;
 
@@ -1651,11 +1548,11 @@ function renderAdmin(){
     const body=document.getElementById("reportsTableBody");
     const filtered=getFilteredReports();
 
+    // الأرقام في المربعات (نفس الموجود عندك سابقاً)
     document.getElementById("totalReports").textContent=reports.length;
     document.getElementById("archiveCount").textContent=archivedReports.length;
 
     const today=new Date().toISOString().substring(0,10);
-
     document.getElementById("todayReports").textContent=
         reports.filter(report=>
             report.createdAt &&
@@ -1663,7 +1560,7 @@ function renderAdmin(){
         ).length;
 
     document.getElementById("uniqueReporters").textContent=
-        new Set(reports.map(r=>r.reporterName).filter(Boolean)).size;
+        new Set(reports.map(report=>report.reporterName).filter(Boolean)).size;
 
     const type=mostFrequent(reports,"type");
     const location=mostFrequent(reports,"location");
@@ -1673,23 +1570,18 @@ function renderAdmin(){
         type ? `${type.name} (${type.count})` : "—";
 
     document.getElementById("topLocations").textContent=
-        location ? `${location.name} — ${location.count} بلاغ`
-                : "لا توجد بيانات حالياً";
+        location ? `${location.name} — ${location.count} بلاغ` : "لا توجد بيانات حالياً";
 
     document.getElementById("topReportType").textContent=
-        type ? `${type.name} — ${type.count} بلاغ`
-             : "لا توجد بيانات حالياً";
+        type ? `${type.name} — ${type.count} بلاغ` : "لا توجد بيانات حالياً";
 
     document.getElementById("topReporter").textContent=
-        reporter ? `${reporter.name} — ${reporter.count} بلاغ`
-                 : "لا توجد بيانات حالياً";
+        reporter ? `${reporter.name} — ${reporter.count} بلاغ` : "لا توجد بيانات حالياً";
 
     if(!filtered.length){
         body.innerHTML=`
             <tr>
-                <td colspan="10" class="empty">
-                    لا توجد بلاغات مطابقة للفلاتر.
-                </td>
+                <td colspan="10" class="empty">لا توجد بلاغات مطابقة للفلاتر.</td>
             </tr>
         `;
         return;
@@ -1697,9 +1589,7 @@ function renderAdmin(){
 
     body.innerHTML=filtered.map(report=>`
         <tr>
-            <td>
-                <span class="badge">${escapeHtml(report.id)}</span>
-            </td>
+            <td><span class="badge">${escapeHtml(report.id)}</span></td>
             <td>${formatDate(report.createdAt)}</td>
             <td>${escapeHtml(report.location)}</td>
             <td>${escapeHtml(report.type)}</td>
@@ -1726,9 +1616,7 @@ function renderAdmin(){
             </td>
 
             <td>
-                <button
-                    class="btn-success"
-                    onclick="completeReport('${report.id}')">
+                <button class="btn-success" onclick="completeReport('${report.id}')">
                     تم الإنجاز
                 </button>
             </td>
@@ -1808,9 +1696,7 @@ function exportArchiveExcel(){
 function clearArchive(){
     if(!archivedReports.length){ alert("لا توجد بلاغات مؤرشفة."); return; }
 
-    const confirmed=confirm(
-        "هل أنت متأكد من حذف جميع البلاغات الموجودة في الأرشيف؟\n\nلا يمكن التراجع عن هذا الإجراء."
-    );
+    const confirmed=confirm("هل أنت متأكد من حذف جميع البلاغات الموجودة في الأرشيف؟\n\nلا يمكن التراجع عن هذا الإجراء.");
     if(!confirmed){ return; }
 
     archivedReports=[];
@@ -1819,13 +1705,19 @@ function clearArchive(){
     alert("تم حذف الأرشيف بنجاح.");
 }
 
-/* =================== STATS DETAILS + PRINT (NEW) =================== */
+/* ================== STATS MODAL + PRINT (NEW) ================== */
 const statsModalState={ type:null };
 
-function closeStatsDetails(event){
-    const overlay=document.getElementById("statsModalOverlay");
-    overlay.classList.remove("show");
+function closeStatsDetails(){
+    document.getElementById("statsModalOverlay").classList.remove("show");
     statsModalState.type=null;
+}
+function closeStatsDetails(event){
+    if(event && event.target && event.target.id==="statsModalOverlay"){
+        closeStatsDetails();
+    }else if(!event){
+        closeStatsDetails();
+    }
 }
 
 function openStatsDetails(type){
@@ -1840,36 +1732,62 @@ function openStatsDetails(type){
         mostType:"أكثر نوع بلاغ",
         uniqueReporters:"عدد المبلغين"
     };
-
     document.getElementById("statsModalTitle").textContent=titleMap[type] || "التفاصيل";
 
+    const filtered=getFilteredReports(); // ✅ التفاصيل حسب الفلاتر
     const kpis=document.getElementById("statsModalKpis");
     const wrap=document.getElementById("statsModalTableWrap");
     const note=document.getElementById("statsModalNote");
 
-    // نستخدم reports (بدون فلاتر) لأن المربعات عامة.
-    // إذا تبغى تخليها “حسب الفلاتر” قلّي وأعدّل المنطق.
+    // util للجدول
+    function tablePreview(list){
+        if(!list.length){
+            return `<div class="muted-note">لا توجد بيانات لعرضها.</div>`;
+        }
+        return `
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم البلاغ</th>
+                        <th>التاريخ</th>
+                        <th>الإدارة/الموقع</th>
+                        <th>النوع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${list.map(r=>`
+                        <tr>
+                            <td>${escapeHtml(r.id)}</td>
+                            <td>${escapeHtml(formatDate(r.createdAt))}</td>
+                            <td>${escapeHtml(r.location)}</td>
+                            <td>${escapeHtml(r.type)}</td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+
     if(type==="total"){
-        const list=[...reports].slice(0,10);
+        const list=[...filtered].slice(0,10);
 
         kpis.innerHTML=`
             <div class="detail-kpi">
-                <small>إجمالي البلاغات</small>
-                <strong>${reports.length}</strong>
+                <small>إجمالي البلاغات (حسب الفلاتر)</small>
+                <strong>${filtered.length}</strong>
             </div>
             <div class="detail-kpi">
-                <small>آخر بلاغ مضاف</small>
-                <strong>${reports[0] ? escapeHtml(reports[0].id) : "—"}</strong>
+                <small>آخر بلاغ مضاف (حسب الفلاتر)</small>
+                <strong>${filtered[0] ? escapeHtml(filtered[0].id) : "—"}</strong>
             </div>
         `;
-
-        wrap.innerHTML=renderReportsPreviewTable(list);
-        note.textContent="عرض آخر 10 بلاغات (للتفاصيل الكاملة استخدم قائمة البلاغات أو التصدير).";
+        wrap.innerHTML=tablePreview(list);
+        note.textContent="عرض آخر 10 بلاغات حسب الفلاتر الحالية.";
     }
 
     if(type==="today"){
         const today=new Date().toISOString().substring(0,10);
-        const list=reports
+        const list=filtered
             .filter(r=>r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today)
             .slice(0,15);
 
@@ -1879,27 +1797,24 @@ function openStatsDetails(type){
                 <strong>${today}</strong>
             </div>
             <div class="detail-kpi">
-                <small>عدد بلاغات اليوم</small>
+                <small>عدد بلاغات اليوم (حسب الفلاتر)</small>
                 <strong>${list.length}</strong>
             </div>
         `;
-
-        wrap.innerHTML=renderReportsPreviewTable(list);
-        note.textContent="عرض آخر بلاغات اليوم (حتى 15 عنصر).";
+        wrap.innerHTML=tablePreview(list);
+        note.textContent="عرض آخر بلاغات اليوم (حتى 15) حسب الفلاتر الحالية.";
     }
 
     if(type==="mostType"){
-        const top=mostFrequent(reports,"type");
+        const top=mostFrequent(filtered,"type");
         const typeName=top?.name || "غير محدد";
         const count=top?.count || 0;
 
-        const list=reports
-            .filter(r=>r.type===typeName)
-            .slice(0,15);
+        const list=filtered.filter(r=>r.type===typeName).slice(0,15);
 
         kpis.innerHTML=`
             <div class="detail-kpi">
-                <small>النوع</small>
+                <small>النوع (حسب الفلاتر)</small>
                 <strong>${escapeHtml(typeName)}</strong>
             </div>
             <div class="detail-kpi">
@@ -1907,30 +1822,32 @@ function openStatsDetails(type){
                 <strong>${count}</strong>
             </div>
         `;
-
-        wrap.innerHTML=renderReportsPreviewTable(list);
-        note.textContent="عرض آخر 15 بلاغاً لنفس النوع.";
+        wrap.innerHTML=tablePreview(list);
+        note.textContent="عرض آخر 15 بلاغاً لنفس النوع حسب الفلاتر الحالية.";
     }
 
     if(type==="uniqueReporters"){
-        const names=[...new Set(reports.map(r=>r.reporterName).filter(Boolean))];
         const mapCount={};
-        reports.forEach(r=>{
+        filtered.forEach(r=>{
             const name=r.reporterName||"غير محدد";
             mapCount[name]=(mapCount[name]||0)+1;
         });
 
         const sorted=Object.entries(mapCount).sort((a,b)=>b[1]-a[1]);
+        const totalPeople=sorted.length;
+
+        const topName=sorted[0]?.[0] || null;
+
         const preview=sorted.slice(0,12).map(([name,c])=>({name,c}));
 
         kpis.innerHTML=`
             <div class="detail-kpi">
-                <small>عدد المبلغين</small>
-                <strong>${names.length}</strong>
+                <small>عدد المبلغين (حسب الفلاتر)</small>
+                <strong>${totalPeople}</strong>
             </div>
             <div class="detail-kpi">
                 <small>أكثر مبلغ طلباً</small>
-                <strong>${sorted[0] ? escapeHtml(sorted[0][0]) : "—"}</strong>
+                <strong>${topName ? escapeHtml(topName) : "—"}</strong>
             </div>
         `;
 
@@ -1943,110 +1860,211 @@ function openStatsDetails(type){
                     </tr>
                 </thead>
                 <tbody>
-                    ${preview.length ? preview.map(row=>`
-                        <tr>
-                            <td>${escapeHtml(row.name)}</td>
-                            <td>${row.c}</td>
-                        </tr>
-                    `).join("") : `
-                        <tr><td colspan="2">لا توجد بيانات</td></tr>
-                    `}
+                    ${
+                        preview.length
+                        ? preview.map(row=>`
+                            <tr>
+                                <td>${escapeHtml(row.name)}</td>
+                                <td>${row.c}</td>
+                            </tr>
+                        `).join("")
+                        : `<tr><td colspan="2">لا توجد بيانات</td></tr>`
+                    }
                 </tbody>
             </table>
         `;
-
-        note.textContent="عرض أفضل 12 شخص حسب عدد البلاغات.";
+        note.textContent="عرض أفضل 12 شخص حسب عدد البلاغات حسب الفلاتر الحالية.";
     }
-}
-
-function renderReportsPreviewTable(list){
-    if(!list.length){
-        return `<div class="muted-note">لا توجد بيانات لعرضها.</div>`;
-    }
-
-    return `
-      <table>
-        <thead>
-          <tr>
-            <th>رقم البلاغ</th>
-            <th>التاريخ</th>
-            <th>الإدارة/الموقع</th>
-            <th>النوع</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${list.map(r=>`
-            <tr>
-              <td>${escapeHtml(r.id)}</td>
-              <td>${escapeHtml(formatDate(r.createdAt))}</td>
-              <td>${escapeHtml(r.location)}</td>
-              <td>${escapeHtml(r.type)}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
 }
 
 function printStats(type){
-    // نجهز المحتوى المناسب ثم نطبعه في نافذة جديدة
-    statsModalState.type=type;
-    const tempOverlay=document.getElementById("statsModalOverlay");
+    const filtered=getFilteredReports(); // ✅ حسب الفلاتر
 
-    // افتح/حدث المحتوى أولاً (عشان يكون عندنا نفس الجدول)
-    openStatsDetails(type);
+    const titleMap={
+        total:"إجمالي البلاغات الحالية",
+        today:"بلاغات اليوم",
+        mostType:"أكثر نوع بلاغ",
+        uniqueReporters:"عدد المبلغين"
+    };
+    const title=titleMap[type] || "التفاصيل";
 
-    const title=document.getElementById("statsModalTitle").textContent;
-    const kpis=document.getElementById("statsModalKpis").innerHTML;
-    const tableWrap=document.getElementById("statsModalTableWrap").innerHTML;
-    const note=document.getElementById("statsModalNote").textContent;
+    function tablePreview(list){
+        if(!list.length){
+            return `<div style="color:#718096; margin-top:12px;">لا توجد بيانات</div>`;
+        }
 
-    const html=`
-      <html lang="ar" dir="rtl">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>${escapeHtml(title)}</title>
-        <style>
-          body{font-family:Tahoma,Arial,sans-serif; padding:22px; color:#0b1b33;}
-          h2{margin:0 0 10px; color:#071a33}
-          .kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:14px 0;}
-          .kpi{border:1px solid #e7edf5; border-radius:12px; padding:12px; background:#f7f9fc;}
-          .kpi small{display:block; font-weight:bold; color:#718096}
-          .kpi strong{display:block; margin-top:6px; font-size:18px}
-          table{width:100%; border-collapse:collapse; margin-top:12px;}
-          th{background:#f2f5f9; border-bottom:1px solid #e7edf5; padding:10px; text-align:right; color:#071a33;}
-          td{border-bottom:1px solid #f0f3f8; padding:10px; vertical-align:top;}
-          .note{margin-top:10px; color:#718096; font-size:13px}
-          @media print { .no-print{display:none;} }
-        </style>
-      </head>
-      <body>
-        <h2>${escapeHtml(title)}</h2>
-        <div class="kpis">${kpis}</div>
-        ${tableWrap}
-        <div class="note">${escapeHtml(note||"")}</div>
-        <script>
-          window.onload = function(){
+        return `
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم البلاغ</th>
+                        <th>التاريخ</th>
+                        <th>الإدارة/الموقع</th>
+                        <th>النوع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${list.map(r=>`
+                        <tr>
+                            <td>${escapeHtml(r.id)}</td>
+                            <td>${escapeHtml(formatDate(r.createdAt))}</td>
+                            <td>${escapeHtml(r.location)}</td>
+                            <td>${escapeHtml(r.type)}</td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+
+    let kpisHtml="";
+    let tableHtml="";
+    let noteText="";
+
+    if(type==="total"){
+        const list=[...filtered].slice(0,10);
+        kpisHtml=`
+            <div class="kpi">
+                <div class="small">إجمالي البلاغات (حسب الفلاتر)</div>
+                <div class="strong">${filtered.length}</div>
+            </div>
+            <div class="kpi">
+                <div class="small">آخر بلاغ مضاف (حسب الفلاتر)</div>
+                <div class="strong">${filtered[0] ? escapeHtml(filtered[0].id) : "—"}</div>
+            </div>
+        `;
+        tableHtml=tablePreview(list);
+        noteText="عرض آخر 10 بلاغات حسب الفلاتر الحالية.";
+    }
+
+    if(type==="today"){
+        const today=new Date().toISOString().substring(0,10);
+        const list=filtered.filter(r=>r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today).slice(0,15);
+
+        kpisHtml=`
+            <div class="kpi">
+                <div class="small">تاريخ اليوم</div>
+                <div class="strong">${today}</div>
+            </div>
+            <div class="kpi">
+                <div class="small">عدد بلاغات اليوم (حسب الفلاتر)</div>
+                <div class="strong">${list.length}</div>
+            </div>
+        `;
+        tableHtml=tablePreview(list);
+        noteText="عرض آخر بلاغات اليوم (حتى 15) حسب الفلاتر الحالية.";
+    }
+
+    if(type==="mostType"){
+        const top=mostFrequent(filtered,"type");
+        const typeName=top?.name || "غير محدد";
+        const count=top?.count || 0;
+
+        const list=filtered.filter(r=>r.type===typeName).slice(0,15);
+
+        kpisHtml=`
+            <div class="kpi">
+                <div class="small">النوع (حسب الفلاتر)</div>
+                <div class="strong">${escapeHtml(typeName)}</div>
+            </div>
+            <div class="kpi">
+                <div class="small">عدد البلاغات</div>
+                <div class="strong">${count}</div>
+            </div>
+        `;
+        tableHtml=tablePreview(list);
+        noteText="عرض آخر 15 بلاغاً لنفس النوع حسب الفلاتر الحالية.";
+    }
+
+    if(type==="uniqueReporters"){
+        const mapCount={};
+        filtered.forEach(r=>{
+            const name=r.reporterName||"غير محدد";
+            mapCount[name]=(mapCount[name]||0)+1;
+        });
+
+        const sorted=Object.entries(mapCount).sort((a,b)=>b[1]-a[1]);
+        const totalPeople=sorted.length;
+        const topName=sorted[0]?.[0] || null;
+        const preview=sorted.slice(0,12).map(([name,c])=>({name,c}));
+
+        kpisHtml=`
+            <div class="kpi">
+                <div class="small">عدد المبلغين (حسب الفلاتر)</div>
+                <div class="strong">${totalPeople}</div>
+            </div>
+            <div class="kpi">
+                <div class="small">أكثر مبلغ طلباً</div>
+                <div class="strong">${topName ? escapeHtml(topName) : "—"}</div>
+            </div>
+        `;
+
+        tableHtml=`
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم المبلغ</th>
+                        <th>عدد البلاغات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${
+                        preview.length
+                        ? preview.map(row=>`
+                            <tr>
+                                <td>${escapeHtml(row.name)}</td>
+                                <td>${row.c}</td>
+                            </tr>
+                        `).join("")
+                        : `<tr><td colspan="2">لا توجد بيانات</td></tr>`
+                    }
+                </tbody>
+            </table>
+        `;
+        noteText="عرض أفضل 12 شخص حسب عدد البلاغات حسب الفلاتر الحالية.";
+    }
+
+    const html = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>${escapeHtml(title)}</title>
+<style>
+    body{font-family:Tahoma,Arial,sans-serif; padding:22px; color:#0b1b33;}
+    h2{margin:0 0 12px; color:#071a33;}
+    .kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:14px 0;}
+    .kpi{border:1px solid #e7edf5; border-radius:12px; padding:12px; background:#f7f9fc;}
+    .small{display:block; font-weight:bold; color:#718096;}
+    .strong{display:block; margin-top:6px; font-size:18px; color:#071a33;}
+    table{width:100%; border-collapse:collapse; margin-top:12px;}
+    th{background:#f2f5f9; border-bottom:1px solid #e7edf5; padding:10px; text-align:right; color:#071a33;}
+    td{border-bottom:1px solid #f0f3f8; padding:10px; vertical-align:top;}
+    .note{margin-top:10px; color:#718096; font-size:13px}
+</style>
+</head>
+<body>
+    <h2>${escapeHtml(title)}</h2>
+    <div class="kpis">${kpisHtml}</div>
+    ${tableHtml}
+    <div class="note">${escapeHtml(noteText)}</div>
+
+    <script>
+        window.onload = function(){
             window.print();
             window.close();
-          }
-        </script>
-      </body>
-      </html>
+        };
+   
     `;
 
     const w=window.open("", "_blank", "width=900,height=650");
     w.document.open();
     w.document.write(html);
     w.document.close();
-
-    // لا نغلق الـmodal هنا لأن openStatsDetails فتحه؛ تقدر تغلقه لو تبي:
-    // tempOverlay.classList.remove("show");
-  }
 }
 
-/* close modal with ESC */
+// اغلاق بالـ ESC
 document.addEventListener("keydown", (e)=>{
     if(e.key==="Escape"){
         const overlay=document.getElementById("statsModalOverlay");
