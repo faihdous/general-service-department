@@ -366,17 +366,13 @@ td{
   border-bottom:1px solid #edf0f4;
 }
 
-tbody tr{
-  animation: rowIn .22s ease-out both;
-}
+tbody tr{ animation: rowIn .22s ease-out both; }
 @keyframes rowIn{
   from{ opacity:0; transform: translateY(6px) }
   to{ opacity:1; transform: translateY(0) }
 }
 
-tr:hover td{
-  background:#fbfcff;
-}
+tr:hover td{ background:#fbfcff; }
 
 .badge{
   display:inline-block;
@@ -416,10 +412,7 @@ tr:hover td{
   overflow:hidden;
 }
 
-.clickable-box{
-  cursor:pointer;
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-}
+.clickable-box{ cursor:pointer; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
 .clickable-box::after{
   content:"";
   position:absolute;
@@ -487,8 +480,6 @@ tr:hover td{
 }
 .summary-card h3{ margin-top:0; color:var(--navy); font-size:16px }
 .summary-card p{ color:#536477; line-height:1.8 }
-
-/* extra small archive row card */
 .summary-card.archiveWide{ grid-column: 1 / -1; }
 
 /* =========================
@@ -548,8 +539,8 @@ tr:hover td{
   border-radius:10px;
   padding:7px 12px;
 }
-
 .modal-body{ padding:16px }
+
 .modal-actions{
   padding:14px 16px;
   border-top:1px solid #edf0f4;
@@ -560,16 +551,8 @@ tr:hover td{
   flex-wrap:wrap;
 }
 .modal-actions button{ padding:10px 16px; border-radius:10px; font-weight:bold; }
+.summary-modal-row{ margin-top:10px; color:#1a2a40; line-height:1.95; }
 
-.summary-modal-row{
-  margin-top:10px;
-  color:#1a2a40;
-  line-height:1.95;
-}
-
-/* =========================
-   Footer
-========================= */
 footer{
   padding:25px 15px;
   color:rgba(255,255,255,.75);
@@ -1091,9 +1074,7 @@ const settingsExtraCSS = `
 .items-list{ display:flex; flex-wrap:wrap; gap:8px; }
 .setting-item{ display:flex; align-items:center; gap:7px; padding:7px 10px; color:var(--navy); font-size:13px; background:#edf2f8; border-radius:20px; }
 .delete-item{ padding:2px 7px; color:#fff; background:var(--danger); border-radius:50%; font-weight:bold; line-height:1; }
-@media(max-width:800px){
-  .settings-grid{ grid-template-columns:1fr; }
-}
+@media(max-width:800px){ .settings-grid{ grid-template-columns:1fr; } }
 .archive-button{ color:#17202b!important; background:#fff!important; border:1px solid var(--border)!important; }
 `;
 const styleEl=document.createElement('style');
@@ -1183,9 +1164,7 @@ function renderAdmin(){
   if(!current.length){
     body.innerHTML=`
       <tr>
-        <td colspan="10" class="empty">
-          لا توجد بلاغات حالياً.
-        </td>
+        <td colspan="10" class="empty">لا توجد بلاغات حالياً.</td>
       </tr>
     `;
     return;
@@ -1200,7 +1179,6 @@ function renderAdmin(){
       <td>${escapeHtml(report.description)}</td>
       <td>${escapeHtml(report.reporterName)}</td>
       <td>${escapeHtml(report.reporterPhone)}</td>
-
       <td>
         <input
           class="admin-input"
@@ -1210,7 +1188,6 @@ function renderAdmin(){
           value="${escapeHtml(report.technician)}"
         />
       </td>
-
       <td>
         <textarea
           class="admin-input notes-input"
@@ -1218,11 +1195,8 @@ function renderAdmin(){
           placeholder="الملاحظات"
         >${escapeHtml(report.notes)}</textarea>
       </td>
-
       <td>
-        <button class="btn-success" onclick="completeReport('${report.id}')">
-          تم الإنجاز
-        </button>
+        <button class="btn-success" onclick="completeReport('${report.id}')">تم الإنجاز</button>
       </td>
     </tr>
   `).join("");
@@ -1430,7 +1404,7 @@ function printSummaryBoxes(){
 
   const cellStyle="border:1px solid #444; border-radius:12px; padding:12px; background:#fff;";
 
-  const w = window.open("","_blank");
+  const w=window.open("","_blank");
   if(!w){
     alert("تعذر فتح نافذة الطباعة. تأكد من السماح بالنوافذ المنبثقة.");
     return;
@@ -1443,11 +1417,7 @@ function printSummaryBoxes(){
       <style>
         body{font-family:Tahoma,Arial; direction:rtl; padding:18px; color:#0a2a4a;}
         h2{margin:0 0 14px;}
-        .wrap{
-          display:grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap:12px;
-        }
+        .wrap{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
         .box{ ${cellStyle} page-break-inside: avoid; }
         .k{ font-weight:bold; margin-bottom:6px; }
         .v{ font-size:16px; color:#17283d; font-weight:bold; }
