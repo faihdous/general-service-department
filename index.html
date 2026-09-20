@@ -49,6 +49,7 @@ button:hover{
 .page{display:none}
 .page.active{display:block}
 
+/* ================= HERO ================= */
 .hero{
     position:relative;
     min-height:620px;
@@ -158,6 +159,7 @@ button:hover{
 .btn-primary{
     color:#17202b;
     background:linear-gradient(135deg,var(--gold-light),var(--gold));
+    box-shadow:0 10px 22px rgba(200,169,81,.25);
 }
 
 .btn-secondary{
@@ -169,11 +171,13 @@ button:hover{
 .btn-danger{
     color:#fff;
     background:var(--danger);
+    box-shadow:0 10px 22px rgba(180,35,24,.18);
 }
 
 .btn-success{
     color:#fff;
     background:var(--success);
+    box-shadow:0 10px 22px rgba(20,122,75,.18);
 }
 
 .archive-button{
@@ -389,6 +393,7 @@ tr:hover td{background:#fafbfd}
     resize:vertical;
 }
 
+/* =================== STATS (UPDATED) =================== */
 .stats{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -397,22 +402,99 @@ tr:hover td{background:#fafbfd}
 }
 
 .stat{
+    position:relative;
     padding:20px;
     background:#fff;
-    border-right:4px solid var(--gold);
     border-radius:12px;
     box-shadow:0 6px 20px rgba(15,39,66,.06);
+    border:1px solid rgba(217,224,233,.8);
+    overflow:hidden;
+
+    /* يجعلها “مربعات” فيها ضغط */
+    text-align:center;
+    cursor:pointer;
+
+    /* حركة */
+    transform:translateZ(0);
+    animation: statIn .55s ease both;
 }
 
-.stat small{color:var(--muted)}
+@keyframes statIn{
+    from{opacity:0; transform:translateY(10px) scale(.98)}
+    to{opacity:1; transform:translateY(0) scale(1)}
+}
 
+.stat::before{
+    content:"";
+    position:absolute;
+    top:-60px; left:-80px;
+    width:180px; height:180px;
+    background:radial-gradient(circle at center, rgba(200,169,81,.45), transparent 60%);
+    filter:blur(2px);
+    transition:.35s;
+    pointer-events:none;
+}
+
+.stat::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg, rgba(200,169,81,.18), transparent 45%);
+    opacity:.0;
+    transition:.35s;
+    pointer-events:none;
+}
+
+.stat:hover{
+    transform:translateY(-4px);
+    box-shadow:0 16px 42px rgba(15,39,66,.10);
+    border-color:rgba(200,169,81,.55);
+}
+
+.stat:hover::before{transform:scale(1.08)}
+.stat:hover::after{opacity:1}
+
+.stat small{color:var(--muted); display:block; font-weight:bold}
 .stat strong{
     display:block;
     margin-top:8px;
     color:var(--navy);
     font-size:25px;
+    letter-spacing:.2px;
 }
 
+.stat .tile-actions{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:14px;
+}
+
+.tile-btn{
+    padding:10px 12px;
+    border-radius:10px;
+    font-weight:bold;
+    font-size:13px;
+    border:1px solid rgba(217,224,233,.95);
+    background:#f7f9fc;
+    color:var(--navy);
+    box-shadow:0 10px 20px rgba(15,39,66,.06);
+}
+
+.tile-btn:active{transform:translateY(0)}
+.tile-btn.primary{
+    color:#17202b;
+    border-color:rgba(200,169,81,.55);
+    background:linear-gradient(135deg,var(--gold-light),var(--gold));
+}
+
+/* خط ذهبي على حسب المربع (نخليه يبرز) */
+.stat[data-accent="gold"]{border-top:4px solid rgba(200,169,81,.95)}
+.stat[data-accent="success"]{border-top:4px solid rgba(20,122,75,.95)}
+.stat[data-accent="navy"]{border-top:4px solid rgba(7,26,51,.95)}
+.stat[data-accent="danger"]{border-top:4px solid rgba(180,35,24,.95)}
+
+/* =================== SUMMARY =================== */
 .summary{
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -507,6 +589,125 @@ footer{
     text-align:center;
 }
 
+/* =================== MODAL (UPDATED) =================== */
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(2,8,18,.55);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    z-index:9999;
+    backdrop-filter: blur(6px);
+}
+
+.modal-overlay.show{display:flex}
+
+.modal{
+    width:min(860px, 100%);
+    background:#fff;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 30px 90px rgba(0,0,0,.35);
+    transform:translateY(10px) scale(.98);
+    opacity:0;
+    animation: modalIn .18s ease both;
+    border:1px solid rgba(217,224,233,.9);
+}
+
+@keyframes modalIn{
+    to{transform:translateY(0) scale(1); opacity:1}
+}
+
+.modal-header{
+    padding:16px 18px;
+    background:linear-gradient(135deg,var(--navy),var(--navy-light));
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.modal-header h3{
+    margin:0;
+    font-size:16px;
+}
+
+.modal-tools{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.modal-close{
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.25);
+    color:#fff;
+    border-radius:10px;
+    padding:10px 12px;
+    font-weight:bold;
+}
+
+.modal-body{
+    padding:16px 18px 18px;
+    max-height:70vh;
+    overflow:auto;
+}
+
+.detail-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.detail-kpi{
+    background:#f7f9fc;
+    border:1px solid #edf0f4;
+    border-radius:12px;
+    padding:12px;
+}
+
+.detail-kpi small{color:var(--muted); display:block; font-weight:bold}
+.detail-kpi strong{display:block; margin-top:8px; color:var(--navy); font-size:18px}
+
+.detail-list{
+    margin-top:10px;
+    padding:12px;
+    border-radius:12px;
+    background:#fff;
+    border:1px solid #edf0f4;
+}
+
+.detail-list table{
+    width:100%;
+    min-width:auto;
+    border-collapse:collapse;
+}
+
+.detail-list th{
+    background:#f2f5f9;
+    color:var(--navy);
+    font-weight:bold;
+    padding:10px;
+    border-bottom:1px solid #e7edf5;
+}
+
+.detail-list td{
+    border-bottom:1px solid #f0f3f8;
+    padding:10px;
+    color:#2a3b52;
+}
+
+.muted-note{
+    color:var(--muted);
+    font-size:13px;
+    margin:10px 0 0;
+}
+
+/* =================== RESPONSIVE =================== */
 @media(max-width:800px){
     .hero{min-height:570px}
 
@@ -551,9 +752,17 @@ footer{
         grid-template-columns:1fr;
     }
 
+    .stats{
+        gap:12px;
+    }
+
     .field.full{grid-column:auto}
     .add-row{flex-direction:column}
     .toolbar button{width:100%}
+
+    .detail-grid{
+        grid-template-columns:1fr;
+    }
 }
 </style>
 </head>
@@ -878,32 +1087,90 @@ footer{
                 </div>
             </div>
 
+            <!-- ================= STATS TILES (UPDATED) ================= -->
             <div class="stats">
+                <div class="stat"
+                     data-accent="gold"
+                     role="button"
+                     tabindex="0"
+                     onclick="openStatsDetails('total')"
+                     onkeydown="if(event.key==='Enter')openStatsDetails('total')">
 
-                <div class="stat">
                     <small>إجمالي البلاغات الحالية</small>
                     <strong id="totalReports">0</strong>
+
+                    <div class="tile-actions" onclick="event.stopPropagation()">
+                        <button class="tile-btn" onclick="openStatsDetails('total')">
+                            تفاصيل
+                        </button>
+                        <button class="tile-btn primary" onclick="printStats('total')">
+                            طباعة
+                        </button>
+                    </div>
                 </div>
 
-                <div class="stat">
+                <div class="stat"
+                     data-accent="success"
+                     role="button"
+                     tabindex="0"
+                     onclick="openStatsDetails('today')"
+                     onkeydown="if(event.key==='Enter')openStatsDetails('today')">
+
                     <small>بلاغات اليوم</small>
                     <strong id="todayReports">0</strong>
+
+                    <div class="tile-actions" onclick="event.stopPropagation()">
+                        <button class="tile-btn" onclick="openStatsDetails('today')">
+                            تفاصيل
+                        </button>
+                        <button class="tile-btn primary" onclick="printStats('today')">
+                            طباعة
+                        </button>
+                    </div>
                 </div>
 
-                <div class="stat">
+                <div class="stat"
+                     data-accent="navy"
+                     role="button"
+                     tabindex="0"
+                     onclick="openStatsDetails('mostType')"
+                     onkeydown="if(event.key==='Enter')openStatsDetails('mostType')">
+
                     <small>أكثر نوع بلاغ</small>
                     <strong id="mostType">-</strong>
+
+                    <div class="tile-actions" onclick="event.stopPropagation()">
+                        <button class="tile-btn" onclick="openStatsDetails('mostType')">
+                            تفاصيل
+                        </button>
+                        <button class="tile-btn primary" onclick="printStats('mostType')">
+                            طباعة
+                        </button>
+                    </div>
                 </div>
 
-                <div class="stat">
+                <div class="stat"
+                     data-accent="danger"
+                     role="button"
+                     tabindex="0"
+                     onclick="openStatsDetails('uniqueReporters')"
+                     onkeydown="if(event.key==='Enter')openStatsDetails('uniqueReporters')">
+
                     <small>عدد المبلغين</small>
                     <strong id="uniqueReporters">0</strong>
-                </div>
 
+                    <div class="tile-actions" onclick="event.stopPropagation()">
+                        <button class="tile-btn" onclick="openStatsDetails('uniqueReporters')">
+                            تفاصيل
+                        </button>
+                        <button class="tile-btn primary" onclick="printStats('uniqueReporters')">
+                            طباعة
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="summary">
-
                 <div class="summary-card">
                     <h3>أكثر المواقع طلباً للبلاغات</h3>
                     <p id="topLocations">لا توجد بيانات حالياً</p>
@@ -933,6 +1200,31 @@ footer{
         </div>
     </main>
 </section>
+
+<!-- ================= MODAL MARKUP (NEW) ================= -->
+<div id="statsModalOverlay" class="modal-overlay" onclick="closeStatsDetails(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="statsModalTitle">التفاصيل</h3>
+
+      <div class="modal-tools">
+        <button class="tile-btn" style="background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.22); color:#fff;"
+                onclick="printStats(statsModalState.type)">
+          طباعة
+        </button>
+        <button class="modal-close" onclick="closeStatsDetails()">
+          إغلاق
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <div class="detail-grid" id="statsModalKpis"></div>
+      <div class="detail-list" id="statsModalTableWrap"></div>
+      <div class="muted-note" id="statsModalNote"></div>
+    </div>
+  </div>
+</div>
 
 <script>
 const ADMIN_PASSWORD="1234";
@@ -1034,10 +1326,8 @@ function loadFormOptions(){
 
     departments.forEach(item=>{
         const option=document.createElement("option");
-
         option.value=item;
         option.textContent=item;
-
         location.appendChild(option);
     });
 
@@ -1049,10 +1339,8 @@ function loadFormOptions(){
 
     reportTypes.forEach(item=>{
         const option=document.createElement("option");
-
         option.value=item;
         option.textContent=item;
-
         type.appendChild(option);
     });
 
@@ -1069,10 +1357,8 @@ function loadFilterOptions(){
 
     reportTypes.forEach(item=>{
         const option=document.createElement("option");
-
         option.value=item;
         option.textContent=item;
-
         typeFilter.appendChild(option);
     });
 
@@ -1081,10 +1367,8 @@ function loadFilterOptions(){
 
     departments.forEach(item=>{
         const option=document.createElement("option");
-
         option.value=item;
         option.textContent=item;
-
         departmentFilter.appendChild(option);
     });
 }
@@ -1178,7 +1462,6 @@ document.getElementById("reportForm").addEventListener(
                 "يرجى تعبئة جميع الخانات المطلوبة.",
                 "error"
             );
-
             return;
         }
 
@@ -1220,11 +1503,7 @@ function loginAdmin(){
         renderSettings();
         renderAdmin();
     }else{
-        showAlert(
-            "loginAlert",
-            "كلمة المرور غير صحيحة.",
-            "error"
-        );
+        showAlert("loginAlert","كلمة المرور غير صحيحة.","error");
     }
 }
 
@@ -1251,23 +1530,17 @@ function getFilteredReports(){
 
     return reports.filter(report=>{
         const matchesType=!type||report.type===type;
-        const matchesDepartment=
-            !department||report.location===department;
+        const matchesDepartment=!department||report.location===department;
 
         const matchesDate=!date||
-            new Date(report.createdAt)
-            .toISOString()
-            .substring(0,10)===date;
+            new Date(report.createdAt).toISOString().substring(0,10)===date;
 
         return matchesType&&matchesDepartment&&matchesDate;
     });
 }
 
 function formatDate(value){
-    if(!value){
-        return "-";
-    }
-
+    if(!value){return "-";}
     return new Intl.DateTimeFormat("ar-KW",{
         dateStyle:"medium",
         timeStyle:"short"
@@ -1279,7 +1552,6 @@ function mostFrequent(list,property){
 
     list.forEach(item=>{
         const value=item[property]||"غير محدد";
-
         counts[value]=(counts[value]||0)+1;
     });
 
@@ -1287,10 +1559,7 @@ function mostFrequent(list,property){
         .sort((a,b)=>b[1]-a[1])[0];
 
     return result
-        ?{
-            name:result[0],
-            count:result[1]
-        }
+        ?{ name:result[0], count:result[1] }
         :null;
 }
 
@@ -1299,12 +1568,7 @@ function renderSettings(){
         departments.map((item,index)=>`
             <div class="setting-item">
                 <span>${escapeHtml(item)}</span>
-
-                <button
-                    class="delete-item"
-                    onclick="deleteDepartment(${index})">
-                    ×
-                </button>
+                <button class="delete-item" onclick="deleteDepartment(${index})">×</button>
             </div>
         `).join("");
 
@@ -1312,12 +1576,7 @@ function renderSettings(){
         reportTypes.map((item,index)=>`
             <div class="setting-item">
                 <span>${escapeHtml(item)}</span>
-
-                <button
-                    class="delete-item"
-                    onclick="deleteReportType(${index})">
-                    ×
-                </button>
+                <button class="delete-item" onclick="deleteReportType(${index})">×</button>
             </div>
         `).join("");
 }
@@ -1326,15 +1585,8 @@ function addDepartment(){
     const input=document.getElementById("newDepartment");
     const value=input.value.trim();
 
-    if(!value){
-        alert("اكتب اسم الإدارة أولاً.");
-        return;
-    }
-
-    if(departments.includes(value)){
-        alert("هذه الإدارة موجودة مسبقاً.");
-        return;
-    }
+    if(!value){ alert("اكتب اسم الإدارة أولاً."); return; }
+    if(departments.includes(value)){ alert("هذه الإدارة موجودة مسبقاً."); return; }
 
     departments.push(value);
     input.value="";
@@ -1349,15 +1601,8 @@ function addReportType(){
     const input=document.getElementById("newReportType");
     const value=input.value.trim();
 
-    if(!value){
-        alert("اكتب نوع البلاغ أولاً.");
-        return;
-    }
-
-    if(reportTypes.includes(value)){
-        alert("هذا النوع موجود مسبقاً.");
-        return;
-    }
+    if(!value){ alert("اكتب نوع البلاغ أولاً."); return; }
+    if(reportTypes.includes(value)){ alert("هذا النوع موجود مسبقاً."); return; }
 
     reportTypes.push(value);
     input.value="";
@@ -1371,7 +1616,6 @@ function addReportType(){
 function deleteDepartment(index){
     if(confirm("هل تريد حذف هذه الإدارة؟")){
         departments.splice(index,1);
-
         saveAll();
         loadFormOptions();
         loadFilterOptions();
@@ -1382,7 +1626,6 @@ function deleteDepartment(index){
 function deleteReportType(index){
     if(confirm("هل تريد حذف نوع البلاغ هذا؟")){
         reportTypes.splice(index,1);
-
         saveAll();
         loadFormOptions();
         loadFilterOptions();
@@ -1391,21 +1634,10 @@ function deleteReportType(index){
 }
 
 function refreshAdmin(){
-    reports=JSON.parse(
-        localStorage.getItem(STORAGE_KEY)
-    )||[];
-
-    archivedReports=JSON.parse(
-        localStorage.getItem(ARCHIVE_KEY)
-    )||[];
-
-    departments=JSON.parse(
-        localStorage.getItem(DEPARTMENTS_KEY)
-    )||departments;
-
-    reportTypes=JSON.parse(
-        localStorage.getItem(TYPES_KEY)
-    )||reportTypes;
+    reports=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
+    archivedReports=JSON.parse(localStorage.getItem(ARCHIVE_KEY))||[];
+    departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||departments;
+    reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||reportTypes;
 
     loadFormOptions();
     loadFilterOptions();
@@ -1419,54 +1651,38 @@ function renderAdmin(){
     const body=document.getElementById("reportsTableBody");
     const filtered=getFilteredReports();
 
-    document.getElementById("totalReports")
-        .textContent=reports.length;
+    document.getElementById("totalReports").textContent=reports.length;
+    document.getElementById("archiveCount").textContent=archivedReports.length;
 
-    document.getElementById("archiveCount")
-        .textContent=archivedReports.length;
+    const today=new Date().toISOString().substring(0,10);
 
-    const today=new Date()
-        .toISOString()
-        .substring(0,10);
-
-    document.getElementById("todayReports")
-        .textContent=reports.filter(report=>
-            report.createdAt&&
-            new Date(report.createdAt)
-            .toISOString()
-            .substring(0,10)===today
+    document.getElementById("todayReports").textContent=
+        reports.filter(report=>
+            report.createdAt &&
+            new Date(report.createdAt).toISOString().substring(0,10)===today
         ).length;
 
-    document.getElementById("uniqueReporters")
-        .textContent=new Set(
-            reports
-            .map(report=>report.reporterName)
-            .filter(Boolean)
-        ).size;
+    document.getElementById("uniqueReporters").textContent=
+        new Set(reports.map(r=>r.reporterName).filter(Boolean)).size;
 
     const type=mostFrequent(reports,"type");
     const location=mostFrequent(reports,"location");
     const reporter=mostFrequent(reports,"reporterName");
 
-    document.getElementById("mostType")
-        .textContent=type
-        ?`${type.name} (${type.count})`
-        :"—";
+    document.getElementById("mostType").textContent=
+        type ? `${type.name} (${type.count})` : "—";
 
-    document.getElementById("topLocations")
-        .textContent=location
-        ?`${location.name} — ${location.count} بلاغ`
-        :"لا توجد بيانات حالياً";
+    document.getElementById("topLocations").textContent=
+        location ? `${location.name} — ${location.count} بلاغ`
+                : "لا توجد بيانات حالياً";
 
-    document.getElementById("topReportType")
-        .textContent=type
-        ?`${type.name} — ${type.count} بلاغ`
-        :"لا توجد بيانات حالياً";
+    document.getElementById("topReportType").textContent=
+        type ? `${type.name} — ${type.count} بلاغ`
+             : "لا توجد بيانات حالياً";
 
-    document.getElementById("topReporter")
-        .textContent=reporter
-        ?`${reporter.name} — ${reporter.count} بلاغ`
-        :"لا توجد بيانات حالياً";
+    document.getElementById("topReporter").textContent=
+        reporter ? `${reporter.name} — ${reporter.count} بلاغ`
+                 : "لا توجد بيانات حالياً";
 
     if(!filtered.length){
         body.innerHTML=`
@@ -1476,18 +1692,14 @@ function renderAdmin(){
                 </td>
             </tr>
         `;
-
         return;
     }
 
     body.innerHTML=filtered.map(report=>`
         <tr>
             <td>
-                <span class="badge">
-                    ${escapeHtml(report.id)}
-                </span>
+                <span class="badge">${escapeHtml(report.id)}</span>
             </td>
-
             <td>${formatDate(report.createdAt)}</td>
             <td>${escapeHtml(report.location)}</td>
             <td>${escapeHtml(report.type)}</td>
@@ -1526,29 +1738,13 @@ function renderAdmin(){
 
 function completeReport(id){
     const report=reports.find(item=>item.id===id);
+    if(!report){ return; }
 
-    if(!report){
-        return;
-    }
+    const technician=document.getElementById("technician-"+id).value.trim();
+    const notes=document.getElementById("notes-"+id).value.trim();
 
-    const technician=document
-        .getElementById("technician-"+id)
-        .value
-        .trim();
-
-    const notes=document
-        .getElementById("notes-"+id)
-        .value
-        .trim();
-
-    if(!technician){
-        alert("يرجى كتابة اسم القائم بالإنجاز.");
-        return;
-    }
-
-    if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟")){
-        return;
-    }
+    if(!technician){ alert("يرجى كتابة اسم القائم بالإنجاز."); return; }
+    if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟")){ return; }
 
     archivedReports.unshift({
         ...report,
@@ -1562,17 +1758,12 @@ function completeReport(id){
 
     saveAll();
     renderAdmin();
-
     alert("تم إنهاء البلاغ وأرشفته بنجاح.");
 }
 
 function exportExcel(){
     const data=getFilteredReports();
-
-    if(!data.length){
-        alert("لا توجد بلاغات حالية لتصديرها.");
-        return;
-    }
+    if(!data.length){ alert("لا توجد بلاغات حالية لتصديرها."); return; }
 
     const rows=data.map(report=>({
         "رقم البلاغ":report.id,
@@ -1587,24 +1778,12 @@ function exportExcel(){
 
     const sheet=XLSX.utils.json_to_sheet(rows);
     const book=XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(
-        book,
-        sheet,
-        "البلاغات الحالية"
-    );
-
-    XLSX.writeFile(
-        book,
-        "البلاغات_الحالية.xlsx"
-    );
+    XLSX.utils.book_append_sheet(book,sheet,"البلاغات الحالية");
+    XLSX.writeFile(book,"البلاغات_الحالية.xlsx");
 }
 
 function exportArchiveExcel(){
-    if(!archivedReports.length){
-        alert("لا توجد بلاغات مؤرشفة.");
-        return;
-    }
+    if(!archivedReports.length){ alert("لا توجد بلاغات مؤرشفة."); return; }
 
     const rows=archivedReports.map(report=>({
         "رقم البلاغ":report.id,
@@ -1622,40 +1801,261 @@ function exportArchiveExcel(){
 
     const sheet=XLSX.utils.json_to_sheet(rows);
     const book=XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(
-        book,
-        sheet,
-        "الأرشيف"
-    );
-
-    XLSX.writeFile(
-        book,
-        "أرشيف_البلاغات.xlsx"
-    );
+    XLSX.utils.book_append_sheet(book,sheet,"الأرشيف");
+    XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
 }
 
 function clearArchive(){
-    if(!archivedReports.length){
-        alert("لا توجد بلاغات مؤرشفة.");
-        return;
-    }
+    if(!archivedReports.length){ alert("لا توجد بلاغات مؤرشفة."); return; }
 
     const confirmed=confirm(
         "هل أنت متأكد من حذف جميع البلاغات الموجودة في الأرشيف؟\n\nلا يمكن التراجع عن هذا الإجراء."
     );
-
-    if(!confirmed){
-        return;
-    }
+    if(!confirmed){ return; }
 
     archivedReports=[];
-
     saveAll();
     renderAdmin();
-
     alert("تم حذف الأرشيف بنجاح.");
 }
+
+/* =================== STATS DETAILS + PRINT (NEW) =================== */
+const statsModalState={ type:null };
+
+function closeStatsDetails(event){
+    const overlay=document.getElementById("statsModalOverlay");
+    overlay.classList.remove("show");
+    statsModalState.type=null;
+}
+
+function openStatsDetails(type){
+    statsModalState.type=type;
+
+    const overlay=document.getElementById("statsModalOverlay");
+    overlay.classList.add("show");
+
+    const titleMap={
+        total:"إجمالي البلاغات الحالية",
+        today:"بلاغات اليوم",
+        mostType:"أكثر نوع بلاغ",
+        uniqueReporters:"عدد المبلغين"
+    };
+
+    document.getElementById("statsModalTitle").textContent=titleMap[type] || "التفاصيل";
+
+    const kpis=document.getElementById("statsModalKpis");
+    const wrap=document.getElementById("statsModalTableWrap");
+    const note=document.getElementById("statsModalNote");
+
+    // نستخدم reports (بدون فلاتر) لأن المربعات عامة.
+    // إذا تبغى تخليها “حسب الفلاتر” قلّي وأعدّل المنطق.
+    if(type==="total"){
+        const list=[...reports].slice(0,10);
+
+        kpis.innerHTML=`
+            <div class="detail-kpi">
+                <small>إجمالي البلاغات</small>
+                <strong>${reports.length}</strong>
+            </div>
+            <div class="detail-kpi">
+                <small>آخر بلاغ مضاف</small>
+                <strong>${reports[0] ? escapeHtml(reports[0].id) : "—"}</strong>
+            </div>
+        `;
+
+        wrap.innerHTML=renderReportsPreviewTable(list);
+        note.textContent="عرض آخر 10 بلاغات (للتفاصيل الكاملة استخدم قائمة البلاغات أو التصدير).";
+    }
+
+    if(type==="today"){
+        const today=new Date().toISOString().substring(0,10);
+        const list=reports
+            .filter(r=>r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today)
+            .slice(0,15);
+
+        kpis.innerHTML=`
+            <div class="detail-kpi">
+                <small>تاريخ اليوم</small>
+                <strong>${today}</strong>
+            </div>
+            <div class="detail-kpi">
+                <small>عدد بلاغات اليوم</small>
+                <strong>${list.length}</strong>
+            </div>
+        `;
+
+        wrap.innerHTML=renderReportsPreviewTable(list);
+        note.textContent="عرض آخر بلاغات اليوم (حتى 15 عنصر).";
+    }
+
+    if(type==="mostType"){
+        const top=mostFrequent(reports,"type");
+        const typeName=top?.name || "غير محدد";
+        const count=top?.count || 0;
+
+        const list=reports
+            .filter(r=>r.type===typeName)
+            .slice(0,15);
+
+        kpis.innerHTML=`
+            <div class="detail-kpi">
+                <small>النوع</small>
+                <strong>${escapeHtml(typeName)}</strong>
+            </div>
+            <div class="detail-kpi">
+                <small>عدد البلاغات</small>
+                <strong>${count}</strong>
+            </div>
+        `;
+
+        wrap.innerHTML=renderReportsPreviewTable(list);
+        note.textContent="عرض آخر 15 بلاغاً لنفس النوع.";
+    }
+
+    if(type==="uniqueReporters"){
+        const names=[...new Set(reports.map(r=>r.reporterName).filter(Boolean))];
+        const mapCount={};
+        reports.forEach(r=>{
+            const name=r.reporterName||"غير محدد";
+            mapCount[name]=(mapCount[name]||0)+1;
+        });
+
+        const sorted=Object.entries(mapCount).sort((a,b)=>b[1]-a[1]);
+        const preview=sorted.slice(0,12).map(([name,c])=>({name,c}));
+
+        kpis.innerHTML=`
+            <div class="detail-kpi">
+                <small>عدد المبلغين</small>
+                <strong>${names.length}</strong>
+            </div>
+            <div class="detail-kpi">
+                <small>أكثر مبلغ طلباً</small>
+                <strong>${sorted[0] ? escapeHtml(sorted[0][0]) : "—"}</strong>
+            </div>
+        `;
+
+        wrap.innerHTML=`
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم المبلغ</th>
+                        <th>عدد البلاغات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${preview.length ? preview.map(row=>`
+                        <tr>
+                            <td>${escapeHtml(row.name)}</td>
+                            <td>${row.c}</td>
+                        </tr>
+                    `).join("") : `
+                        <tr><td colspan="2">لا توجد بيانات</td></tr>
+                    `}
+                </tbody>
+            </table>
+        `;
+
+        note.textContent="عرض أفضل 12 شخص حسب عدد البلاغات.";
+    }
+}
+
+function renderReportsPreviewTable(list){
+    if(!list.length){
+        return `<div class="muted-note">لا توجد بيانات لعرضها.</div>`;
+    }
+
+    return `
+      <table>
+        <thead>
+          <tr>
+            <th>رقم البلاغ</th>
+            <th>التاريخ</th>
+            <th>الإدارة/الموقع</th>
+            <th>النوع</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.map(r=>`
+            <tr>
+              <td>${escapeHtml(r.id)}</td>
+              <td>${escapeHtml(formatDate(r.createdAt))}</td>
+              <td>${escapeHtml(r.location)}</td>
+              <td>${escapeHtml(r.type)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+}
+
+function printStats(type){
+    // نجهز المحتوى المناسب ثم نطبعه في نافذة جديدة
+    statsModalState.type=type;
+    const tempOverlay=document.getElementById("statsModalOverlay");
+
+    // افتح/حدث المحتوى أولاً (عشان يكون عندنا نفس الجدول)
+    openStatsDetails(type);
+
+    const title=document.getElementById("statsModalTitle").textContent;
+    const kpis=document.getElementById("statsModalKpis").innerHTML;
+    const tableWrap=document.getElementById("statsModalTableWrap").innerHTML;
+    const note=document.getElementById("statsModalNote").textContent;
+
+    const html=`
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>${escapeHtml(title)}</title>
+        <style>
+          body{font-family:Tahoma,Arial,sans-serif; padding:22px; color:#0b1b33;}
+          h2{margin:0 0 10px; color:#071a33}
+          .kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:14px 0;}
+          .kpi{border:1px solid #e7edf5; border-radius:12px; padding:12px; background:#f7f9fc;}
+          .kpi small{display:block; font-weight:bold; color:#718096}
+          .kpi strong{display:block; margin-top:6px; font-size:18px}
+          table{width:100%; border-collapse:collapse; margin-top:12px;}
+          th{background:#f2f5f9; border-bottom:1px solid #e7edf5; padding:10px; text-align:right; color:#071a33;}
+          td{border-bottom:1px solid #f0f3f8; padding:10px; vertical-align:top;}
+          .note{margin-top:10px; color:#718096; font-size:13px}
+          @media print { .no-print{display:none;} }
+        </style>
+      </head>
+      <body>
+        <h2>${escapeHtml(title)}</h2>
+        <div class="kpis">${kpis}</div>
+        ${tableWrap}
+        <div class="note">${escapeHtml(note||"")}</div>
+        <script>
+          window.onload = function(){
+            window.print();
+            window.close();
+          }
+        </script>
+      </body>
+      </html>
+    `;
+
+    const w=window.open("", "_blank", "width=900,height=650");
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+
+    // لا نغلق الـmodal هنا لأن openStatsDetails فتحه؛ تقدر تغلقه لو تبي:
+    // tempOverlay.classList.remove("show");
+  }
+}
+
+/* close modal with ESC */
+document.addEventListener("keydown", (e)=>{
+    if(e.key==="Escape"){
+        const overlay=document.getElementById("statsModalOverlay");
+        if(overlay.classList.contains("show")){
+            overlay.classList.remove("show");
+            statsModalState.type=null;
+        }
+    }
+});
 
 loadFormOptions();
 </script>
