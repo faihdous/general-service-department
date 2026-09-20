@@ -834,7 +834,6 @@ footer{
 
         <button class="btn-primary" onclick="refreshAdmin()">تحديث البلاغات</button>
 
-        <!-- تم حذف زر تنزيل البلاغات الحالية حسب طلبك -->
         <button class="btn-secondary archive-button" onclick="exportArchiveExcel()">
           تنزيل الأرشيف
         </button>
@@ -990,6 +989,7 @@ function showPage(pageId){
   document.getElementById(pageId).classList.add("active");
 
   if(pageId==="reportPage"){
+    // تأكد تهيئة الخيارات عند فتح صفحة البلاغ
     loadFormOptions();
   }
 }
@@ -1028,8 +1028,10 @@ function getNextReportId(){
 }
 
 function loadFormOptions(){
+  // ======= حماية من أخطاء null (هذه أهم نقطة عندك) =======
   const location=document.getElementById("location");
   const type=document.getElementById("reportType");
+  if(!location || !type) return; // إذا الصفحة ليست موجودة الآن
 
   location.innerHTML='<option value="">اختر الإدارة أو الموقع</option>';
   departments.forEach(item=>{
@@ -1051,6 +1053,7 @@ function loadFormOptions(){
 function loadFilterOptions(){
   const typeFilter=document.getElementById("typeFilter");
   const departmentFilter=document.getElementById("departmentFilter");
+  if(!typeFilter || !departmentFilter) return;
 
   typeFilter.innerHTML='<option value="">كل أنواع البلاغات</option>';
   reportTypes.forEach(item=>{
@@ -1070,7 +1073,7 @@ function loadFilterOptions(){
 function handleOtherLocation(){
   const selected=document.getElementById("location").value;
   const field=document.getElementById("otherLocationField");
-  const input=document.getElementById("otherLocation");
+  const input=document.getElementById("otherLocation');
   field.classList.toggle("show",selected==="أخرى");
   input.required=selected==="أخرى";
   if(selected!=="أخرى") input.value="";
@@ -1085,7 +1088,7 @@ function handleOtherType(){
   if(selected!=="أخرى") input.value="";
 }
 
-document.getElementById("reportForm").addEventListener("submit", function(event){
+document.getElementById("reportForm")?.addEventListener("submit", function(event){
   event.preventDefault();
 
   let location=document.getElementById("location").value.trim();
@@ -1115,8 +1118,9 @@ document.getElementById("reportForm").addEventListener("submit", function(event)
   reports.unshift(report);
   saveAll();
   this.reset();
-  document.getElementById("otherLocationField").classList.remove("show");
-  document.getElementById("otherTypeField").classList.remove("show");
+
+  document.getElementById("otherLocationField")?.classList.remove("show");
+  document.getElementById("otherTypeField")?.classList.remove("show");
 
   showAlert("formAlert","تم إرسال البلاغ بنجاح. رقم البلاغ: "+report.id,"success");
 });
@@ -1128,8 +1132,8 @@ function loginAdmin(){
     document.getElementById("adminPanel").classList.add("active");
     document.getElementById("logoutButton").style.display="block";
 
-    loadFormOptions();
-    loadFilterOptions();
+    loadFormOptions();     // آمن حتى لو صفحة البلاغ غير ظاهرة
+    loadFilterOptions();  // للفلترات
     renderSettings();
     renderAdmin();
   }else{
@@ -1152,7 +1156,7 @@ function getFilteredReports(){
   return reports.filter(report=>{
     const matchesType=!type||report.type===type;
     const matchesDepartment=!department||report.location===department;
-    const matchesDate=!date||
+    const matchesDate=!date ||
       new Date(report.createdAt).toISOString().substring(0,10)===date;
     return matchesType&&matchesDepartment&&matchesDate;
   });
@@ -1174,7 +1178,11 @@ function mostFrequent(list,property){
 }
 
 function renderSettings(){
-  document.getElementById("departmentsList").innerHTML =
+  const departmentsList=document.getElementById("departmentsList");
+  const reportTypesList=document.getElementById("reportTypesList");
+  if(!departmentsList || !reportTypesList) return;
+
+  departmentsList.innerHTML =
     departments.map((item,index)=>`
       <div class="setting-item">
         <span>${escapeHtml(item)}</span>
@@ -1182,7 +1190,7 @@ function renderSettings(){
       </div>
     `).join("");
 
-  document.getElementById("reportTypesList").innerHTML =
+  reportTypesList.innerHTML =
     reportTypes.map((item,index)=>`
       <div class="setting-item">
         <span>${escapeHtml(item)}</span>
@@ -1254,6 +1262,8 @@ function refreshAdmin(){
 
 function renderAdmin(){
   const cardsBox=document.getElementById("reportsCards");
+  if(!cardsBox) return;
+
   const filtered=getFilteredReports();
 
   document.getElementById("totalReports").textContent=reports.length;
@@ -1279,7 +1289,7 @@ function renderAdmin(){
 
   if(!filtered.length){
     cardsBox.innerHTML=`
-      <div class="empty" style="animation:fadeUp .25s ease both;">
+      <div class="empty">
         لا توجد بلاغات مطابقة للفلاتر.
       </div>
     `;
@@ -1319,6 +1329,7 @@ function openDetailsModal(id){
   document.getElementById("detailsModalTitle").textContent="تفاصيل البلاغ: "+report.id;
 
   const printArea=document.getElementById("printArea");
+  // ملاحظة: أصلحنا بنية HTML حتى لا يصير خطأ بسبب </div> زيادة
   printArea.innerHTML=`
     <div class="modal-item"><small>رقم البلاغ</small><div>${escapeHtml(report.id)}</div></div>
     <div class="modal-item"><small>تاريخ ووقت الوصول</small><div>${escapeHtml(formatDate(report.createdAt))}</div></div>
@@ -1364,7 +1375,6 @@ function printDetails(){
 
   const technician=document.getElementById("technician-input").value.trim();
   const notes=document.getElementById("notes-input").value.trim();
-
   const title=document.getElementById("detailsModalTitle").textContent;
 
   const w=window.open("","_blank","width=980,height=720");
@@ -1555,10 +1565,6 @@ function printDetails(){
           height:34px;
           border-bottom:2px solid #c8a951;
         }
-
-        @media print{
-          /* لا نحتاج أي قواعد خاصة الآن */
-        }
       </style>
     </head>
     <body>
@@ -1615,7 +1621,7 @@ function exportArchiveExcel(){
     return;
   }
 
-  const rows=archivedReports.map(report=>({
+  const rows=archivedReports.map(report=>( {
     "رقم البلاغ":report.id,
     "تاريخ الوصول":formatDate(report.createdAt),
     "تاريخ الإنجاز":formatDate(report.completedAt),
@@ -1650,7 +1656,12 @@ function clearArchive(){
   alert("تم حذف الأرشيف بنجاح.");
 }
 
-loadFormOptions();
+/* =========================
+   ✅ أهم تعديل: تنفيذ التهيئة بعد تحميل الصفحة
+   ========================= */
+window.addEventListener("DOMContentLoaded", () => {
+  loadFormOptions(); // آمن لأن الدالة تفحص وجود عناصر location/reportType
+});
 </script>
 </body>
 </html>
