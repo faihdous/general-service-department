@@ -404,6 +404,37 @@ tr:hover td{background:#fafbfd}
     box-shadow:0 6px 20px rgba(15,39,66,.06);
 }
 
+/* === NEW: clickable cards (stats & summary) === */
+.clickable-box{
+    cursor:pointer;
+    position:relative;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.clickable-box::after{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius:14px;
+    background: radial-gradient(circle at 20% 10%, rgba(200,169,81,.22), transparent 55%),
+                radial-gradient(circle at 80% 90%, rgba(7,26,51,.12), transparent 55%);
+    opacity:0;
+    transition:opacity .18s ease;
+    pointer-events:none;
+}
+
+.clickable-box:hover{
+    transform: translateY(-3px) scale(1.01);
+    box-shadow:0 14px 30px rgba(15,39,66,.12);
+    border-color: rgba(200,169,81,.9);
+}
+
+.clickable-box:hover::after{ opacity:1; }
+
+.clickable-box:active{
+    transform: translateY(-1px) scale(1.00);
+}
+
 .stat small{color:var(--muted)}
 
 .stat strong{
@@ -425,6 +456,16 @@ tr:hover td{background:#fafbfd}
     background:#fff;
     border-radius:12px;
     box-shadow:0 6px 20px rgba(15,39,66,.06);
+    border:1px solid #edf0f4;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    cursor:pointer;
+    position:relative;
+}
+
+.summary-card:hover{
+    transform: translateY(-3px) scale(1.01);
+    box-shadow:0 14px 30px rgba(15,39,66,.12);
+    border-color: rgba(200,169,81,.7);
 }
 
 .summary-card h3{
@@ -436,6 +477,122 @@ tr:hover td{background:#fafbfd}
 .summary-card p{
     color:#536477;
     line-height:1.8;
+}
+
+/* === Modal (NEW) === */
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:999;
+    padding:18px;
+}
+
+.modal-overlay.show{ display:flex; }
+
+.modal{
+    width:min(720px, 100%);
+    background:#fff;
+    border-radius:16px;
+    box-shadow:0 22px 70px rgba(0,0,0,.3);
+    overflow:hidden;
+    border:1px solid #e9eef5;
+    animation: popIn .16s ease-out;
+}
+
+@keyframes popIn{
+    from{ transform: translateY(6px) scale(.99); opacity:.7; }
+    to{ transform: translateY(0) scale(1); opacity:1; }
+}
+
+.modal-header{
+    padding:14px 16px;
+    background:linear-gradient(135deg,var(--navy),var(--navy-light));
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.modal-header .title{
+    font-weight:bold;
+}
+
+.modal-close{
+    background:rgba(255,255,255,.15);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:10px;
+    padding:6px 10px;
+}
+
+.modal-body{
+    padding:16px;
+}
+
+.modal-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px 14px;
+}
+
+.modal-field{
+    background:#fafbfd;
+    border:1px solid #edf0f4;
+    border-radius:12px;
+    padding:10px 12px;
+}
+
+.modal-field small{
+    color:var(--muted);
+    display:block;
+    margin-bottom:6px;
+}
+
+.modal-field div{
+    color:#1a2a40;
+    font-size:13.5px;
+    word-break:break-word;
+}
+
+.modal-actions{
+    padding:14px 16px;
+    border-top:1px solid #edf0f4;
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+.print-option{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:var(--text);
+    font-weight:bold;
+    font-size:13px;
+}
+
+.modal-actions button{
+    padding:10px 16px;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.summary-modal-list{
+    margin:0;
+    padding:0 0 0 18px;
+}
+
+.summary-modal-row{
+    margin-top:8px;
+    color:#1a2a40;
+    line-height:1.9;
 }
 
 .settings{
@@ -554,6 +711,10 @@ footer{
     .field.full{grid-column:auto}
     .add-row{flex-direction:column}
     .toolbar button{width:100%}
+
+    .modal-grid{
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 </head>
@@ -880,22 +1041,22 @@ footer{
 
             <div class="stats">
 
-                <div class="stat">
+                <div class="stat clickable-box" onclick="openSummaryModal('total')">
                     <small>إجمالي البلاغات الحالية</small>
                     <strong id="totalReports">0</strong>
                 </div>
 
-                <div class="stat">
+                <div class="stat clickable-box" onclick="openSummaryModal('today')">
                     <small>بلاغات اليوم</small>
                     <strong id="todayReports">0</strong>
                 </div>
 
-                <div class="stat">
+                <div class="stat clickable-box" onclick="openSummaryModal('mostType')">
                     <small>أكثر نوع بلاغ</small>
                     <strong id="mostType">-</strong>
                 </div>
 
-                <div class="stat">
+                <div class="stat clickable-box" onclick="openSummaryModal('uniqueReporters')">
                     <small>عدد المبلغين</small>
                     <strong id="uniqueReporters">0</strong>
                 </div>
@@ -904,26 +1065,25 @@ footer{
 
             <div class="summary">
 
-                <div class="summary-card">
+                <div class="summary-card" onclick="openSummaryModal('topLocations')">
                     <h3>أكثر المواقع طلباً للبلاغات</h3>
                     <p id="topLocations">لا توجد بيانات حالياً</p>
                 </div>
 
-                <div class="summary-card">
+                <div class="summary-card" onclick="openSummaryModal('topReportType')">
                     <h3>أكثر نوع بلاغ</h3>
                     <p id="topReportType">لا توجد بيانات حالياً</p>
                 </div>
 
-                <div class="summary-card">
+                <div class="summary-card" onclick="openSummaryModal('topReporter')">
                     <h3>أكثر شخص يطلب إصلاحات</h3>
                     <p id="topReporter">لا توجد بيانات حالياً</p>
                 </div>
 
             </div>
 
-            <div class="summary-card">
+            <div class="summary-card" onclick="openSummaryModal('archiveCount')">
                 <h3>الأرشيف</h3>
-
                 <p>
                     عدد البلاغات المؤرشفة:
                     <strong id="archiveCount">0</strong>
@@ -932,6 +1092,32 @@ footer{
 
         </div>
     </main>
+
+    <!-- Modal (NEW) -->
+    <div id="summaryModalOverlay" class="modal-overlay" onclick="if(event.target.id==='summaryModalOverlay') closeSummaryModal();">
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <div class="title" id="summaryModalTitle">تفاصيل</div>
+                <button class="modal-close" onclick="closeSummaryModal()">إغلاق</button>
+            </div>
+
+            <div class="modal-body">
+                <div id="summaryModalContent" style="line-height:1.9;"></div>
+            </div>
+
+            <div class="modal-actions">
+                <label class="print-option">
+                    <input type="checkbox" id="printInsideEachBox" checked>
+                    اطبعها داخل كل مربع
+                </label>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn-secondary" onclick="printSummaryBoxes()">طباعة المربعات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </section>
 
 <script>
@@ -1178,7 +1364,6 @@ document.getElementById("reportForm").addEventListener(
                 "يرجى تعبئة جميع الخانات المطلوبة.",
                 "error"
             );
-
             return;
         }
 
@@ -1279,7 +1464,6 @@ function mostFrequent(list,property){
 
     list.forEach(item=>{
         const value=item[property]||"غير محدد";
-
         counts[value]=(counts[value]||0)+1;
     });
 
@@ -1287,10 +1471,7 @@ function mostFrequent(list,property){
         .sort((a,b)=>b[1]-a[1])[0];
 
     return result
-        ?{
-            name:result[0],
-            count:result[1]
-        }
+        ?{ name:result[0], count:result[1] }
         :null;
 }
 
@@ -1476,7 +1657,6 @@ function renderAdmin(){
                 </td>
             </tr>
         `;
-
         return;
     }
 
@@ -1656,6 +1836,215 @@ function clearArchive(){
 
     alert("تم حذف الأرشيف بنجاح.");
 }
+
+/* =========================
+   NEW: Summary Modal + Print
+========================= */
+
+let currentSummaryKey = null;
+
+function closeSummaryModal(){
+    document.getElementById("summaryModalOverlay").classList.remove("show");
+    currentSummaryKey = null;
+}
+
+function openSummaryModal(key){
+    currentSummaryKey = key;
+
+    const titleMap = {
+        total: "تفاصيل إجمالي البلاغات الحالية",
+        today: "تفاصيل بلاغات اليوم",
+        mostType: "تفاصيل أكثر نوع بلاغ",
+        uniqueReporters: "تفاصيل عدد المبلغين",
+        topLocations: "تفاصيل أكثر المواقع طلباً للبلاغات",
+        topReportType: "تفاصيل أكثر نوع بلاغ",
+        topReporter: "تفاصيل أكثر شخص يطلب إصلاحات",
+        archiveCount: "تفاصيل الأرشيف"
+    };
+
+    const title = titleMap[key] || "تفاصيل";
+
+    document.getElementById("summaryModalTitle").textContent = title;
+
+    const container = document.getElementById("summaryModalContent");
+
+    // helper: count by prop
+    const countBy = (prop, source = reports) => {
+        const m = {};
+        source.forEach(r => {
+            const v = (r[prop] ?? "").toString().trim();
+            const k = v || "غير محدد";
+            m[k] = (m[k] || 0) + 1;
+        });
+        return Object.entries(m).sort((a,b)=>b[1]-a[1]);
+    };
+
+    if(key === "total"){
+        container.innerHTML = `
+            <div class="summary-modal-row">
+                إجمالي البلاغات الحالية: <b>${reports.length}</b>
+            </div>
+            <div class="summary-modal-row">
+                ملاحظة: هذه الأرقام تعتمد على البلاغات <b>غير المؤرشفة</b>.
+            </div>
+        `;
+    } else if(key === "today"){
+        const today = new Date().toISOString().substring(0,10);
+        const count = reports.filter(r =>
+            r.createdAt && new Date(r.createdAt).toISOString().substring(0,10) === today
+        ).length;
+
+        container.innerHTML = `
+            <div class="summary-modal-row">
+                عدد بلاغات اليوم: <b>${count}</b>
+            </div>
+            <div class="summary-modal-row">
+                التاريخ حسب وقت جهازك: <b>${today}</b>
+            </div>
+        `;
+    } else if(key === "uniqueReporters"){
+        const unique = new Set(reports.map(r=>r.reporterName).filter(Boolean)).size;
+        container.innerHTML = `
+            <div class="summary-modal-row">
+                عدد المبلغين (متميّزين): <b>${unique}</b>
+            </div>
+            <div class="summary-modal-row">
+                إجمالي المبلغين (غير متميّزين): <b>${reports.length}</b>
+            </div>
+        `;
+    } else if(key === "mostType" || key === "topReportType"){
+        const list = countBy("type");
+        if(!list.length){
+            container.textContent = "لا توجد بيانات حالياً.";
+        } else {
+            const top = list[0];
+            container.innerHTML = `
+                <div class="summary-modal-row">
+                    الأكثر: <b>${escapeHtml(top[0])}</b> — <b>${top[1]}</b> بلاغ
+                </div>
+                <div class="summary-modal-row">
+                    أفضل 10 أنواع:
+                    <ul class="summary-modal-list">
+                        ${list.slice(0,10).map(([n,c])=>`<li>${escapeHtml(n)} — ${c} بلاغ</li>`).join("")}
+                    </ul>
+                </div>
+            `;
+        }
+    } else if(key === "topLocations"){
+        const list = countBy("location");
+        if(!list.length){
+            container.textContent = "لا توجد بيانات حالياً.";
+        } else {
+            const top = list[0];
+            container.innerHTML = `
+                <div class="summary-modal-row">
+                    الأكثر: <b>${escapeHtml(top[0])}</b> — <b>${top[1]}</b> بلاغ
+                </div>
+                <div class="summary-modal-row">
+                    أفضل 10 مواقع:
+                    <ul class="summary-modal-list">
+                        ${list.slice(0,10).map(([n,c])=>`<li>${escapeHtml(n)} — ${c} بلاغ</li>`).join("")}
+                    </ul>
+                </div>
+            `;
+        }
+    } else if(key === "topReporter"){
+        const list = countBy("reporterName");
+        if(!list.length){
+            container.textContent = "لا توجد بيانات حالياً.";
+        } else {
+            const top = list[0];
+            container.innerHTML = `
+                <div class="summary-modal-row">
+                    الأكثر: <b>${escapeHtml(top[0])}</b> — <b>${top[1]}</b> بلاغ
+                </div>
+                <div class="summary-modal-row">
+                    أفضل 10 مبلغين:
+                    <ul class="summary-modal-list">
+                        ${list.slice(0,10).map(([n,c])=>`<li>${escapeHtml(n)} — ${c} بلاغ</li>`).join("")}
+                    </ul>
+                </div>
+            `;
+        }
+    } else if(key === "archiveCount"){
+        container.innerHTML = `
+            <div class="summary-modal-row">
+                عدد البلاغات المؤرشفة: <b>${archivedReports.length}</b>
+            </div>
+            <div class="summary-modal-row">
+                (الأرشيف لا يظهر في الإحصائيات الحالية إلا إذا عدلت الكود لاحقاً)
+            </div>
+        `;
+    } else {
+        container.textContent = "لا توجد تفاصيل.";
+    }
+
+    document.getElementById("summaryModalOverlay").classList.add("show");
+}
+
+function printSummaryBoxes(){
+    // نطبع القيم الظاهرة على الصفحة (أحدث أرقام جاهزة)
+    const boxes = [
+        { title:"إجمالي البلاغات الحالية", value: document.getElementById("totalReports")?.textContent || "-" },
+        { title:"بلاغات اليوم", value: document.getElementById("todayReports")?.textContent || "-" },
+        { title:"أكثر نوع بلاغ", value: document.getElementById("mostType")?.textContent || "-" },
+        { title:"عدد المبلغين", value: document.getElementById("uniqueReporters")?.textContent || "-" },
+        { title:"أكثر المواقع طلباً للبلاغات", value: document.getElementById("topLocations")?.textContent || "-" },
+        { title:"أكثر نوع بلاغ", value: document.getElementById("topReportType")?.textContent || "-" },
+        { title:"أكثر شخص يطلب إصلاحات", value: document.getElementById("topReporter")?.textContent || "-" },
+        { title:"الأرشيف - عدد البلاغات المؤرشفة", value: document.getElementById("archiveCount")?.textContent || "0" }
+    ];
+
+    const inside = document.getElementById("printInsideEachBox").checked;
+
+    const w = window.open("", "_blank");
+
+    const cellStyle = inside
+        ? "border:1px solid #444; border-radius:10px; padding:12px; background:#fff;"
+        : "padding:10px;";
+
+    w.document.write(`
+      <html dir="rtl" lang="ar">
+      <head>
+        <title>طباعة ملخص المربعات</title>
+        <style>
+          body{font-family:Tahoma,Arial; direction:rtl; padding:18px;}
+          h2{margin:0 0 14px;}
+          .wrap{
+            display:grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap:10px;
+          }
+          .box{ ${cellStyle} page-break-inside: avoid; }
+          .k{font-weight:bold; margin-bottom:6px; color:#0a2a4a;}
+          .v{font-size:16px; color:#17283d;}
+          @media print{ .wrap{gap:8px;} }
+        </style>
+      </head>
+      <body>
+        <h2>ملخص إحصائيات بلاغات قسم الخدمات العامة</h2>
+        <div class="wrap">
+          ${boxes.map(b=>`
+            <div class="box">
+              <div class="k">${escapeHtml(b.title)}</div>
+              <div class="v">${escapeHtml(b.value)}</div>
+            </div>
+          `).join("")}
+        </div>
+      </body>
+      </html>
+    `);
+
+    w.document.close();
+    w.focus();
+    w.print();
+}
+
+document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape"){
+        closeSummaryModal();
+    }
+});
 
 loadFormOptions();
 </script>
