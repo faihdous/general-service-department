@@ -987,11 +987,7 @@ let modalCurrentId=null;
 function showPage(pageId){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(pageId).classList.add("active");
-
-  if(pageId==="reportPage"){
-    // تأكد تهيئة الخيارات عند فتح صفحة البلاغ
-    loadFormOptions();
-  }
+  if(pageId==="reportPage") loadFormOptions();
 }
 
 function saveAll(){
@@ -1003,6 +999,7 @@ function saveAll(){
 
 function showAlert(id,message,type){
   const box=document.getElementById(id);
+  if(!box) return;
   box.textContent=message;
   box.className="alert "+type;
   setTimeout(()=>{ box.textContent=""; box.className="alert"; },5000);
@@ -1028,10 +1025,9 @@ function getNextReportId(){
 }
 
 function loadFormOptions(){
-  // ======= حماية من أخطاء null (هذه أهم نقطة عندك) =======
   const location=document.getElementById("location");
   const type=document.getElementById("reportType");
-  if(!location || !type) return; // إذا الصفحة ليست موجودة الآن
+  if(!location || !type) return;
 
   location.innerHTML='<option value="">اختر الإدارة أو الموقع</option>';
   departments.forEach(item=>{
@@ -1073,7 +1069,7 @@ function loadFilterOptions(){
 function handleOtherLocation(){
   const selected=document.getElementById("location").value;
   const field=document.getElementById("otherLocationField");
-  const input=document.getElementById("otherLocation');
+  const input=document.getElementById("otherLocation"); // ✅ FIXED
   field.classList.toggle("show",selected==="أخرى");
   input.required=selected==="أخرى";
   if(selected!=="أخرى") input.value="";
@@ -1118,10 +1114,8 @@ document.getElementById("reportForm")?.addEventListener("submit", function(event
   reports.unshift(report);
   saveAll();
   this.reset();
-
   document.getElementById("otherLocationField")?.classList.remove("show");
   document.getElementById("otherTypeField")?.classList.remove("show");
-
   showAlert("formAlert","تم إرسال البلاغ بنجاح. رقم البلاغ: "+report.id,"success");
 });
 
@@ -1131,9 +1125,8 @@ function loginAdmin(){
     document.getElementById("loginBox").style.display="none";
     document.getElementById("adminPanel").classList.add("active");
     document.getElementById("logoutButton").style.display="block";
-
-    loadFormOptions();     // آمن حتى لو صفحة البلاغ غير ظاهرة
-    loadFilterOptions();  // للفلترات
+    loadFormOptions();
+    loadFilterOptions();
     renderSettings();
     renderAdmin();
   }else{
@@ -1156,8 +1149,7 @@ function getFilteredReports(){
   return reports.filter(report=>{
     const matchesType=!type||report.type===type;
     const matchesDepartment=!department||report.location===department;
-    const matchesDate=!date ||
-      new Date(report.createdAt).toISOString().substring(0,10)===date;
+    const matchesDate=!date || new Date(report.createdAt).toISOString().substring(0,10)===date;
     return matchesType&&matchesDepartment&&matchesDate;
   });
 }
@@ -1182,16 +1174,14 @@ function renderSettings(){
   const reportTypesList=document.getElementById("reportTypesList");
   if(!departmentsList || !reportTypesList) return;
 
-  departmentsList.innerHTML =
-    departments.map((item,index)=>`
+  departmentsList.innerHTML = departments.map((item,index)=>`
       <div class="setting-item">
         <span>${escapeHtml(item)}</span>
         <button class="delete-item" onclick="deleteDepartment(${index})">×</button>
       </div>
     `).join("");
 
-  reportTypesList.innerHTML =
-    reportTypes.map((item,index)=>`
+  reportTypesList.innerHTML = reportTypes.map((item,index)=>`
       <div class="setting-item">
         <span>${escapeHtml(item)}</span>
         <button class="delete-item" onclick="deleteReportType(${index})">×</button>
@@ -1204,13 +1194,10 @@ function addDepartment(){
   const value=input.value.trim();
   if(!value){ alert("اكتب اسم الإدارة أولاً."); return; }
   if(departments.includes(value)){ alert("هذه الإدارة موجودة مسبقاً."); return; }
-
   departments.push(value);
   input.value="";
   saveAll();
-  loadFormOptions();
-  loadFilterOptions();
-  renderSettings();
+  loadFormOptions(); loadFilterOptions(); renderSettings();
 }
 
 function addReportType(){
@@ -1218,32 +1205,23 @@ function addReportType(){
   const value=input.value.trim();
   if(!value){ alert("اكتب نوع البلاغ أولاً."); return; }
   if(reportTypes.includes(value)){ alert("هذا النوع موجود مسبقاً."); return; }
-
   reportTypes.push(value);
   input.value="";
   saveAll();
-  loadFormOptions();
-  loadFilterOptions();
-  renderSettings();
+  loadFormOptions(); loadFilterOptions(); renderSettings();
 }
 
 function deleteDepartment(index){
   if(confirm("هل تريد حذف هذه الإدارة؟")){
     departments.splice(index,1);
-    saveAll();
-    loadFormOptions();
-    loadFilterOptions();
-    renderSettings();
+    saveAll(); loadFormOptions(); loadFilterOptions(); renderSettings();
   }
 }
 
 function deleteReportType(index){
   if(confirm("هل تريد حذف نوع البلاغ هذا؟")){
     reportTypes.splice(index,1);
-    saveAll();
-    loadFormOptions();
-    loadFilterOptions();
-    renderSettings();
+    saveAll(); loadFormOptions(); loadFilterOptions(); renderSettings();
   }
 }
 
@@ -1253,10 +1231,7 @@ function refreshAdmin(){
   departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||departments;
   reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||reportTypes;
 
-  loadFormOptions();
-  loadFilterOptions();
-  renderSettings();
-  renderAdmin();
+  loadFormOptions(); loadFilterOptions(); renderSettings(); renderAdmin();
   alert("تم تحديث البلاغات بنجاح.");
 }
 
@@ -1274,9 +1249,7 @@ function renderAdmin(){
     return r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today;
   }).length;
 
-  document.getElementById("uniqueReporters").textContent=new Set(
-    reports.map(r=>r.reporterName).filter(Boolean)
-  ).size;
+  document.getElementById("uniqueReporters").textContent=new Set(reports.map(r=>r.reporterName).filter(Boolean)).size;
 
   const type=mostFrequent(reports,"type");
   const location=mostFrequent(reports,"location");
@@ -1288,11 +1261,7 @@ function renderAdmin(){
   document.getElementById("topReporter").textContent=reporter ? `${reporter.name} — ${reporter.count} بلاغ` : "لا توجد بيانات حالياً";
 
   if(!filtered.length){
-    cardsBox.innerHTML=`
-      <div class="empty">
-        لا توجد بلاغات مطابقة للفلاتر.
-      </div>
-    `;
+    cardsBox.innerHTML=`<div class="empty">لا توجد بلاغات مطابقة للفلاتر.</div>`;
     return;
   }
 
@@ -1317,19 +1286,14 @@ function renderAdmin(){
   `).join("");
 }
 
-/* ===== Modal open/close ===== */
 function openDetailsModal(id){
   const report=(reports||[]).find(r=>r.id===id);
-  if(!report){
-    alert("لم يتم العثور على البلاغ.");
-    return;
-  }
+  if(!report){ alert("لم يتم العثور على البلاغ."); return; }
   modalCurrentId=id;
 
   document.getElementById("detailsModalTitle").textContent="تفاصيل البلاغ: "+report.id;
 
   const printArea=document.getElementById("printArea");
-  // ملاحظة: أصلحنا بنية HTML حتى لا يصير خطأ بسبب </div> زيادة
   printArea.innerHTML=`
     <div class="modal-item"><small>رقم البلاغ</small><div>${escapeHtml(report.id)}</div></div>
     <div class="modal-item"><small>تاريخ ووقت الوصول</small><div>${escapeHtml(formatDate(report.createdAt))}</div></div>
@@ -1363,13 +1327,8 @@ function closeDetailsModal(){
   overlay.setAttribute("aria-hidden","true");
 }
 
-/* ===== Print (النموذج الرسمي) ===== */
 function printDetails(){
-  if(!modalCurrentId){
-    alert("افتح تفاصيل بلاغ أولاً.");
-    return;
-  }
-
+  if(!modalCurrentId){ alert("افتح تفاصيل بلاغ أولاً."); return; }
   const report=(reports||[]).find(r=>r.id===modalCurrentId);
   if(!report) return;
 
@@ -1378,25 +1337,18 @@ function printDetails(){
   const title=document.getElementById("detailsModalTitle").textContent;
 
   const w=window.open("","_blank","width=980,height=720");
-  if(!w){
-    alert("منعته المتصفح من فتح نافذة الطباعة.");
-    return;
-  }
+  if(!w){ alert("منعته المتصفح من فتح نافذة الطباعة."); return; }
 
   const nowPrinted = new Intl.DateTimeFormat("ar-KW",{dateStyle:"medium",timeStyle:"short"}).format(new Date());
 
   const printAreaHtml = `
     <div class="doc-wrap">
       <div class="doc-header">
-        <div class="doc-logo">
-          <img src="logo.png" alt="الشعار" />
-        </div>
-
+        <div class="doc-logo"><img src="logo.png" alt="الشعار" /></div>
         <div class="doc-headtext">
           <div class="doc-title">بلاغ قسم الخدمات العامة</div>
           <div class="doc-subtitle">نموذج تفاصيل وإجراءات الإنجاز</div>
         </div>
-
         <div class="doc-meta">
           <div><span class="k">رقم البلاغ:</span> <span class="v">${escapeHtml(report.id)}</span></div>
           <div><span class="k">تاريخ ووقت الوصول:</span> <span class="v">${escapeHtml(formatDate(report.createdAt))}</span></div>
@@ -1456,122 +1408,31 @@ function printDetails(){
       <title>${escapeHtml(title)}</title>
       <style>
         @page{ size:A4; margin:14mm 10mm; }
-        body{
-          font-family:Tahoma, Arial, sans-serif;
-          color:#17283d;
-          margin:0;
-          background:#fff;
-        }
+        body{ font-family:Tahoma, Arial, sans-serif; color:#17283d; margin:0; background:#fff; }
         .doc-wrap{ padding:6px; }
-        .doc-header{
-          display:flex;
-          align-items:flex-start;
-          justify-content:space-between;
-          gap:14px;
-          border-bottom:3px solid #c8a951;
-          padding-bottom:12px;
-        }
+        .doc-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:14px; border-bottom:3px solid #c8a951; padding-bottom:12px; }
         .doc-logo img{ width:74px; height:74px; object-fit:contain; }
         .doc-headtext{ flex:1; }
-        .doc-title{
-          font-size:20px;
-          color:#071a33;
-          font-weight:1000;
-          margin-top:2px;
-        }
-        .doc-subtitle{
-          margin-top:6px;
-          font-size:13px;
-          color:#536477;
-          font-weight:900;
-        }
-        .doc-meta{
-          min-width:250px;
-          font-size:13px;
-          font-weight:900;
-          color:#17283d;
-          text-align:right;
-          line-height:1.9;
-        }
+        .doc-title{ font-size:20px; color:#071a33; font-weight:1000; margin-top:2px; }
+        .doc-subtitle{ margin-top:6px; font-size:13px; color:#536477; font-weight:900; }
+        .doc-meta{ min-width:250px; font-size:13px; font-weight:900; color:#17283d; text-align:right; line-height:1.9; }
         .k{ color:#536477; font-weight:1000; }
-
-        .grid2{
-          display:grid;
-          grid-template-columns: 1fr 1fr;
-          gap:12px;
-          margin-top:12px;
-        }
-        .section{
-          border:1px solid #e2e8f0;
-          border-radius:14px;
-          padding:12px;
-          background:#fbfcfe;
-        }
-        .section-title{
-          font-weight:1000;
-          color:#071a33;
-          border-right:4px solid #c8a951;
-          padding-right:10px;
-          margin-bottom:10px;
-        }
-
-        .data-table{
-          width:100%;
-          border-collapse:collapse;
-          font-size:13px;
-        }
-        .data-table th,.data-table td{
-          border:1px solid #e2e8f0;
-          padding:10px 10px;
-          vertical-align:top;
-        }
-        .data-table th{
-          background:#f6f8fc;
-          color:#071a33;
-          width:36%;
-          font-weight:1000;
-          text-align:right;
-        }
-
-        .box-text{
-          border:1px solid #e2e8f0;
-          border-radius:12px;
-          background:#fff;
-          padding:12px;
-          line-height:1.9;
-          font-weight:900;
-          white-space:pre-wrap;
-        }
-
-        .sign-row{
-          display:flex;
-          gap:14px;
-          margin-top:14px;
-        }
-        .sign-box{
-          flex:1;
-          border:1px dashed #c8a951;
-          border-radius:14px;
-          padding:12px;
-          background:#fff;
-          text-align:right;
-        }
-        .sign-label{
-          font-weight:1000;
-          color:#071a33;
-          margin-bottom:8px;
-        }
-        .sign-line{
-          height:34px;
-          border-bottom:2px solid #c8a951;
-        }
+        .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; }
+        .section{ border:1px solid #e2e8f0; border-radius:14px; padding:12px; background:#fbfcfe; }
+        .section-title{ font-weight:1000; color:#071a33; border-right:4px solid #c8a951; padding-right:10px; margin-bottom:10px; }
+        .data-table{ width:100%; border-collapse:collapse; font-size:13px; }
+        .data-table th,.data-table td{ border:1px solid #e2e8f0; padding:10px 10px; vertical-align:top; }
+        .data-table th{ background:#f6f8fc; color:#071a33; width:36%; font-weight:1000; text-align:right; }
+        .box-text{ border:1px solid #e2e8f0; border-radius:12px; background:#fff; padding:12px; line-height:1.9; font-weight:900; white-space:pre-wrap; }
+        .sign-row{ display:flex; gap:14px; margin-top:14px; }
+        .sign-box{ flex:1; border:1px dashed #c8a951; border-radius:14px; padding:12px; background:#fff; text-align:right; }
+        .sign-label{ font-weight:1000; color:#071a33; margin-bottom:8px; }
+        .sign-line{ height:34px; border-bottom:2px solid #c8a951; }
       </style>
     </head>
     <body>
       ${printAreaHtml}
-      <script>
-        window.onload = () => { window.print(); window.close(); };
-      </script>
+      <script>window.onload=()=>{window.print(); window.close();};</script>
     </body>
     </html>
   `);
@@ -1579,7 +1440,6 @@ function printDetails(){
   w.document.close();
 }
 
-/* ===== Complete ===== */
 function completeReport(id){
   if(!id) return;
 
@@ -1589,14 +1449,8 @@ function completeReport(id){
   const technician=document.getElementById("technician-input").value.trim();
   const notes=document.getElementById("notes-input").value.trim();
 
-  if(!technician){
-    alert("يرجى كتابة اسم القائم بالإنجاز.");
-    return;
-  }
-
-  if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟")){
-    return;
-  }
+  if(!technician){ alert("يرجى كتابة اسم القائم بالإنجاز."); return; }
+  if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟")) return;
 
   archivedReports.unshift({
     ...report,
@@ -1607,21 +1461,16 @@ function completeReport(id){
   });
 
   reports=reports.filter(item=>item.id!==id);
-
   saveAll();
   renderAdmin();
   closeDetailsModal();
   alert("تم إنهاء البلاغ وأرشفته بنجاح.");
 }
 
-/* ===== Export Archive ===== */
 function exportArchiveExcel(){
-  if(!archivedReports.length){
-    alert("لا توجد بلاغات مؤرشفة.");
-    return;
-  }
+  if(!archivedReports.length){ alert("لا توجد بلاغات مؤرشفة."); return; }
 
-  const rows=archivedReports.map(report=>( {
+  const rows=archivedReports.map(report=>({
     "رقم البلاغ":report.id,
     "تاريخ الوصول":formatDate(report.createdAt),
     "تاريخ الإنجاز":formatDate(report.completedAt),
@@ -1642,13 +1491,8 @@ function exportArchiveExcel(){
 }
 
 function clearArchive(){
-  if(!archivedReports.length){
-    alert("لا توجد بلاغات مؤرشفة.");
-    return;
-  }
-
-  const confirmed=confirm("هل أنت متأكد من حذف جميع البلاغات الموجودة في الأرشيف؟\n\nلا يمكن التراجع عن هذا الإجراء.");
-  if(!confirmed) return;
+  if(!archivedReports.length){ alert("لا توجد بلاغات مؤرشفة."); return; }
+  if(!confirm("هل أنت متأكد من حذف جميع البلاغات الموجودة في الأرشيف؟\n\nلا يمكن التراجع عن هذا الإجراء.")) return;
 
   archivedReports=[];
   saveAll();
@@ -1656,11 +1500,9 @@ function clearArchive(){
   alert("تم حذف الأرشيف بنجاح.");
 }
 
-/* =========================
-   ✅ أهم تعديل: تنفيذ التهيئة بعد تحميل الصفحة
-   ========================= */
+// ✅ تهيئة آمنة بعد تحميل الصفحة
 window.addEventListener("DOMContentLoaded", () => {
-  loadFormOptions(); // آمن لأن الدالة تفحص وجود عناصر location/reportType
+  loadFormOptions();
 });
 </script>
 </body>
