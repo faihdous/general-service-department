@@ -598,6 +598,19 @@ footer{
     text-align:center
 }
 
+/* تحسين: كاردات Summary/Stats قابلة للضغط */
+.clickable-card{
+    cursor:pointer;
+}
+.clickable-card:hover{
+    transform: translateY(-2px);
+    filter: brightness(1.02);
+}
+
+/* Modal */
+#detailsModal.show{display:flex;}
+#detailsModalHideArea{position:absolute; inset:0;}
+#detailsModalCard{max-height:80vh; overflow:auto;}
 @media(max-width:800px){
     .hero{min-height:570px}
     .logo-frame{width:155px;height:155px}
@@ -627,6 +640,8 @@ footer{
     .field.full{grid-column:auto}
     .add-row{flex-direction:column}
     .toolbar button{width:100%}
+    .summary{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -903,48 +918,47 @@ footer{
             </div>
 
             <div class="stats">
-                <div class="stat">
+                <div class="stat clickable-card" onclick="openStatDetails('totalReports')">
                     <small>إجمالي البلاغات الحالية</small>
                     <strong id="totalReports">0</strong>
                 </div>
 
-                <div class="stat">
+                <div class="stat clickable-card" onclick="openStatDetails('todayReports')">
                     <small>بلاغات اليوم</small>
                     <strong id="todayReports">0</strong>
                 </div>
 
-                <div class="stat">
+                <div class="stat clickable-card" onclick="openStatDetails('mostType')">
                     <small>أكثر نوع بلاغ</small>
                     <strong id="mostType">-</strong>
                 </div>
 
-                <div class="stat">
+                <div class="stat clickable-card" onclick="openStatDetails('uniqueReporters')">
                     <small>عدد المبلغين</small>
                     <strong id="uniqueReporters">0</strong>
                 </div>
             </div>
 
             <div class="summary">
-                <div class="summary-card">
+                <div class="summary-card clickable-card" onclick="openSummaryDetails('topLocations')">
                     <h3>أكثر المواقع طلباً للبلاغات</h3>
                     <p id="topLocations">لا توجد بيانات حالياً</p>
                 </div>
 
-                <div class="summary-card">
+                <div class="summary-card clickable-card" onclick="openSummaryDetails('topReportType')">
                     <h3>أكثر نوع بلاغ</h3>
                     <p id="topReportType">لا توجد بيانات حالياً</p>
                 </div>
 
-                <div class="summary-card">
+                <div class="summary-card clickable-card" onclick="openSummaryDetails('topReporter')">
                     <h3>أكثر شخص يطلب إصلاحات</h3>
                     <p id="topReporter">لا توجد بيانات حالياً</p>
                 </div>
             </div>
 
-            <div class="summary-card">
-                <h3>الأرشيف</h3>
-
-                <p>
+            <div class="summary-card clickable-card" style="max-width:420px;margin-top:18px;" onclick="openSummaryDetails('archiveCount')">
+                <h3 style="margin-top:0;color:var(--navy);font-size:16px">الأرشيف</h3>
+                <p style="color:#536477;line-height:1.8">
                     عدد البلاغات المؤرشفة:
                     <strong id="archiveCount">0</strong>
                 </p>
@@ -952,6 +966,30 @@ footer{
         </div>
     </main>
 </section>
+
+<!-- Modal Details (تفاصيل الكروت السفلية) -->
+<div id="detailsModal" style="
+  position:fixed; inset:0; background:rgba(0,0,0,.55);
+  display:none; align-items:center; justify-content:center; z-index:99999;
+">
+  <div id="detailsModalHideArea" onclick="closeDetailsModal()"></div>
+
+  <div class="card" id="detailsModalCard" style="
+    width:min(900px,94%); padding:22px; background:#fff; border-radius:18px;
+    border:1px solid rgba(221,231,245,.9);
+  ">
+    <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+      <h2 class="section-title" style="margin:0; border-right:4px solid var(--gold);">
+        تفاصيل
+      </h2>
+      <button class="btn-secondary" onclick="closeDetailsModal()">
+        إغلاق
+      </button>
+    </div>
+
+    <div id="detailsBody" style="margin-top:14px; line-height:1.9;"></div>
+  </div>
+</div>
 
 <script>
 const ADMIN_PASSWORD="1234";
@@ -1285,6 +1323,163 @@ function deleteReportType(index){
     }
 }
 
+/* =======================
+   تفاصيل كروت الأسفل (Modal)
+   ======================= */
+
+function closeDetailsModal(){
+    document.getElementById("detailsModal").style.display="none";
+}
+
+function openDetailsModalWithTitle(title, html){
+    document.querySelector("#detailsModal .section-title").textContent = title;
+    document.getElementById("detailsBody").innerHTML = html;
+    document.getElementById("detailsModal").style.display="flex";
+}
+
+function getCounts(list, prop){
+    const counts = {};
+    list.forEach(r=>{
+        const key = (r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
+        counts[key] = (counts[key] || 0) + 1;
+    });
+    return Object.entries(counts)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([name,count])=>({name,count}));
+}
+
+function topListHtml(list, limit=10){
+    if(!list.length) return "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>";
+    return `
+      ${list.slice(0,limit).map(x=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #edf0f4">
+          <span>${escapeHtml(x.name)}</span>
+          <b>${x.count}</b>
+        </div>
+      `).join("")}
+      ${list.length>limit ? `<p style="color:var(--muted);font-size:13px;margin-top:10px">عرض أول ${limit} فقط</p>` : ``}
+    `;
+}
+
+function openSummaryDetails(which){
+    if(reports.length===0 && (which!=="archiveCount" || archivedReports.length===0)){
+        openDetailsModalWithTitle("تفاصيل", "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>");
+        return;
+    }
+
+    if(which==="topLocations"){
+        openDetailsModalWithTitle("أكثر المواقع طلباً للبلاغات", topListHtml(getCounts(reports,"location"), 12));
+        return;
+    }
+    if(which==="topReportType"){
+        openDetailsModalWithTitle("أكثر نوع بلاغ", topListHtml(getCounts(reports,"type"), 12));
+        return;
+    }
+    if(which==="topReporter"){
+        openDetailsModalWithTitle("أكثر شخص يطلب إصلاحات", topListHtml(getCounts(reports,"reporterName"), 12));
+        return;
+    }
+    if(which==="archiveCount"){
+        const rows = archivedReports.map(r=>({
+            id:r.id, type:r.type, status:r.status||"مكتمل", completedAt:r.completedAt
+        }));
+        openDetailsModalWithTitle("الأرشيف", `
+            <p style="color:#536477;line-height:1.8">
+              عدد البلاغات المؤرشفة: <b>${archivedReports.length}</b>
+            </p>
+            ${rows.length ? `
+              <div class="table-wrapper" style="margin-top:14px; box-shadow:none;">
+                <table style="min-width:auto;width:100%;border-collapse:collapse;">
+                  <thead>
+                    <tr>
+                      <th style="position:sticky;top:0">رقم البلاغ</th>
+                      <th style="position:sticky;top:0">نوع البلاغ</th>
+                      <th style="position:sticky;top:0">الحالة</th>
+                      <th style="position:sticky;top:0">تاريخ الإنجاز</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rows.slice(0,15).map(r=>`
+                      <tr>
+                        <td>${escapeHtml(r.id)}</td>
+                        <td>${escapeHtml(r.type)}</td>
+                        <td>${escapeHtml(r.status)}</td>
+                        <td>${escapeHtml(formatDate(r.completedAt))}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+              <p style="color:var(--muted);font-size:13px;margin-top:10px">عرض آخر 15 بلاغ فقط</p>
+            ` : "<p style='color:var(--muted)'>لا توجد بلاغات مؤرشفة حالياً</p>"}
+        `);
+        return;
+    }
+}
+
+function openStatDetails(which){
+    if(which==="totalReports"){
+        const counts = getCounts(reports,"location");
+        openDetailsModalWithTitle("إجمالي البلاغات الحالية", `
+            <p style="color:#536477;line-height:1.8">
+              الإجمالي: <b>${reports.length}</b>
+            </p>
+            <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">توزيع حسب الموقع (مختصر)</h3>
+            ${topListHtml(counts, 10)}
+        `);
+        return;
+    }
+
+    if(which==="todayReports"){
+        const today = new Date().toISOString().substring(0,10);
+        const list = reports.filter(r => r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today);
+        openDetailsModalWithTitle("بلاغات اليوم", `
+            <p style="color:#536477;line-height:1.8">
+              تاريخ اليوم: <b>${today}</b><br>
+              عدد بلاغات اليوم: <b>${list.length}</b>
+            </p>
+            ${list.length ? `
+              <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أحدث بلاغات اليوم</h3>
+              ${list.slice(0,12).map(r=>`
+                <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                  <b>${escapeHtml(r.id)}</b><br>
+                  <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                  <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+                </div>
+              `).join("")}
+            ` : "<p style='color:var(--muted)'>لا توجد بلاغات اليوم حالياً</p>"}
+        `);
+        return;
+    }
+
+    if(which==="mostType"){
+        const t = mostFrequent(reports,"type");
+        openDetailsModalWithTitle("أكثر نوع بلاغ", `
+            <p style="color:#536477;line-height:1.8">
+              ${t ? `النوع: <b>${escapeHtml(t.name)}</b> — العدد: <b>${t.count}</b>` : "لا توجد بيانات حالياً"}
+            </p>
+            <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أفضل الأنواع (مختصر)</h3>
+            ${topListHtml(getCounts(reports,"type"), 10)}
+        `);
+        return;
+    }
+
+    if(which==="uniqueReporters"){
+        const count = new Set(reports.map(r=>r.reporterName).filter(Boolean)).size;
+        openDetailsModalWithTitle("عدد المبلغين", `
+            <p style="color:#536477;line-height:1.8">
+              عدد المبلغين: <b>${count}</b>
+            </p>
+            <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أعلى المبلغين (مختصر)</h3>
+            ${topListHtml(getCounts(reports,"reporterName"), 10)}
+        `);
+        return;
+    }
+}
+
+/* =======================
+   renderAdmin + الباقي (بدون تغيير جوهري)
+   ======================= */
 function renderAdmin(){
     const body=document.getElementById("reportsTableBody");
     const filtered=getFilteredReports();
