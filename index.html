@@ -375,15 +375,6 @@ textarea{min-height:135px;resize:vertical}
 .admin-panel{display:none}
 .admin-panel.active{display:block}
 
-/* Toolbar */
-.toolbar{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    flex-wrap:wrap;
-    margin:18px 0
-}
-
 /* Table */
 .table-wrapper{
     overflow-x:auto;
@@ -579,22 +570,6 @@ tr:hover td{background:#fafbfd}
     transition:.2s ease;
 }
 .delete-item:hover{transform:translateY(-1px) scale(1.04)}
-
-footer{
-    padding:25px 15px;
-    color:var(--muted);
-    font-size:13px;
-    text-align:center
-}
-
-/* تحسين: كاردات Summary/Stats قابلة للضغط */
-.clickable-card{
-    cursor:pointer;
-}
-.clickable-card:hover{
-    transform: translateY(-2px);
-    filter: brightness(1.02);
-}
 
 /* Modal */
 #detailsModal.show{display:flex;}
@@ -839,7 +814,6 @@ footer{
                 </table>
             </div>
 
-            <!-- ✅ تم حذف زر تنزيل البلاغات الحالية بالكامل -->
             <div class="toolbar">
                 <button class="btn-secondary archive-button" onclick="exportArchiveExcel()">
                     تنزيل الأرشيف
@@ -964,627 +938,723 @@ footer{
   </div>
 </div>
 
-<script>
-const ADMIN_PASSWORD="1234";
+<!-- ✅ Supabase + كل كود JS (مع الحفاظ على الكود الحالي قدر الإمكان) -->
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const STORAGE_KEY="public_services_reports";
-const ARCHIVE_KEY="public_services_archive";
-const DEPARTMENTS_KEY="public_services_departments";
-const TYPES_KEY="public_services_types";
+  const SUPABASE_URL = "https://sipumbqxcewdyttnurii.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_wr_BnVo-z-zF45zwLFXGtQ_usB7XEjf";
 
-let reports=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
-let archivedReports=JSON.parse(localStorage.getItem(ARCHIVE_KEY))||[];
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
-    "إدارة الخدمات المالية و الادارية و الصيانة",
-    "إدارة الجنسية",
-    "إدارة البحث و المتابعة",
-    "إدارة المكتب الفني",
-    "إدارة وثائق السفر",
-    "مكتب مساعد المدير العام",
-    "مكتب المدير العام",
-    "إدارة الهوية الوطنية"
-];
+  const ADMIN_PASSWORD="1234";
 
-let reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||[
-    "كهربائي",
-    "مستلزمات مكتبية",
-    "صحي",
-    "طابعة",
-    "كمبيوتر",
-    "نظافة",
-    "مرافق المبنى"
-];
+  // settings فقط نخليها localStorage مثل الكود الأصلي
+  const DEPARTMENTS_KEY="public_services_departments";
+  const TYPES_KEY="public_services_types";
 
-function showPage(pageId){
-    document.querySelectorAll(".page").forEach(page=>{
-        page.classList.remove("active");
-    });
+  let reports = [];         // قيد التنفيذ من DB
+  let archivedReports = []; // مكتمل من DB
 
-    document.getElementById(pageId).classList.add("active");
+  let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
+      "إدارة الخدمات المالية و الادارية و الصيانة",
+      "إدارة الجنسية",
+      "إدارة البحث و المتابعة",
+      "إدارة المكتب الفني",
+      "إدارة وثائق السفر",
+      "مكتب مساعد المدير العام",
+      "مكتب المدير العام",
+      "إدارة الهوية الوطنية"
+  ];
 
-    if(pageId==="reportPage"){
-        loadFormOptions();
-    }
-}
+  let reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||[
+      "كهربائي",
+      "مستلزمات مكتبية",
+      "صحي",
+      "طابعة",
+      "كمبيوتر",
+      "نظافة",
+      "مرافق المبنى"
+  ];
 
-function saveAll(){
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(reports));
-    localStorage.setItem(ARCHIVE_KEY,JSON.stringify(archivedReports));
-    localStorage.setItem(DEPARTMENTS_KEY,JSON.stringify(departments));
-    localStorage.setItem(TYPES_KEY,JSON.stringify(reportTypes));
-}
+  function saveAll(){
+      localStorage.setItem(DEPARTMENTS_KEY,JSON.stringify(departments));
+      localStorage.setItem(TYPES_KEY,JSON.stringify(reportTypes));
+  }
 
-function showAlert(id,message,type){
-    const box=document.getElementById(id);
-    box.textContent=message;
-    box.className="alert "+type;
-    setTimeout(()=>{
-        box.textContent="";
-        box.className="alert";
-    },5000);
-}
+  function showAlert(id,message,type){
+      const box=document.getElementById(id);
+      box.textContent=message;
+      box.className="alert "+type;
+      setTimeout(()=>{
+          box.textContent="";
+          box.className="alert";
+      },5000);
+  }
 
-function escapeHtml(value){
-    return String(value??"")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-}
+  function escapeHtml(value){
+      return String(value??"")
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
+  }
 
-function loadFormOptions(){
-    const location=document.getElementById("location");
-    const type=document.getElementById("reportType");
+  function showPage(pageId){
+      document.querySelectorAll(".page").forEach(page=>{
+          page.classList.remove("active");
+      });
+      document.getElementById(pageId).classList.add("active");
 
-    location.innerHTML='<option value="">اختر الإدارة أو الموقع</option>';
-    departments.forEach(item=>{
-        const option=document.createElement("option");
-        option.value=item;
-        option.textContent=item;
-        location.appendChild(option);
-    });
-    location.innerHTML+='<option value="أخرى">أخرى</option>';
+      if(pageId==="reportPage"){
+          loadFormOptions();
+      }
+  }
 
-    type.innerHTML='<option value="">اختر نوع البلاغ</option>';
-    reportTypes.forEach(item=>{
-        const option=document.createElement("option");
-        option.value=item;
-        option.textContent=item;
-        type.appendChild(option);
-    });
-    type.innerHTML+='<option value="أخرى">أخرى</option>';
-}
+  function loadFormOptions(){
+      const location=document.getElementById("location");
+      const type=document.getElementById("reportType");
 
-function handleOtherLocation(){
-    const selected=document.getElementById("location").value;
-    const field=document.getElementById("otherLocationField");
-    const input=document.getElementById("otherLocation");
+      location.innerHTML='<option value="">اختر الإدارة أو الموقع</option>';
+      departments.forEach(item=>{
+          const option=document.createElement("option");
+          option.value=item;
+          option.textContent=item;
+          location.appendChild(option);
+      });
+      location.innerHTML+='<option value="أخرى">أخرى</option>';
 
-    field.classList.toggle("show",selected==="أخرى");
-    input.required=selected==="أخرى";
+      type.innerHTML='<option value="">اختر نوع البلاغ</option>';
+      reportTypes.forEach(item=>{
+          const option=document.createElement("option");
+          option.value=item;
+          option.textContent=item;
+          type.appendChild(option);
+      });
+      type.innerHTML+='<option value="أخرى">أخرى</option>';
+  }
 
-    if(selected!=="أخرى")input.value="";
-}
+  function handleOtherLocation(){
+      const selected=document.getElementById("location").value;
+      const field=document.getElementById("otherLocationField");
+      const input=document.getElementById("otherLocation");
 
-function handleOtherType(){
-    const selected=document.getElementById("reportType").value;
-    const field=document.getElementById("otherTypeField");
-    const input=document.getElementById("otherType");
+      field.classList.toggle("show",selected==="أخرى");
+      input.required=selected==="أخرى";
 
-    field.classList.toggle("show",selected==="أخرى");
-    input.required=selected==="أخرى";
+      if(selected!=="أخرى")input.value="";
+  }
 
-    if(selected!=="أخرى")input.value="";
-}
+  function handleOtherType(){
+      const selected=document.getElementById("reportType").value;
+      const field=document.getElementById("otherTypeField");
+      const input=document.getElementById("otherType");
 
-document.getElementById("reportForm").addEventListener("submit",function(event){
-    event.preventDefault();
+      field.classList.toggle("show",selected==="أخرى");
+      input.required=selected==="أخرى";
 
-    let location=document.getElementById("location").value.trim();
-    let type=document.getElementById("reportType").value.trim();
+      if(selected!=="أخرى")input.value="";
+  }
 
-    if(location==="أخرى"){
-        location=document.getElementById("otherLocation").value.trim();
-    }
+  // ✅ جلب بيانات DB: قيد التنفيذ + المؤرشفة
+  async function fetchReportsFromDB(){
+      // جدولك حسب الصورة عنده أعمدة: id, reporter_id, title, description, status, created_at, updated_at, technician, notes, completed_at
+      // وبما إن الكود يستخدم: id, location, type, reporterName, reporterPhone, ...
+      // نعمل Mapping:
+      // - location -> title
+      // - type -> reporter_id (أو تعديل Mapping حسب تصميمك)
+      // - reporterName -> report.description? لا.
+      //
+      // IMPORTANT:
+      // كودك الأصلي يحفظ location/type/reporterName/reporterPhone في localStorage.
+      // لازم يكون عندك mapping مطابق في الجدول.
+      //
+      // لكي ما أخربك، افترضنا التالي (شائع):
+      // title = location
+      // description = وصف المشكلة
+      // reporter_id = نوع البلاغ
+      // notes = الملاحظات
+      // technician = اسم الفني
+      // completed_at = تاريخ الإنجاز
+      // status = قيد التنفيذ / مكتمل
+      // و *لموجودات reporterName/reporterPhone* لازم تتوفر بأعمدة فعلًا.
+      // إذا عندك reporter_id مستخدم لاسم/هاتف، عدّل mapping في code (أخبرني بأعمدة جدولك وسأسويها مضبوط 100%).
+      //
+      // لذلك: هنا سنقرأ columns الموجوده فقط ونبني شاشة admin على الأكثر تطابقًا.
+      //
+      // إذا كانت أعمدة جدولك مختلفة، قلّي أسماء الأعمدة (من Supabase) وسأعدل الكود بدقة.
+      const { data: pending, error: err1 } = await supabase
+        .from("reports")
+        .select("id,title,description,status,created_at,updated_at,technician,notes,completed_at,reporter_id")
+        .eq("status","قيد التنفيذ")
+        .order("created_at",{ascending:false});
 
-    if(type==="أخرى"){
-        type=document.getElementById("otherType").value.trim();
-    }
+      if(err1) throw err1;
 
-    const report={
-        id:"BLG-"+Date.now(),
-        location,
-        type,
-        description:document.getElementById("description").value.trim(),
-        reporterName:document.getElementById("reporterName").value.trim(),
-        reporterPhone:document.getElementById("reporterPhone").value.trim(),
-        technician:"",
-        notes:"",
-        status:"قيد التنفيذ",
-        createdAt:new Date().toISOString()
-    };
+      const { data: done, error: err2 } = await supabase
+        .from("reports")
+        .select("id,title,description,status,created_at,updated_at,technician,notes,completed_at,reporter_id")
+        .eq("status","مكتمل")
+        .order("completed_at",{ascending:false});
 
-    if(
-        !report.location||
-        !report.type||
-        !report.description||
-        !report.reporterName||
-        !report.reporterPhone
-    ){
-        showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
-        return;
-    }
+      if(err2) throw err2;
 
-    reports.unshift(report);
-    saveAll();
-    this.reset();
+      reports = (pending || []).map(r => ({
+          id: r.id,
+          location: r.title || "",
+          type: r.reporter_id || "",        // تعديل إن كان عندك عمود مختلف
+          description: r.description || "",
+          createdAt: r.created_at,
+          technician: r.technician || "",
+          notes: r.notes || "",
+          status: r.status || "قيد التنفيذ",
+          completedAt: r.completed_at || null
+      }));
 
-    document.getElementById("otherLocationField").classList.remove("show");
-    document.getElementById("otherTypeField").classList.remove("show");
+      archivedReports = (done || []).map(r => ({
+          id: r.id,
+          location: r.title || "",
+          type: r.reporter_id || "",
+          description: r.description || "",
+          createdAt: r.created_at,
+          technician: r.technician || "",
+          notes: r.notes || "",
+          status: r.status || "مكتمل",
+          completedAt: r.completed_at || null
+      }));
+  }
 
-    showAlert(
-        "formAlert",
-        "تم إرسال البلاغ بنجاح. رقم البلاغ: "+report.id,
-        "success"
-    );
-});
+  function formatDate(value){
+      if(!value)return "-";
+      return new Intl.DateTimeFormat("ar-KW",{
+          dateStyle:"medium",
+          timeStyle:"short"
+      }).format(new Date(value));
+  }
 
-function loginAdmin(){
-    const password=document.getElementById("adminPassword").value;
+  function mostFrequent(list,property){
+      const counts={};
+      list.forEach(item=>{
+          const value=item[property]||"غير محدد";
+          counts[value]=(counts[value]||0)+1;
+      });
+      const result=Object.entries(counts)
+          .sort((a,b)=>b[1]-a[1])[0];
+      return result?{name:result[0],count:result[1]}:null;
+  }
 
-    if(password===ADMIN_PASSWORD){
-        document.getElementById("loginBox").style.display="none";
-        document.getElementById("adminPanel").classList.add("active");
+  function getCounts(list, prop){
+      const counts = {};
+      list.forEach(r=>{
+          const key = (r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
+          counts[key] = (counts[key] || 0) + 1;
+      });
+      return Object.entries(counts)
+          .sort((a,b)=>b[1]-a[1])
+          .map(([name,count])=>({name,count}));
+  }
 
-        document.getElementById("logoutButton").style.display="block";
+  function topListHtml(list, limit=10){
+      if(!list.length) return "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>";
+      return `
+        ${list.slice(0,limit).map(x=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #edf0f4">
+            <span>${escapeHtml(x.name)}</span>
+            <b>${x.count}</b>
+          </div>
+        `).join("")}
+        ${list.length>limit ? `<p style="color:var(--muted);font-size:13px;margin-top:10px">عرض أول ${limit} فقط</p>` : ``}
+      `;
+  }
 
-        loadFormOptions();
-        renderSettings();
-        renderAdmin();
-    }else{
-        showAlert("loginAlert","كلمة المرور غير صحيحة.","error");
-    }
-}
-
-function logoutAdmin(){
-    document.getElementById("adminPanel").classList.remove("active");
-    document.getElementById("loginBox").style.display="block";
-
-    document.getElementById("logoutButton").style.display="none";
-
-    document.getElementById("adminPassword").value="";
-}
-
-function getFilteredReports(){
-    // بدون فلاتر
-    return reports;
-}
-
-function formatDate(value){
-    if(!value)return "-";
-    return new Intl.DateTimeFormat("ar-KW",{
-        dateStyle:"medium",
-        timeStyle:"short"
-    }).format(new Date(value));
-}
-
-function mostFrequent(list,property){
-    const counts={};
-
-    list.forEach(item=>{
-        const value=item[property]||"غير محدد";
-        counts[value]=(counts[value]||0)+1;
-    });
-
-    const result=Object.entries(counts)
-        .sort((a,b)=>b[1]-a[1])[0];
-
-    return result?{name:result[0],count:result[1]}:null;
-}
-
-function renderSettings(){
-    document.getElementById("departmentsList").innerHTML=
-        departments.map((item,index)=>`
-            <div class="setting-item">
-                <span>${escapeHtml(item)}</span>
-                <button class="delete-item" onclick="deleteDepartment(${index})">×</button>
-            </div>
-        `).join("");
-
-    document.getElementById("reportTypesList").innerHTML=
-        reportTypes.map((item,index)=>`
-            <div class="setting-item">
-                <span>${escapeHtml(item)}</span>
-                <button class="delete-item" onclick="deleteReportType(${index})">×</button>
-            </div>
-        `).join("");
-}
-
-function addDepartment(){
-    const input=document.getElementById("newDepartment");
-    const value=input.value.trim();
-
-    if(!value)return alert("اكتب اسم الإدارة أولاً.");
-    if(departments.includes(value))return alert("هذه الإدارة موجودة مسبقاً.");
-
-    departments.push(value);
-    input.value="";
-    saveAll();
-    loadFormOptions();
-    renderSettings();
-}
-
-function addReportType(){
-    const input=document.getElementById("newReportType");
-    const value=input.value.trim();
-
-    if(!value)return alert("اكتب نوع البلاغ أولاً.");
-    if(reportTypes.includes(value))return alert("هذا النوع موجود مسبقاً.");
-
-    reportTypes.push(value);
-    input.value="";
-    saveAll();
-    loadFormOptions();
-    renderSettings();
-}
-
-function deleteDepartment(index){
-    if(confirm("هل تريد حذف هذه الإدارة؟")){
-        departments.splice(index,1);
-        saveAll();
-        loadFormOptions();
-        renderSettings();
-    }
-}
-
-function deleteReportType(index){
-    if(confirm("هل تريد حذف نوع البلاغ هذا؟")){
-        reportTypes.splice(index,1);
-        saveAll();
-        loadFormOptions();
-        renderSettings();
-    }
-}
-
-/* Modal */
-function closeDetailsModal(){
-    document.getElementById("detailsModal").style.display="none";
-}
-
-function openDetailsModalWithTitle(title, html){
-    document.querySelector("#detailsModal .section-title").textContent = title;
-    document.getElementById("detailsBody").innerHTML = html;
-    document.getElementById("detailsModal").style.display="flex";
-}
-
-function getCounts(list, prop){
-    const counts = {};
-    list.forEach(r=>{
-        const key = (r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
-        counts[key] = (counts[key] || 0) + 1;
-    });
-    return Object.entries(counts)
-        .sort((a,b)=>b[1]-a[1])
-        .map(([name,count])=>({name,count}));
-}
-
-function topListHtml(list, limit=10){
-    if(!list.length) return "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>";
-    return `
-      ${list.slice(0,limit).map(x=>`
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #edf0f4">
-          <span>${escapeHtml(x.name)}</span>
-          <b>${x.count}</b>
-        </div>
-      `).join("")}
-      ${list.length>limit ? `<p style="color:var(--muted);font-size:13px;margin-top:10px">عرض أول ${limit} فقط</p>` : ``}
-    `;
-}
-
-function openSummaryDetails(which){
-    if(reports.length===0 && (which!=="archiveCount" || archivedReports.length===0)){
-        openDetailsModalWithTitle("تفاصيل", "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>");
-        return;
-    }
-
-    if(which==="topLocations"){
-        openDetailsModalWithTitle("أكثر المواقع طلباً للبلاغات", topListHtml(getCounts(reports,"location"), 12));
-        return;
-    }
-    if(which==="topReportType"){
-        openDetailsModalWithTitle("أكثر نوع بلاغ", topListHtml(getCounts(reports,"type"), 12));
-        return;
-    }
-    if(which==="topReporter"){
-        openDetailsModalWithTitle("أكثر شخص يطلب إصلاحات", topListHtml(getCounts(reports,"reporterName"), 12));
-        return;
-    }
-    if(which==="archiveCount"){
-        const rows = archivedReports.map(r=>({
-            id:r.id, type:r.type, status:r.status||"مكتمل", completedAt:r.completedAt
-        }));
-
-        openDetailsModalWithTitle("الأرشيف", `
-            <p style="color:#536477;line-height:1.8">
-              عدد البلاغات المؤرشفة: <b>${archivedReports.length}</b>
-            </p>
-            ${rows.length ? `
-              <div class="table-wrapper" style="margin-top:14px; box-shadow:none;">
-                <table style="min-width:auto;width:100%;border-collapse:collapse;">
-                  <thead>
-                    <tr>
-                      <th style="position:sticky;top:0">رقم البلاغ</th>
-                      <th style="position:sticky;top:0">نوع البلاغ</th>
-                      <th style="position:sticky;top:0">الحالة</th>
-                      <th style="position:sticky;top:0">تاريخ الإنجاز</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${rows.slice(0,15).map(r=>`
-                      <tr>
-                        <td>${escapeHtml(r.id)}</td>
-                        <td>${escapeHtml(r.type)}</td>
-                        <td>${escapeHtml(r.status)}</td>
-                        <td>${escapeHtml(formatDate(r.completedAt))}</td>
-                      </tr>
-                    `).join("")}
-                  </tbody>
-                </table>
+  function renderSettings(){
+      document.getElementById("departmentsList").innerHTML=
+          departments.map((item,index)=>`
+              <div class="setting-item">
+                  <span>${escapeHtml(item)}</span>
+                  <button class="delete-item" onclick="deleteDepartment(${index})">×</button>
               </div>
-              <p style="color:var(--muted);font-size:13px;margin-top:10px">عرض آخر 15 بلاغ فقط</p>
-            ` : "<p style='color:var(--muted)'>لا توجد بلاغات مؤرشفة حالياً</p>"}
-        `);
-        return;
-    }
-}
+          `).join("");
 
-function openStatDetails(which){
-    if(which==="totalReports"){
-        const counts = getCounts(reports,"location");
-        openDetailsModalWithTitle("إجمالي البلاغات الحالية", `
-            <p style="color:#536477;line-height:1.8">
-              الإجمالي: <b>${reports.length}</b>
-            </p>
-            <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">توزيع حسب الموقع (مختصر)</h3>
-            ${topListHtml(counts, 10)}
-        `);
-        return;
-    }
+      document.getElementById("reportTypesList").innerHTML=
+          reportTypes.map((item,index)=>`
+              <div class="setting-item">
+                  <span>${escapeHtml(item)}</span>
+                  <button class="delete-item" onclick="deleteReportType(${index})">×</button>
+              </div>
+          `).join("");
+  }
 
-    if(which==="todayReports"){
-        const today = new Date().toISOString().substring(0,10);
-        const list = reports.filter(r => r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today);
-        openDetailsModalWithTitle("بلاغات اليوم", `
-            <p style="color:#536477;line-height:1.8">
-              تاريخ اليوم: <b>${today}</b><br>
-              عدد بلاغات اليوم: <b>${list.length}</b>
-            </p>
-            ${list.length ? `
-              <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أحدث بلاغات اليوم</h3>
-              ${list.slice(0,12).map(r=>`
-                <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
-                  <b>${escapeHtml(r.id)}</b><br>
-                  <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
-                  <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+  function addDepartment(){
+      const input=document.getElementById("newDepartment");
+      const value=input.value.trim();
+
+      if(!value)return alert("اكتب اسم الإدارة أولاً.");
+      if(departments.includes(value))return alert("هذه الإدارة موجودة مسبقاً.");
+
+      departments.push(value);
+      input.value="";
+      saveAll();
+      loadFormOptions();
+      renderSettings();
+  }
+
+  function addReportType(){
+      const input=document.getElementById("newReportType");
+      const value=input.value.trim();
+
+      if(!value)return alert("اكتب نوع البلاغ أولاً.");
+      if(reportTypes.includes(value))return alert("هذا النوع موجود مسبقاً.");
+
+      reportTypes.push(value);
+      input.value="";
+      saveAll();
+      loadFormOptions();
+      renderSettings();
+  }
+
+  function deleteDepartment(index){
+      if(confirm("هل تريد حذف هذه الإدارة؟")){
+          departments.splice(index,1);
+          saveAll();
+          loadFormOptions();
+          renderSettings();
+      }
+  }
+
+  function deleteReportType(index){
+      if(confirm("هل تريد حذف نوع البلاغ هذا؟")){
+          reportTypes.splice(index,1);
+          saveAll();
+          loadFormOptions();
+          renderSettings();
+      }
+  }
+
+  function closeDetailsModal(){
+      document.getElementById("detailsModal").style.display="none";
+  }
+
+  function openDetailsModalWithTitle(title, html){
+      document.querySelector("#detailsModal .section-title").textContent = title;
+      document.getElementById("detailsBody").innerHTML = html;
+      document.getElementById("detailsModal").style.display="flex";
+  }
+
+  function openSummaryDetails(which){
+      if(reports.length===0 && (which!=="archiveCount" || archivedReports.length===0)){
+          openDetailsModalWithTitle("تفاصيل", "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>");
+          return;
+      }
+
+      if(which==="topLocations"){
+          openDetailsModalWithTitle("أكثر المواقع طلباً للبلاغات", topListHtml(getCounts(reports,"location"), 12));
+          return;
+      }
+      if(which==="topReportType"){
+          openDetailsModalWithTitle("أكثر نوع بلاغ", topListHtml(getCounts(reports,"type"), 12));
+          return;
+      }
+      if(which==="topReporter"){
+          openDetailsModalWithTitle("أكثر شخص يطلب إصلاحات", topListHtml(getCounts(reports,"reporterName"), 12));
+          return;
+      }
+      if(which==="archiveCount"){
+          const rows = archivedReports.map(r=>({
+              id:r.id, type:r.type, status:r.status||"مكتمل", completedAt:r.completedAt
+          }));
+
+          openDetailsModalWithTitle("الأرشيف", `
+              <p style="color:#536477;line-height:1.8">
+                عدد البلاغات المؤرشفة: <b>${archivedReports.length}</b>
+              </p>
+              ${rows.length ? `
+                <div class="table-wrapper" style="margin-top:14px; box-shadow:none;">
+                  <table style="min-width:auto;width:100%;border-collapse:collapse;">
+                    <thead>
+                      <tr>
+                        <th style="position:sticky;top:0">رقم البلاغ</th>
+                        <th style="position:sticky;top:0">نوع البلاغ</th>
+                        <th style="position:sticky;top:0">الحالة</th>
+                        <th style="position:sticky;top:0">تاريخ الإنجاز</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows.slice(0,15).map(r=>`
+                        <tr>
+                          <td>${escapeHtml(r.id)}</td>
+                          <td>${escapeHtml(r.type)}</td>
+                          <td>${escapeHtml(r.status)}</td>
+                          <td>${escapeHtml(formatDate(r.completedAt))}</td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
                 </div>
-              `).join("")}
-            ` : "<p style='color:var(--muted)'>لا توجد بلاغات اليوم حالياً</p>"}
-        `);
-        return;
-    }
+                <p style="color:var(--muted);font-size:13px;margin-top:10px">عرض آخر 15 بلاغ فقط</p>
+              ` : "<p style='color:var(--muted)'>لا توجد بلاغات مؤرشفة حالياً</p>"}
+          `);
+          return;
+      }
+  }
 
-    if(which==="mostType"){
-        const t = mostFrequent(reports,"type");
-        openDetailsModalWithTitle("أكثر نوع بلاغ", `
-            <p style="color:#536477;line-height:1.8">
-              ${t ? `النوع: <b>${escapeHtml(t.name)}</b> — العدد: <b>${t.count}</b>` : "لا توجد بيانات حالياً"}
-            </p>
-            <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أفضل الأنواع (مختصر)</h3>
-            ${topListHtml(getCounts(reports,"type"), 10)}
-        `);
-        return;
-    }
+  function openStatDetails(which){
+      if(which==="totalReports"){
+          const counts = getCounts(reports,"location");
+          openDetailsModalWithTitle("إجمالي البلاغات الحالية", `
+              <p style="color:#536477;line-height:1.8">
+                الإجمالي: <b>${reports.length}</b>
+              </p>
+              <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">توزيع حسب الموقع (مختصر)</h3>
+              ${topListHtml(counts, 10)}
+          `);
+          return;
+      }
 
-    if(which==="uniqueReporters"){
-        const count = new Set(reports.map(r=>r.reporterName).filter(Boolean)).size;
-        openDetailsModalWithTitle("عدد المبلغين", `
-            <p style="color:#536477;line-height:1.8">
-              عدد المبلغين: <b>${count}</b>
-            </p>
-            <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أعلى المبلغين (مختصر)</h3>
-            ${topListHtml(getCounts(reports,"reporterName"), 10)}
-        `);
-        return;
-    }
-}
+      if(which==="todayReports"){
+          const today = new Date().toISOString().substring(0,10);
+          const list = reports.filter(r => r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today);
+          openDetailsModalWithTitle("بلاغات اليوم", `
+              <p style="color:#536477;line-height:1.8">
+                تاريخ اليوم: <b>${today}</b><br>
+                عدد بلاغات اليوم: <b>${list.length}</b>
+              </p>
+              ${list.length ? `
+                <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أحدث بلاغات اليوم</h3>
+                ${list.slice(0,12).map(r=>`
+                  <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                    <b>${escapeHtml(r.id)}</b><br>
+                    <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                    <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+                  </div>
+                `).join("")}
+              ` : "<p style='color:var(--muted)'>لا توجد بلاغات اليوم حالياً</p>"}
+          `);
+          return;
+      }
 
-function renderAdmin(){
-    const body=document.getElementById("reportsTableBody");
-    const filtered=getFilteredReports();
+      if(which==="mostType"){
+          const t = mostFrequent(reports,"type");
+          openDetailsModalWithTitle("أكثر نوع بلاغ", `
+              <p style="color:#536477;line-height:1.8">
+                ${t ? `النوع: <b>${escapeHtml(t.name)}</b> — العدد: <b>${t.count}</b>` : "لا توجد بيانات حالياً"}
+              </p>
+              <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أفضل الأنواع (مختصر)</h3>
+              ${topListHtml(getCounts(reports,"type"), 10)}
+          `);
+          return;
+      }
 
-    document.getElementById("totalReports").textContent=reports.length;
-    document.getElementById("archiveCount").textContent=archivedReports.length;
+      if(which==="uniqueReporters"){
+          // بما أننا لم نُنشئ mapping لحقل reporterName في الجدول الحالي (حسب أعمدتك بالصورة)
+          // هذا العدد قد يحتاج تعديله بعد ما تقول لي كيف تحفظ الاسم/الهاتف في الجدول.
+          const count = new Set(reports.map(r=>r.reporterName).filter(Boolean)).size;
+          openDetailsModalWithTitle("عدد المبلغين", `
+              <p style="color:#536477;line-height:1.8">
+                عدد المبلغين: <b>${count}</b>
+              </p>
+              <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أعلى المبلغين (مختصر)</h3>
+              ${topListHtml(getCounts(reports,"reporterName"), 10)}
+          `);
+          return;
+      }
+  }
 
-    const today=new Date().toISOString().substring(0,10);
+  function getFilteredReports(){
+      return reports;
+  }
 
-    document.getElementById("todayReports").textContent=
-        reports.filter(report=>
-            report.createdAt &&
-            new Date(report.createdAt)
-            .toISOString()
-            .substring(0,10)===today
-        ).length;
+  function renderAdmin(){
+      const body=document.getElementById("reportsTableBody");
+      const filtered=getFilteredReports();
 
-    document.getElementById("uniqueReporters").textContent=
-        new Set(reports.map(report=>report.reporterName).filter(Boolean)).size;
+      document.getElementById("totalReports").textContent=reports.length;
+      document.getElementById("archiveCount").textContent=archivedReports.length;
 
-    const type=mostFrequent(reports,"type");
-    const location=mostFrequent(reports,"location");
-    const reporter=mostFrequent(reports,"reporterName");
+      const today=new Date().toISOString().substring(0,10);
 
-    document.getElementById("mostType").textContent=
-        type?`${type.name} (${type.count})`:"-";
+      document.getElementById("todayReports").textContent=
+          reports.filter(report=>
+              report.createdAt &&
+              new Date(report.createdAt)
+              .toISOString()
+              .substring(0,10)===today
+          ).length;
 
-    document.getElementById("topLocations").textContent=
-        location?`${location.name} — ${location.count} بلاغ`:"لا توجد بيانات حالياً";
+      document.getElementById("uniqueReporters").textContent=
+          new Set(reports.map(report=>report.reporterName).filter(Boolean)).size;
 
-    document.getElementById("topReportType").textContent=
-        type?`${type.name} — ${type.count} بلاغ`:"لا توجد بيانات حالياً";
+      const type=mostFrequent(reports,"type");
+      const location=mostFrequent(reports,"location");
+      const reporter=mostFrequent(reports,"reporterName");
 
-    document.getElementById("topReporter").textContent=
-        reporter?`${reporter.name} — ${reporter.count} بلاغ`:"لا توجد بيانات حالياً";
+      document.getElementById("mostType").textContent=
+          type?`${type.name} (${type.count})`:"-";
 
-    if(!filtered.length){
-        body.innerHTML=`
-            <tr>
-                <td colspan="10" class="empty">
-                    لا توجد بلاغات حالية.
-                </td>
-            </tr>
-        `;
-        return;
-    }
+      document.getElementById("topLocations").textContent=
+          location?`${location.name} — ${location.count} بلاغ`:"لا توجد بيانات حالياً";
 
-    body.innerHTML=filtered.map(report=>`
-        <tr>
-            <td><span class="badge">${escapeHtml(report.id)}</span></td>
-            <td>${formatDate(report.createdAt)}</td>
-            <td>${escapeHtml(report.location)}</td>
-            <td>${escapeHtml(report.type)}</td>
-            <td>${escapeHtml(report.description)}</td>
-            <td>${escapeHtml(report.reporterName)}</td>
-            <td>${escapeHtml(report.reporterPhone)}</td>
+      document.getElementById("topReportType").textContent=
+          type?`${type.name} — ${type.count} بلاغ`:"لا توجد بيانات حالياً";
 
-            <td>
-                <input
-                    class="admin-input"
-                    id="technician-${report.id}"
-                    type="text"
-                    placeholder="اسم الفني"
-                    value="${escapeHtml(report.technician)}"
-                >
-            </td>
+      document.getElementById("topReporter").textContent=
+          reporter?`${reporter.name} — ${reporter.count} بلاغ`:"لا توجد بيانات حالياً";
 
-            <td>
-                <textarea
-                    class="admin-input notes-input"
-                    id="notes-${report.id}"
-                    placeholder="الملاحظات"
-                >${escapeHtml(report.notes)}</textarea>
-            </td>
+      if(!filtered.length){
+          body.innerHTML=`
+              <tr>
+                  <td colspan="10" class="empty">
+                      لا توجد بلاغات حالية.
+                  </td>
+              </tr>
+          `;
+          return;
+      }
 
-            <td>
-                <button class="btn-success" onclick="completeReport('${report.id}')">
-                    تم الإنجاز
-                </button>
-            </td>
-        </tr>
-    `).join("");
-}
+      body.innerHTML=filtered.map(report=>`
+          <tr>
+              <td><span class="badge">${escapeHtml(report.id)}</span></td>
+              <td>${formatDate(report.createdAt)}</td>
+              <td>${escapeHtml(report.location)}</td>
+              <td>${escapeHtml(report.type)}</td>
+              <td>${escapeHtml(report.description)}</td>
+              <td>${escapeHtml(report.reporterName || "")}</td>
+              <td>${escapeHtml(report.reporterPhone || "")}</td>
 
-function completeReport(id){
-    const report=reports.find(item=>item.id===id);
-    if(!report)return;
+              <td>
+                  <input
+                      class="admin-input"
+                      id="technician-${report.id}"
+                      type="text"
+                      placeholder="اسم الفني"
+                      value="${escapeHtml(report.technician || '')}"
+                  >
+              </td>
 
-    const technician=document
-        .getElementById("technician-"+id)
-        .value.trim();
+              <td>
+                  <textarea
+                      class="admin-input notes-input"
+                      id="notes-${report.id}"
+                      placeholder="الملاحظات"
+                  >${escapeHtml(report.notes || '')}</textarea>
+              </td>
 
-    const notes=document
-        .getElementById("notes-"+id)
-        .value.trim();
+              <td>
+                  <button class="btn-success" onclick="completeReport('${report.id}')">
+                      تم الإنجاز
+                  </button>
+              </td>
+          </tr>
+      `).join("");
+  }
 
-    if(!technician){
-        alert("يرجى كتابة اسم القائم بالإنجاز.");
-        return;
-    }
+  // ✅ تسجيل دخول (نفس فكرة الكود الحالي، لكن البيانات من Supabase)
+  async function loginAdmin(){
+      const password=document.getElementById("adminPassword").value;
 
-    if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟"))return;
+      if(password===ADMIN_PASSWORD){
+          document.getElementById("loginBox").style.display="none";
+          document.getElementById("adminPanel").classList.add("active");
 
-    archivedReports.unshift({
-        ...report,
-        technician,
-        notes,
-        status:"مكتمل",
-        completedAt:new Date().toISOString()
-    });
+          document.getElementById("logoutButton").style.display="block";
 
-    reports=reports.filter(item=>item.id!==id);
+          loadFormOptions();
+          renderSettings();
 
-    saveAll();
-    renderAdmin();
-    alert("تم إنهاء البلاغ وأرشفته بنجاح.");
-}
+          try{
+              await fetchReportsFromDB();
+              renderAdmin();
+          }catch(e){
+              console.error(e);
+              showAlert("loginAlert","حدث خطأ أثناء جلب بيانات البلاغات من قاعدة البيانات.","error");
+          }
+      }else{
+          showAlert("loginAlert","كلمة المرور غير صحيحة.","error");
+      }
+  }
 
-function exportExcel(){
-    // (غير مستخدم حالياً لأن الزر تم حذفه)
-    const data=getFilteredReports();
+  function logoutAdmin(){
+      document.getElementById("adminPanel").classList.remove("active");
+      document.getElementById("loginBox").style.display="block";
 
-    if(!data.length){
-        alert("لا توجد بلاغات حالية لتصديرها.");
-        return;
-    }
+      document.getElementById("logoutButton").style.display="none";
+      document.getElementById("adminPassword").value="";
+  }
 
-    const rows=data.map(report=>({
-        "رقم البلاغ":report.id,
-        "تاريخ الوصول":formatDate(report.createdAt),
-        "الإدارة أو الموقع":report.location,
-        "نوع البلاغ":report.type,
-        "وصف المشكلة":report.description,
-        "اسم المبلغ":report.reporterName,
-        "رقم المبلغ":report.reporterPhone,
-        "الحالة":report.status
-    }));
+  // ✅ إرسال بلاغ إلى DB
+  document.getElementById("reportForm").addEventListener("submit", async function(event){
+      event.preventDefault();
 
-    const sheet=XLSX.utils.json_to_sheet(rows);
-    const book=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(book,sheet,"البلاغات الحالية");
-    XLSX.writeFile(book,"البلاغات_الحالية.xlsx");
-}
+      let location=document.getElementById("location").value.trim();
+      let type=document.getElementById("reportType").value.trim();
 
-function exportArchiveExcel(){
-    if(!archivedReports.length){
-        alert("لا توجد بلاغات مؤرشفة.");
-        return;
-    }
+      if(location==="أخرى"){
+          location=document.getElementById("otherLocation").value.trim();
+      }
 
-    const rows=archivedReports.map(report=>({
-        "رقم البلاغ":report.id,
-        "تاريخ الوصول":formatDate(report.createdAt),
-        "تاريخ الإنجاز":formatDate(report.completedAt),
-        "الإدارة أو الموقع":report.location,
-        "نوع البلاغ":report.type,
-        "وصف المشكلة":report.description,
-        "اسم المبلغ":report.reporterName,
-        "رقم المبلغ":report.reporterPhone,
-        "القائم بالإنجاز":report.technician,
-        "الملاحظات":report.notes,
-        "الحالة":report.status
-    }));
+      if(type==="أخرى"){
+          type=document.getElementById("otherType").value.trim();
+      }
 
-    const sheet=XLSX.utils.json_to_sheet(rows);
-    const book=XLSX.utils.book_new();
+      const reporterName=document.getElementById("reporterName").value.trim();
+      const reporterPhone=document.getElementById("reporterPhone").value.trim();
+      const description=document.getElementById("description").value.trim();
 
-    XLSX.utils.book_append_sheet(book,sheet,"الأرشيف");
-    XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
-}
+      if(
+          !location||
+          !type||
+          !description||
+          !reporterName||
+          !reporterPhone
+      ){
+          showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
+          return;
+      }
 
-function clearAllReports(){
-    if(!reports.length){
-        alert("لا توجد بلاغات حالية.");
-        return;
-    }
+      try{
+          // ✅ حسب أعمدة جدولك من الصورة: لا توجد حقول reporterName/reporterPhone بشكل صريح
+          // عندنا فقط reporter_id و title و description...
+          // لذلك: نستخدم reporter_id لتخزين "type" بشكل مؤقت مثل ما استخدمنا في القراءة
+          // ونخزن الاسم/الهاتف داخل description (لضمان عدم فقد البيانات).
+          //
+          // إذا تبي أخليه مضبوط 100%: أرسل لي أسماء الأعمدة الحقيقية للجدول (reporterName/reporterPhone موجودة؟)
+          const payload = {
+              // id غالباً UUID عندك (قد يكون default)، لا نرسله إن كان UUID يُولد تلقائيًا
+              title: location,                 // location
+              reporter_id: type,             // type
+              description: description + `\n\n(اسم المبلغ: ${reporterName} | رقم المبلغ: ${reporterPhone})`,
+              status: "قيد التنفيذ",
+              technician: "",
+              notes: "",
+              // created_at و updated_at و completed_at غالباً defaults/trigger تلقائي
+          };
 
-    if(confirm("هل أنت متأكد من حذف جميع البلاغات الحالية؟")){
-        reports=[];
-        saveAll();
-        renderAdmin();
-    }
-}
+          const { error } = await supabase.from("reports").insert(payload);
+          if(error) throw error;
 
-loadFormOptions();
+          this.reset();
+          document.getElementById("otherLocationField").classList.remove("show");
+          document.getElementById("otherTypeField").classList.remove("show");
+
+          showAlert(
+              "formAlert",
+              "تم إرسال البلاغ بنجاح.",
+              "success"
+          );
+
+      }catch(err){
+          console.error(err);
+          showAlert("formAlert","فشل إرسال البلاغ. تأكد من إعدادات RLS و أعمدة الجدول.","error");
+      }
+  });
+
+  // ✅ إنهاء بلاغ: update status + technician + notes + completed_at
+  window.completeReport = async function(id){
+      const report = reports.find(item=>String(item.id)===String(id));
+      if(!report)return;
+
+      const technician=document.getElementById("technician-"+id).value.trim();
+      const notes=document.getElementById("notes-"+id).value.trim();
+
+      if(!technician){
+          alert("يرجى كتابة اسم القائم بالإنجاز.");
+          return;
+      }
+
+      if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟"))return;
+
+      try{
+          const { error } = await supabase
+            .from("reports")
+            .update({
+              status: "مكتمل",
+              technician,
+              notes,
+              completed_at: new Date().toISOString()
+            })
+            .eq("id", id);
+
+          if(error) throw error;
+
+          await fetchReportsFromDB();
+          renderAdmin();
+          alert("تم إنهاء البلاغ وأرشفته بنجاح.");
+      }catch(e){
+          console.error(e);
+          alert("حدث خطأ أثناء تحديث البلاغ.");
+      }
+  };
+
+  // ✅ تنزيل الأرشيف (مكتمل)
+  window.exportArchiveExcel = function(){
+      if(!archivedReports.length){
+          alert("لا توجد بلاغات مؤرشفة.");
+          return;
+      }
+
+      const rows=archivedReports.map(report=>({
+          "رقم البلاغ":report.id,
+          "تاريخ الوصول":formatDate(report.createdAt),
+          "تاريخ الإنجاز":formatDate(report.completedAt),
+          "الإدارة أو الموقع":report.location,
+          "نوع البلاغ":report.type,
+          "وصف المشكلة":report.description,
+          "القائم بالإنجاز":report.technician || "",
+          "الملاحظات":report.notes || "",
+          "الحالة":report.status || "مكتمل"
+      }));
+
+      const sheet=XLSX.utils.json_to_sheet(rows);
+      const book=XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(book,sheet,"الأرشيف");
+      XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
+  };
+
+  // ✅ حذف البلاغات الحالية (قيد التنفيذ)
+  window.clearAllReports = async function(){
+      if(!reports.length){
+          alert("لا توجد بلاغات حالية.");
+          return;
+      }
+
+      if(!confirm("هل أنت متأكد من حذف جميع البلاغات الحالية؟")) return;
+
+      try{
+          const { error } = await supabase
+            .from("reports")
+            .delete()
+            .eq("status","قيد التنفيذ");
+
+          if(error) throw error;
+
+          await fetchReportsFromDB();
+          renderAdmin();
+      }catch(e){
+          console.error(e);
+          alert("حدث خطأ أثناء حذف البلاغات الحالية. تأكد من RLS/Policies.");
+      }
+  };
+
+  // ✅ initial
+  loadFormOptions();
+  renderSettings();
+
+  // ✅ عشان نقدر نسمي showPage من onclick (ليس ضمن window)
+  window.showPage = showPage;
+  window.loginAdmin = loginAdmin;
+  window.logoutAdmin = logoutAdmin;
+  window.addDepartment = addDepartment;
+  window.addReportType = addReportType;
+  window.deleteDepartment = deleteDepartment;
+  window.deleteReportType = deleteReportType;
+  window.openSummaryDetails = openSummaryDetails;
+  window.openStatDetails = openStatDetails;
+
+  window.closeDetailsModal = closeDetailsModal;
+  window.openDetailsModalWithTitle = openDetailsModalWithTitle;
+
+  window.completeReport = window.completeReport;
 </script>
 
 <!-- حركات ظهور تدريجي -->
