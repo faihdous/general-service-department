@@ -772,7 +772,6 @@ tr:hover td{background:#fafbfd}
 
             <div id="loginAlert" class="alert"></div>
 
-            <!-- ✅ تمت إضافة حقل الإيميل -->
             <div class="field">
                 <label for="adminEmail">الإيميل</label>
                 <input
@@ -853,10 +852,7 @@ tr:hover td{background:#fafbfd}
 
                         <div class="add-row">
                             <input id="newDepartment" type="text" placeholder="اسم الإدارة أو الموقع">
-
-                            <button class="btn-primary" onclick="addDepartment()">
-                                إضافة
-                            </button>
+                            <button class="btn-primary" onclick="addDepartment()">إضافة</button>
                         </div>
 
                         <div id="departmentsList" class="items-list"></div>
@@ -867,10 +863,7 @@ tr:hover td{background:#fafbfd}
 
                         <div class="add-row">
                             <input id="newReportType" type="text" placeholder="نوع البلاغ">
-
-                            <button class="btn-primary" onclick="addReportType()">
-                                إضافة
-                            </button>
+                            <button class="btn-primary" onclick="addReportType()">إضافة</button>
                         </div>
 
                         <div id="reportTypesList" class="items-list"></div>
@@ -959,10 +952,8 @@ tr:hover td{background:#fafbfd}
   const SUPABASE_URL = "https://sipumbqxcewdyttnurii.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_wr_BnVo-z-zF45zwLFXGtQ_usB7XEjf";
 
-  // ✅ مهم: استخدم client للـ Auth حتى تصير الجلسة authenticated
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // settings فقط نخليها localStorage مثل الكود الأصلي
   const DEPARTMENTS_KEY="public_services_departments";
   const TYPES_KEY="public_services_types";
 
@@ -1014,6 +1005,12 @@ tr:hover td{background:#fafbfd}
           .replaceAll("'","&#039;");
   }
 
+  // ✅ تحويل رقم البلاغ من report_number إلى شكل BG-x
+  function formatBGNumber(reportNumber){
+      if(reportNumber === null || reportNumber === undefined || reportNumber === "") return "-";
+      return `BG-${reportNumber}`;
+  }
+
   function showPage(pageId){
       document.querySelectorAll(".page").forEach(page=>{
           page.classList.remove("active");
@@ -1055,7 +1052,6 @@ tr:hover td{background:#fafbfd}
 
       field.classList.toggle("show",selected==="أخرى");
       input.required=selected==="أخرى";
-
       if(selected!=="أخرى")input.value="";
   }
 
@@ -1066,14 +1062,14 @@ tr:hover td{background:#fafbfd}
 
       field.classList.toggle("show",selected==="أخرى");
       input.required=selected==="أخرى";
-
       if(selected!=="أخرى")input.value="";
   }
 
   async function fetchReportsFromDB(){
+      // ✅ أضفنا report_number في select (مهم لعرض رقم المبلغ)
       const { data: pending, error: err1 } = await supabase
         .from("reports")
-        .select("id,title,description,status,created_at,updated_at,technician,notes,completed_at,reporter_id")
+        .select("id,report_number,title,description,status,created_at,updated_at,technician,notes,completed_at,reporter_id")
         .eq("status","قيد التنفيذ")
         .order("created_at",{ascending:false});
 
@@ -1081,7 +1077,7 @@ tr:hover td{background:#fafbfd}
 
       const { data: done, error: err2 } = await supabase
         .from("reports")
-        .select("id,title,description,status,created_at,updated_at,technician,notes,completed_at,reporter_id")
+        .select("id,report_number,title,description,status,created_at,updated_at,technician,notes,completed_at,reporter_id")
         .eq("status","مكتمل")
         .order("completed_at",{ascending:false});
 
@@ -1089,6 +1085,7 @@ tr:hover td{background:#fafbfd}
 
       reports = (pending || []).map(r => ({
           id: r.id,
+          reportNumber: r.report_number ?? null,   // ✅
           location: r.title || "",
           type: r.reporter_id || "",
           description: r.description || "",
@@ -1101,6 +1098,7 @@ tr:hover td{background:#fafbfd}
 
       archivedReports = (done || []).map(r => ({
           id: r.id,
+          reportNumber: r.report_number ?? null,   // ✅
           location: r.title || "",
           type: r.reporter_id || "",
           description: r.description || "",
@@ -1176,10 +1174,8 @@ tr:hover td{background:#fafbfd}
   function addDepartment(){
       const input=document.getElementById("newDepartment");
       const value=input.value.trim();
-
       if(!value)return alert("اكتب اسم الإدارة أولاً.");
       if(departments.includes(value))return alert("هذه الإدارة موجودة مسبقاً.");
-
       departments.push(value);
       input.value="";
       saveAll();
@@ -1190,10 +1186,8 @@ tr:hover td{background:#fafbfd}
   function addReportType(){
       const input=document.getElementById("newReportType");
       const value=input.value.trim();
-
       if(!value)return alert("اكتب نوع البلاغ أولاً.");
       if(reportTypes.includes(value))return alert("هذا النوع موجود مسبقاً.");
-
       reportTypes.push(value);
       input.value="";
       saveAll();
@@ -1244,12 +1238,13 @@ tr:hover td{background:#fafbfd}
           return;
       }
       if(which==="topReporter"){
-          openDetailsModalWithTitle("أكثر شخص يطلب إصلاحات", topListHtml(getCounts(reports,"reporterName"), 12));
+          // reporterName غير موجود عندك في الجدول حسب صورك، فخلّيناها "-"
+          openDetailsModalWithTitle("أكثر شخص يطلب إصلاحات", "<p style='color:var(--muted)'>لا توجد بيانات اسم المبلغ حالياً في قاعدة البيانات.</p>");
           return;
       }
       if(which==="archiveCount"){
           const rows = archivedReports.map(r=>({
-              id:r.id, type:r.type, status:r.status||"مكتمل", completedAt:r.completedAt
+              id:r.id, reportNumber:r.reportNumber, type:r.type, status:r.status||"مكتمل", completedAt:r.completedAt
           }));
 
           openDetailsModalWithTitle("الأرشيف", `
@@ -1270,7 +1265,7 @@ tr:hover td{background:#fafbfd}
                     <tbody>
                       ${rows.slice(0,15).map(r=>`
                         <tr>
-                          <td>${escapeHtml(r.id)}</td>
+                          <td>${escapeHtml(formatBGNumber(r.reportNumber))}</td>
                           <td>${escapeHtml(r.type)}</td>
                           <td>${escapeHtml(r.status)}</td>
                           <td>${escapeHtml(formatDate(r.completedAt))}</td>
@@ -1311,7 +1306,7 @@ tr:hover td{background:#fafbfd}
                 <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أحدث بلاغات اليوم</h3>
                 ${list.slice(0,12).map(r=>`
                   <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
-                    <b>${escapeHtml(r.id)}</b><br>
+                    <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
                     <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
                     <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
                   </div>
@@ -1334,13 +1329,14 @@ tr:hover td{background:#fafbfd}
       }
 
       if(which==="uniqueReporters"){
-          const count = new Set(reports.map(r=>r.reporterName).filter(Boolean)).size;
+          // reporterName غير موجود عندك في الجدول حسب صورك، فنعرض عدد 0
           openDetailsModalWithTitle("عدد المبلغين", `
               <p style="color:#536477;line-height:1.8">
-                عدد المبلغين: <b>${count}</b>
+                عدد المبلغين: <b>-</b>
               </p>
-              <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أعلى المبلغين (مختصر)</h3>
-              ${topListHtml(getCounts(reports,"reporterName"), 10)}
+              <p style="color:var(--muted);margin-top:8px">
+                لا توجد أعمدة اسم/هاتف للمبلغ في جدول reports حالياً.
+              </p>
           `);
           return;
       }
@@ -1362,17 +1358,14 @@ tr:hover td{background:#fafbfd}
       document.getElementById("todayReports").textContent=
           reports.filter(report=>
               report.createdAt &&
-              new Date(report.createdAt)
-              .toISOString()
-              .substring(0,10)===today
+              new Date(report.createdAt).toISOString().substring(0,10)===today
           ).length;
 
-      document.getElementById("uniqueReporters").textContent=
-          new Set(reports.map(report=>report.reporterName).filter(Boolean)).size;
+      // هذا يتأثر بـ reporterName غير موجود عندك، نخليه "-":
+      document.getElementById("uniqueReporters").textContent = "-";
 
       const type=mostFrequent(reports,"type");
       const location=mostFrequent(reports,"location");
-      const reporter=mostFrequent(reports,"reporterName");
 
       document.getElementById("mostType").textContent=
           type?`${type.name} (${type.count})`:"-";
@@ -1384,7 +1377,7 @@ tr:hover td{background:#fafbfd}
           type?`${type.name} — ${type.count} بلاغ`:"لا توجد بيانات حالياً";
 
       document.getElementById("topReporter").textContent=
-          reporter?`${reporter.name} — ${reporter.count} بلاغ`:"لا توجد بيانات حالياً";
+          "-";
 
       if(!filtered.length){
           body.innerHTML=`
@@ -1399,13 +1392,18 @@ tr:hover td{background:#fafbfd}
 
       body.innerHTML=filtered.map(report=>`
           <tr>
-              <td><span class="badge">${escapeHtml(report.id)}</span></td>
+              <!-- ✅ رقم البلاغ من report_number -->
+              <td><span class="badge">${escapeHtml(formatBGNumber(report.reportNumber))}</span></td>
+
               <td>${formatDate(report.createdAt)}</td>
               <td>${escapeHtml(report.location)}</td>
               <td>${escapeHtml(report.type)}</td>
               <td>${escapeHtml(report.description)}</td>
-              <td>${escapeHtml(report.reporterName || "")}</td>
-              <td>${escapeHtml(report.reporterPhone || "")}</td>
+
+              <!-- بما أن reporterName/reporterPhone غير موجودين عندك في الجدول حسب الصور:
+                   نخليهم فاضيين لتجنب كسر العرض -->
+              <td></td>
+              <td></td>
 
               <td>
                   <input
@@ -1434,7 +1432,6 @@ tr:hover td{background:#fafbfd}
       `).join("");
   }
 
-  // ✅ تسجيل دخول عبر Supabase Auth (email/password)
   async function loginAdmin(){
       const email = document.getElementById("adminEmail").value.trim();
       const password = document.getElementById("adminPassword").value;
@@ -1444,10 +1441,7 @@ tr:hover td{background:#fafbfd}
           return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
       if(error){
           showAlert("loginAlert", error.message, "error");
@@ -1472,11 +1466,7 @@ tr:hover td{background:#fafbfd}
   }
 
   async function logoutAdmin(){
-      try{
-          await supabase.auth.signOut();
-      }catch(e){
-          console.warn(e);
-      }
+      try{ await supabase.auth.signOut(); }catch(e){ console.warn(e); }
 
       document.getElementById("adminPanel").classList.remove("active");
       document.getElementById("loginBox").style.display="block";
@@ -1499,30 +1489,25 @@ tr:hover td{background:#fafbfd}
           type=document.getElementById("otherType").value.trim();
       }
 
-      const reporterName=document.getElementById("reporterName").value.trim();
-      const reporterPhone=document.getElementById("reporterPhone").value.trim();
+      const reporterName=document.getElementById("reporterName").value.trim(); // (غير مستخدم في insert حالياً)
+      const reporterPhone=document.getElementById("reporterPhone").value.trim(); // (غير مستخدم في insert حالياً)
       const description=document.getElementById("description").value.trim();
 
-      if(
-          !location||
-          !type||
-          !description||
-          !reporterName||
-          !reporterPhone
-      ){
+      if(!location || !type || !description || !reporterName || !reporterPhone){
           showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
           return;
       }
 
       try{
-          const payload = {
-              title: location,
-              reporter_id: type,
-              description: description + `\n\n(اسم المبلغ: ${reporterName} | رقم المبلغ: ${reporterPhone})`,
-              status: "قيد التنفيذ",
-              technician: "",
-              notes: ""
-          };
+         const payload = {
+            title: location,
+            reporter_id: type,
+            description: description,   // ✅ إصلاح الخطأ هنا
+            status: "قيد التنفيذ",
+            technician: "",
+            notes: ""
+            // ✅ لا نرسل report_number ولا BG، لأنه يتولد من DB (sequence/default)
+         };
 
           const { error } = await supabase.from("reports").insert(payload);
           if(error) throw error;
@@ -1540,9 +1525,6 @@ tr:hover td{background:#fafbfd}
   });
 
   window.completeReport = async function(id){
-      const report = reports.find(item=>String(item.id)===String(id));
-      if(!report)return;
-
       const technician=document.getElementById("technician-"+id).value.trim();
       const notes=document.getElementById("notes-"+id).value.trim();
 
@@ -1582,7 +1564,7 @@ tr:hover td{background:#fafbfd}
       }
 
       const rows=archivedReports.map(report=>({
-          "رقم البلاغ":report.id,
+          "رقم البلاغ": report.reportNumber ?? "",
           "تاريخ الوصول":formatDate(report.createdAt),
           "تاريخ الإنجاز":formatDate(report.completedAt),
           "الإدارة أو الموقع":report.location,
