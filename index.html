@@ -41,7 +41,7 @@ button:hover{transform:translateY(-2px);filter:brightness(1.04)}
 .page.active{display:block}
 
 .hero{
-    position:relative; /* مرجع لتثبيت الزر */
+    position:relative;
     min-height:620px;
     display:flex;
     align-items:center;
@@ -81,11 +81,11 @@ button:hover{transform:translateY(-2px);filter:brightness(1.04)}
     padding:42px 25px
 }
 
-/* ✅ زر الصفحة الإدارية فوق وبالزاوية (يمين-أعلى) */
+/* زر الصفحة الإدارية فوق بالزاوية */
 .admin-top-btn{
     position:absolute;
-    top:8px;       /* خليها أعلى */
-    right:8px;     /* خليها بالزاوية اليمنى (مع rtl) */
+    top:8px;
+    right:8px;
     z-index:9999;
     margin:0;
 }
@@ -313,41 +313,101 @@ textarea{min-height:135px;resize:vertical}
     min-width:320px
 }
 
-.table-wrapper{
-    overflow-x:auto;
-    margin:20px 0;
+/* ===================== Cards UI (بديل الجدول) ===================== */
+.cards-container{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+    padding:12px;
     background:#fff;
     border-radius:13px;
     box-shadow:0 8px 25px rgba(15,39,66,.07)
 }
 
-table{
-    width:100%;
-    min-width:1550px;
-    border-collapse:collapse
+.report-card{
+    background:#fff;
+    border:1px solid #edf0f4;
+    border-radius:14px;
+    box-shadow:0 8px 25px rgba(15,39,66,.05);
+    overflow:hidden;
 }
 
-th{
-    padding:14px 10px;
+.report-card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:14px 14px;
+    background:linear-gradient(135deg, rgba(7,26,51,.96), rgba(13,43,80,.96));
     color:#fff;
-    text-align:right;
-    white-space:nowrap;
-    background:var(--navy)
+    cursor:pointer;
 }
 
-td{
-    padding:11px 10px;
-    line-height:1.6;
-    vertical-align:top;
-    border-bottom:1px solid #edf0f4
+.report-card-header .left{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
 }
 
-tr:hover td{background:#fafbfd}
+.report-card-header .id{
+    font-weight:bold;
+    font-size:14px;
+    color:var(--gold-light);
+}
 
-.empty{
-    padding:40px;
+.report-card-header .meta{
+    font-size:12px;
+    color:#c9d5e3;
+}
+
+.report-card-body{
+    padding:14px;
+    display:none; /* مخفية افتراضيًا */
+    border-top:1px solid #edf0f4;
+    background:#fbfcff;
+}
+
+.report-card-body.show{
+    display:block; /* تظهر عند الفتح */
+}
+
+.report-card-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+}
+
+.detail-item{
+    border:1px solid #edf0f4;
+    border-radius:10px;
+    padding:10px;
+    background:#fff;
+}
+
+.detail-item .k{
+    font-size:12px;
     color:var(--muted);
-    text-align:center
+    margin-bottom:6px;
+}
+
+.detail-item .v{
+    font-weight:bold;
+    color:var(--text);
+    word-break:break-word;
+}
+
+.card-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+    justify-content:flex-start;
+}
+
+.btn-print{
+    color:#17202b !important;
+    background:#fff !important;
+    border:1px solid #d9e0e9 !important;
 }
 
 .badge{
@@ -494,7 +554,6 @@ footer{
     .hero{min-height:570px}
     .logo-frame{width:155px;height:155px}
 
-    /* خفيف على الأجهزة الصغيرة */
     .admin-top-btn{
         top:6px;
         right:6px;
@@ -533,6 +592,8 @@ footer{
     .field.full{grid-column:auto}
     .add-row{flex-direction:column}
     .toolbar button{width:100%}
+
+    .report-card-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -721,26 +782,8 @@ footer{
         <div id="adminPanel" class="admin-panel">
             <h2 class="section-title">قائمة البلاغات الحالية</h2>
 
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>رقم البلاغ</th>
-                            <th>تاريخ ووقت الوصول</th>
-                            <th>الإدارة أو الموقع</th>
-                            <th>نوع البلاغ</th>
-                            <th>وصف المشكلة</th>
-                            <th>اسم المبلغ</th>
-                            <th>رقم المبلغ</th>
-                            <th>القائم بالإنجاز</th>
-                            <th>الملاحظات</th>
-                            <th>الإجراء</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="reportsTableBody"></tbody>
-                </table>
-            </div>
+            <!-- بديل الجدول: Cards -->
+            <div class="cards-container" id="reportsCardsContainer"></div>
 
             <div class="toolbar">
                 <div class="filters">
@@ -912,7 +955,6 @@ function saveAll(){
 
 function showAlert(id,message,type){
     const box=document.getElementById(id);
-
     box.textContent=message;
     box.className="alert "+type;
 
@@ -1102,7 +1144,6 @@ function getFilteredReports(){
 
 function formatDate(value){
     if(!value)return "-";
-
     return new Intl.DateTimeFormat("ar-KW",{
         dateStyle:"medium",
         timeStyle:"short"
@@ -1111,7 +1152,6 @@ function formatDate(value){
 
 function mostFrequent(list,property){
     const counts={};
-
     list.forEach(item=>{
         const value=item[property]||"غير محدد";
         counts[value]=(counts[value]||0)+1;
@@ -1191,101 +1231,189 @@ function deleteReportType(index){
     }
 }
 
+/* ✅ فتح/إغلاق التفاصيل (تبقى مخفية افتراضيًا) */
+function toggleCard(id){
+    const body = document.getElementById("card-body-" + id);
+    if(!body) return;
+    body.classList.toggle("show");
+}
+
+/* ✅ طباعة محتوى الكارد (زر الطباعة موجود داخل التفاصيل فقط) */
+function printReport(id){
+    const cardBody = document.getElementById("card-body-" + id);
+    if(!cardBody) return;
+
+    const reportCard = cardBody.closest(".report-card");
+    if(!reportCard) return;
+
+    const technician = document.getElementById("technician-" + id)?.value || "";
+    const notes = document.getElementById("notes-" + id)?.value || "";
+
+    const headerHTML = reportCard.querySelector(".report-card-header")?.innerHTML || "";
+
+    const printWindow = window.open("", "_blank", "width=950,height=720");
+    const safeId = escapeHtml(id);
+
+    printWindow.document.write(`
+      <html dir="rtl" lang="ar">
+      <head>
+        <meta charset="UTF-8">
+        <title>طباعة البلاغ ${safeId}</title>
+        <style>
+          body{font-family:Tahoma,Arial,sans-serif; padding:18px; color:#17283d;}
+          .box{border:1px solid #e5e7eb; border-radius:10px; padding:14px; margin-top:12px;}
+          .k{color:#718096; font-size:12px; margin-bottom:6px;}
+          .v{font-weight:bold; white-space:pre-wrap; word-break:break-word;}
+          .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
+          textarea,input{border:1px solid #e5e7eb;}
+          @media print { button{display:none;} }
+        </style>
+      </head>
+      <body>
+        <div class="box">${headerHTML}</div>
+        <div class="box">
+          ${cardBody.innerHTML
+            .replace(/<button[^>]*>[^<]*<\/button>/g,"") /* إزالة الأزرار داخل التفاصيل إن وجدت */
+          }
+          <div class="box" style="margin-top:12px;">
+            <div class="k">القائم بالإنجاز</div>
+            <div class="v">${escapeHtml(technician)}</div>
+            <div class="k" style="margin-top:12px;">الملاحظات</div>
+            <div class="v">${escapeHtml(notes)}</div>
+          </div>
+        </div>
+
+        <script>
+          window.onload = () => { window.print(); window.onafterprint = () => window.close(); };
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+}
+
 function renderAdmin(){
-    const body=document.getElementById("reportsTableBody");
-    const filtered=getFilteredReports();
+    const container = document.getElementById("reportsCardsContainer");
+    const filtered = getFilteredReports();
 
-    document.getElementById("totalReports").textContent=reports.length;
-    document.getElementById("archiveCount").textContent=archivedReports.length;
+    // أرقام الإحصاءات (نفس منطقك)
+    document.getElementById("totalReports").textContent = reports.length;
+    document.getElementById("archiveCount").textContent = archivedReports.length;
 
-    const today=new Date().toISOString().substring(0,10);
+    const today = new Date().toISOString().substring(0,10);
 
-    document.getElementById("todayReports").textContent=
+    document.getElementById("todayReports").textContent =
         reports.filter(report=>
-            report.createdAt&&
-            new Date(report.createdAt)
-            .toISOString()
-            .substring(0,10)===today
+            report.createdAt &&
+            new Date(report.createdAt).toISOString().substring(0,10)===today
         ).length;
 
-    document.getElementById("uniqueReporters").textContent=
+    document.getElementById("uniqueReporters").textContent =
         new Set(reports.map(report=>report.reporterName).filter(Boolean)).size;
 
     const type=mostFrequent(reports,"type");
     const location=mostFrequent(reports,"location");
     const reporter=mostFrequent(reports,"reporterName");
 
-    document.getElementById("mostType").textContent=
+    document.getElementById("mostType").textContent =
         type?`${type.name} (${type.count})`:"-";
 
-    document.getElementById("topLocations").textContent=
+    document.getElementById("topLocations").textContent =
         location?`${location.name} — ${location.count} بلاغ`:"لا توجد بيانات حالياً";
 
-    document.getElementById("topReportType").textContent=
+    document.getElementById("topReportType").textContent =
         type?`${type.name} — ${type.count} بلاغ`:"لا توجد بيانات حالياً";
 
-    document.getElementById("topReporter").textContent=
+    document.getElementById("topReporter").textContent =
         reporter?`${reporter.name} — ${reporter.count} بلاغ`:"لا توجد بيانات حالياً";
 
     if(!filtered.length){
-        body.innerHTML=`
-            <tr>
-                <td colspan="10" class="empty">
-                    لا توجد بلاغات مطابقة للفلاتر.
-                </td>
-            </tr>
-        `;
+        container.innerHTML = `<div class="empty">لا توجد بلاغات مطابقة للفلاتر.</div>`;
         return;
     }
 
-    body.innerHTML=filtered.map(report=>`
-        <tr>
-            <td><span class="badge">${escapeHtml(report.id)}</span></td>
-            <td>${formatDate(report.createdAt)}</td>
-            <td>${escapeHtml(report.location)}</td>
-            <td>${escapeHtml(report.type)}</td>
-            <td>${escapeHtml(report.description)}</td>
-            <td>${escapeHtml(report.reporterName)}</td>
-            <td>${escapeHtml(report.reporterPhone)}</td>
+    container.innerHTML = filtered.map(report=>{
+        const rid = report.id;
+        return `
+          <div class="report-card" data-report-id="${escapeHtml(rid)}">
+            <div class="report-card-header" onclick="toggleCard('${escapeHtml(rid)}')">
+                <div class="left">
+                    <div class="id">رقم البلاغ: ${escapeHtml(rid)}</div>
+                    <div class="meta">
+                      ${escapeHtml(report.location)} • ${escapeHtml(report.type)} • ${formatDate(report.createdAt)}
+                    </div>
+                </div>
 
-            <td>
-                <input
-                    class="admin-input"
-                    id="technician-${report.id}"
-                    type="text"
-                    placeholder="اسم الفني"
-                    value="${escapeHtml(report.technician)}"
-                >
-            </td>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <span class="badge">${escapeHtml(report.status||"قيد التنفيذ")}</span>
+                    <span style="font-size:12px;opacity:.9;">عرض التفاصيل</span>
+                </div>
+            </div>
 
-            <td>
-                <textarea
-                    class="admin-input notes-input"
-                    id="notes-${report.id}"
-                    placeholder="الملاحظات"
-                >${escapeHtml(report.notes)}</textarea>
-            </td>
+            <div class="report-card-body" id="card-body-${escapeHtml(rid)}">
+                <div class="report-card-grid">
+                    <div class="detail-item"><div class="k">الإدارة/الموقع</div><div class="v">${escapeHtml(report.location)}</div></div>
+                    <div class="detail-item"><div class="k">نوع البلاغ</div><div class="v">${escapeHtml(report.type)}</div></div>
 
-            <td>
-                <button class="btn-success" onclick="completeReport('${report.id}')">
-                    تم الإنجاز
-                </button>
-            </td>
-        </tr>
-    `).join("");
+                    <div class="detail-item"><div class="k">اسم المبلغ</div><div class="v">${escapeHtml(report.reporterName)}</div></div>
+                    <div class="detail-item"><div class="k">رقم المبلغ</div><div class="v">${escapeHtml(report.reporterPhone)}</div></div>
+
+                    <div class="detail-item" style="grid-column:1/-1;">
+                        <div class="k">وصف المشكلة</div>
+                        <div class="v">${escapeHtml(report.description)}</div>
+                    </div>
+                </div>
+
+                <div style="margin-top:12px; display:grid; gap:10px;">
+                    <div class="detail-item">
+                        <div class="k">القائم بالإنجاز</div>
+                        <div class="v">
+                          <input
+                            class="admin-input"
+                            style="min-width:unset;width:100%;"
+                            id="technician-${escapeHtml(rid)}"
+                            type="text"
+                            placeholder="اسم الفني"
+                            value="${escapeHtml(report.technician)}"
+                          >
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="k">الملاحظات</div>
+                        <div class="v" style="font-weight:normal;">
+                          <textarea
+                            class="admin-input notes-input"
+                            style="width:100%;"
+                            id="notes-${escapeHtml(rid)}"
+                            placeholder="الملاحظات"
+                          >${escapeHtml(report.notes)}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✅ زر الطباعة داخل كل كارد بالتفاصيل -->
+                <div class="card-actions">
+                    <button class="btn-print" onclick="printReport('${escapeHtml(rid)}')">
+                        طباعة
+                    </button>
+
+                    <button class="btn-success" onclick="completeReport('${escapeHtml(rid)}')">
+                        تم الإنجاز
+                    </button>
+                </div>
+            </div>
+          </div>
+        `;
+    }).join("");
 }
 
 function completeReport(id){
     const report=reports.find(item=>item.id===id);
     if(!report)return;
 
-    const technician=document
-        .getElementById("technician-"+id)
-        .value.trim();
-
-    const notes=document
-        .getElementById("notes-"+id)
-        .value.trim();
+    const technician=document.getElementById("technician-"+id)?.value?.trim() || "";
+    const notes=document.getElementById("notes-"+id)?.value?.trim() || "";
 
     if(!technician){
         alert("يرجى كتابة اسم القائم بالإنجاز.");
@@ -1311,7 +1439,6 @@ function completeReport(id){
 
 function exportExcel(){
     const data=getFilteredReports();
-
     if(!data.length){
         alert("لا توجد بلاغات حالية لتصديرها.");
         return;
@@ -1330,7 +1457,6 @@ function exportExcel(){
 
     const sheet=XLSX.utils.json_to_sheet(rows);
     const book=XLSX.utils.book_new();
-
     XLSX.utils.book_append_sheet(book,sheet,"البلاغات الحالية");
     XLSX.writeFile(book,"البلاغات_الحالية.xlsx");
 }
@@ -1357,7 +1483,6 @@ function exportArchiveExcel(){
 
     const sheet=XLSX.utils.json_to_sheet(rows);
     const book=XLSX.utils.book_new();
-
     XLSX.utils.book_append_sheet(book,sheet,"الأرشيف");
     XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
 }
