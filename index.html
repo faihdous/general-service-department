@@ -41,7 +41,7 @@ button:hover{transform:translateY(-2px);filter:brightness(1.04)}
 .page.active{display:block}
 
 .hero{
-    position:relative;
+    position:relative; /* مرجع لتثبيت الزر */
     min-height:620px;
     display:flex;
     align-items:center;
@@ -81,12 +81,12 @@ button:hover{transform:translateY(-2px);filter:brightness(1.04)}
     padding:42px 25px
 }
 
-/* ✅ زر الصفحة الإدارية فوق بالزاوية */
+/* ✅ زر الصفحة الإدارية فوق وبالزاوية (يمين-أعلى) */
 .admin-top-btn{
     position:absolute;
-    top:18px;
-    right:18px; /* rtl */
-    z-index:6;
+    top:8px;       /* خليها أعلى */
+    right:8px;     /* خليها بالزاوية اليمنى (مع rtl) */
+    z-index:9999;
     margin:0;
 }
 
@@ -496,8 +496,8 @@ footer{
 
     /* خفيف على الأجهزة الصغيرة */
     .admin-top-btn{
-        top:12px;
-        right:12px;
+        top:6px;
+        right:6px;
         padding:10px 14px;
         font-size:13px;
     }
@@ -543,7 +543,6 @@ footer{
     <div class="hero">
         <div class="hero-content">
 
-            <!-- ✅ تم رفع زر الصفحة الإدارية فوق وبالزاوية -->
             <button class="btn-secondary admin-top-btn" onclick="showPage('adminPage')">
                 الصفحة الإدارية
             </button>
