@@ -34,7 +34,11 @@ body{
     background:
     radial-gradient(circle at 10% 10%,rgba(47,101,165,.08),transparent 28%),
     radial-gradient(circle at 90% 80%,rgba(200,169,81,.09),transparent 28%),
-    var(--bg)
+    var(--bg);
+
+    /* ✅ للتأكد أن الفوتر يكون أسفل الموقع */
+    display:flex;
+    flex-direction:column;
 }
 
 button,input,select,textarea{font-family:inherit}
@@ -66,6 +70,22 @@ button:hover{
 
 .page{display:none}
 .page.active{display:block; animation:fadeUp .35s ease both}
+
+/* ✅ يجعل محتوى الصفحات يأخذ المساحة المتاحة */
+#pagesWrap{
+  flex:1;
+  display:block;
+}
+
+/* ✅ الفوتر في أسفل الموقع ووسط */
+.site-footer{
+  width:100%;
+  text-align:center;
+  padding:18px 12px;
+  color:#6b7a90;
+  margin-top:auto;
+  font-size:14px;
+}
 
 /* HERO */
 .hero{
@@ -612,6 +632,8 @@ tr:hover td{background:#fafbfd}
 
 <body>
 
+<div id="pagesWrap">
+
 <section id="homePage" class="page active">
     <div class="hero">
         <div class="hero-content">
@@ -636,7 +658,8 @@ tr:hover td{background:#fafbfd}
         </div>
     </div>
 
-    <footer>جميع الحقوق محفوظة © قسم الخدمات العامة</footer>
+    <!-- ✅ تم حذف footer من داخل homePage
+         عشان يصير واحد فقط في أسفل الصفحة لجميع الصفحات -->
 </section>
 
 <section id="reportPage" class="page">
@@ -828,10 +851,6 @@ tr:hover td{background:#fafbfd}
                 </table>
             </div>
 
-            <!-- ✅ التعديلات هنا: 
-                 - تنزيل الأرشيف باللون الأخضر
-                 - تحديث الصفحة باللون الأصفر
-            -->
             <div class="toolbar">
                 <button class="btn-success" onclick="exportArchiveExcel()">
                     تنزيل الأرشيف
@@ -933,6 +952,13 @@ tr:hover td{background:#fafbfd}
         </div>
     </main>
 </section>
+
+</div> <!-- end pagesWrap -->
+
+<!-- ✅ الفوتر يكون أسفل الموقع دائماً -->
+<footer class="site-footer">
+  جميع الحقوق محفوظة © قسم الخدمات العامة
+</footer>
 
 <!-- Modal Details -->
 <div id="detailsModal" style="
