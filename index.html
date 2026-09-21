@@ -828,17 +828,21 @@ tr:hover td{background:#fafbfd}
                 </table>
             </div>
 
-            <!-- ✅ تم التعديل هنا: حذف الأرشيف زر جديد + الحفاظ على حذف الحالي -->
+            <!-- ✅ تم التعديل هنا: إضافة تحديث + جعل حذف الأرشيف أحمر -->
             <div class="toolbar">
                 <button class="btn-secondary archive-button" onclick="exportArchiveExcel()">
                     تنزيل الأرشيف
+                </button>
+
+                <button class="btn-secondary" onclick="refreshAdminPage()">
+                    تحديث الصفحة
                 </button>
 
                 <button class="btn-danger" onclick="clearAllReports()">
                     حذف البلاغات الحالية
                 </button>
 
-                <button class="btn-secondary" onclick="clearArchiveReports()">
+                <button class="btn-danger" onclick="clearArchiveReports()">
                     حذف الأرشيف
                 </button>
             </div>
@@ -1492,65 +1496,65 @@ tr:hover td{background:#fafbfd}
   }
 
   document.getElementById("reportForm").addEventListener("submit", async function(event){
-  event.preventDefault();
+    event.preventDefault();
 
-  let location=document.getElementById("location").value.trim();
-  let type=document.getElementById("reportType").value.trim();
+    let location=document.getElementById("location").value.trim();
+    let type=document.getElementById("reportType").value.trim();
 
-  if(location==="أخرى"){
-      location=document.getElementById("otherLocation").value.trim();
-  }
+    if(location==="أخرى"){
+        location=document.getElementById("otherLocation").value.trim();
+    }
 
-  if(type==="أخرى"){
-      type=document.getElementById("otherType").value.trim();
-  }
+    if(type==="أخرى"){
+        type=document.getElementById("otherType").value.trim();
+    }
 
-  const reporterName=document.getElementById("reporterName").value.trim();
-  const reporterPhone=document.getElementById("reporterPhone").value.trim();
-  const description=document.getElementById("description").value.trim();
+    const reporterName=document.getElementById("reporterName").value.trim();
+    const reporterPhone=document.getElementById("reporterPhone").value.trim();
+    const description=document.getElementById("description").value.trim();
 
-  if(!location || !type || !description || !reporterName || !reporterPhone){
-      showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
-      return;
-  }
+    if(!location || !type || !description || !reporterName || !reporterPhone){
+        showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
+        return;
+    }
 
-  try{
-     const payload = {
-        title: location,
-        reporter_id: type,
-        description: description,
-        status: "قيد التنفيذ",
-        technician: "",
-        notes: "",
-        reporter_name: reporterName,
-        reporter_phone: reporterPhone
-     };
+    try{
+       const payload = {
+          title: location,
+          reporter_id: type,
+          description: description,
+          status: "قيد التنفيذ",
+          technician: "",
+          notes: "",
+          reporter_name: reporterName,
+          reporter_phone: reporterPhone
+       };
 
-     const { data, error } = await supabase
-        .from("reports")
-        .insert(payload)
-        .select("report_number")
-        .single();
+       const { data, error } = await supabase
+          .from("reports")
+          .insert(payload)
+          .select("report_number")
+          .single();
 
-     if(error) throw error;
+       if(error) throw error;
 
-     const bgNumber = data?.report_number ?? "";
+       const bgNumber = data?.report_number ?? "";
 
-     this.reset();
-     document.getElementById("otherLocationField").classList.remove("show");
-     document.getElementById("otherTypeField").classList.remove("show");
+       this.reset();
+       document.getElementById("otherLocationField").classList.remove("show");
+       document.getElementById("otherTypeField").classList.remove("show");
 
-     if(bgNumber){
-        showAlert("formAlert",`تم إرسال البلاغ بنجاح. رقم البلاغ: ${bgNumber}`,"success");
-     }else{
-        showAlert("formAlert","تم إرسال البلاغ بنجاح.","success");
-     }
+       if(bgNumber){
+          showAlert("formAlert",`تم إرسال البلاغ بنجاح. رقم البلاغ: ${bgNumber}`,"success");
+       }else{
+          showAlert("formAlert","تم إرسال البلاغ بنجاح.","success");
+       }
 
-  }catch(err){
-      console.error(err);
-      showAlert("formAlert","فشل إرسال البلاغ. تأكد من إعدادات RLS و أعمدة الجدول.","error");
-  }
-});
+    }catch(err){
+        console.error(err);
+        showAlert("formAlert","فشل إرسال البلاغ. تأكد من إعدادات RLS و أعمدة الجدول.","error");
+    }
+  });
 
   window.completeReport = async function(id){
       const technician=document.getElementById("technician-"+id).value.trim();
@@ -1611,6 +1615,17 @@ tr:hover td{background:#fafbfd}
       XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
   };
 
+  // ✅ زر تحديث الصفحة (يحدّث بيانات الجدول فقط)
+  window.refreshAdminPage = async function(){
+      try{
+          await fetchReportsFromDB();
+          renderAdmin();
+      }catch(e){
+          console.error(e);
+          alert("فشل تحديث الصفحة. تأكد من الاتصال وصلاحيات RLS.");
+      }
+  };
+
   window.clearAllReports = async function(){
       if(!reports.length){
           alert("لا توجد بلاغات حالية.");
@@ -1635,7 +1650,7 @@ tr:hover td{background:#fafbfd}
       }
   };
 
-  // ✅ تمت الإضافة: حذف الأرشيف
+  // ✅ حذف الأرشيف
   window.clearArchiveReports = async function(){
       if(!archivedReports.length){
           alert("لا توجد بلاغات مؤرشفة.");
