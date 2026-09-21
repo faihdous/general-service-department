@@ -81,6 +81,15 @@ button:hover{transform:translateY(-2px);filter:brightness(1.04)}
     padding:42px 25px
 }
 
+/* ✅ زر الصفحة الإدارية فوق بالزاوية */
+.admin-top-btn{
+    position:absolute;
+    top:18px;
+    right:18px; /* rtl */
+    z-index:6;
+    margin:0;
+}
+
 .logo-frame{
     width:190px;
     height:190px;
@@ -485,6 +494,14 @@ footer{
     .hero{min-height:570px}
     .logo-frame{width:155px;height:155px}
 
+    /* خفيف على الأجهزة الصغيرة */
+    .admin-top-btn{
+        top:12px;
+        right:12px;
+        padding:10px 14px;
+        font-size:13px;
+    }
+
     .hero-buttons{
         flex-direction:column;
         width:min(300px,100%);
@@ -525,6 +542,12 @@ footer{
 <section id="homePage" class="page active">
     <div class="hero">
         <div class="hero-content">
+
+            <!-- ✅ تم رفع زر الصفحة الإدارية فوق وبالزاوية -->
+            <button class="btn-secondary admin-top-btn" onclick="showPage('adminPage')">
+                الصفحة الإدارية
+            </button>
+
             <div class="logo-frame">
                 <img src="logo.png" alt="شعار شرطة الكويت">
             </div>
@@ -532,15 +555,10 @@ footer{
             <div class="hero-line"></div>
 
             <h1>بلاغ قسم الخدمات العامة</h1>
-            
 
             <div class="hero-buttons">
                 <button class="btn-primary" onclick="showPage('reportPage')">
                     تقديم بلاغ
-                </button>
-
-                <button class="btn-secondary" onclick="showPage('adminPage')">
-                    الصفحة الإدارية
                 </button>
             </div>
         </div>
@@ -662,7 +680,6 @@ footer{
 
         <div class="topbar-actions">
 
-            <!-- مخفي عند فتح الصفحة، ويظهر بعد تسجيل الدخول فقط -->
             <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
                 تسجيل الخروج
             </button>
@@ -1046,7 +1063,6 @@ function loginAdmin(){
         document.getElementById("loginBox").style.display="none";
         document.getElementById("adminPanel").classList.add("active");
 
-        /* إظهار تسجيل الخروج بعد الدخول فقط */
         document.getElementById("logoutButton").style.display="block";
 
         loadFormOptions();
@@ -1062,7 +1078,6 @@ function logoutAdmin(){
     document.getElementById("adminPanel").classList.remove("active");
     document.getElementById("loginBox").style.display="block";
 
-    /* إخفاء تسجيل الخروج بعد تسجيل الخروج */
     document.getElementById("logoutButton").style.display="none";
 
     document.getElementById("adminPassword").value="";
