@@ -828,6 +828,7 @@ tr:hover td{background:#fafbfd}
                 </table>
             </div>
 
+            <!-- ✅ تم التعديل هنا: حذف الأرشيف زر جديد + الحفاظ على حذف الحالي -->
             <div class="toolbar">
                 <button class="btn-secondary archive-button" onclick="exportArchiveExcel()">
                     تنزيل الأرشيف
@@ -835,6 +836,10 @@ tr:hover td{background:#fafbfd}
 
                 <button class="btn-danger" onclick="clearAllReports()">
                     حذف البلاغات الحالية
+                </button>
+
+                <button class="btn-secondary" onclick="clearArchiveReports()">
+                    حذف الأرشيف
                 </button>
             </div>
 
@@ -1007,7 +1012,6 @@ tr:hover td{background:#fafbfd}
 
   function formatBGNumber(reportNumber){
       if(reportNumber === null || reportNumber === undefined || reportNumber === "") return "-";
-      // report_number عندك غالباً يطلع مثل "BG-20"
       return reportNumber;
   }
 
@@ -1066,7 +1070,6 @@ tr:hover td{background:#fafbfd}
   }
 
   async function fetchReportsFromDB(){
-      // ✅ تعديل: جلب report_number من الجدول
       const { data: pending, error: err1 } = await supabase
         .from("reports")
         .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
@@ -1085,7 +1088,7 @@ tr:hover td{background:#fafbfd}
 
       reports = (pending || []).map(r => ({
           id: r.id,
-          reportNumber: r.report_number, // ✅ الآن مثل "BG-20"
+          reportNumber: r.report_number,
           location: r.title || "",
           type: r.reporter_id || "",
           description: r.description || "",
@@ -1100,7 +1103,7 @@ tr:hover td{background:#fafbfd}
 
       archivedReports = (done || []).map(r => ({
           id: r.id,
-          reportNumber: r.report_number, // ✅
+          reportNumber: r.report_number,
           location: r.title || "",
           type: r.reporter_id || "",
           description: r.description || "",
@@ -1523,7 +1526,6 @@ tr:hover td{background:#fafbfd}
         reporter_phone: reporterPhone
      };
 
-     // ✅ ارجع لنا report_number للسجل الذي تم إدراجه
      const { data, error } = await supabase
         .from("reports")
         .insert(payload)
@@ -1538,7 +1540,6 @@ tr:hover td{background:#fafbfd}
      document.getElementById("otherLocationField").classList.remove("show");
      document.getElementById("otherTypeField").classList.remove("show");
 
-     // ✅ رسالة فيها رقم البلاغ
      if(bgNumber){
         showAlert("formAlert",`تم إرسال البلاغ بنجاح. رقم البلاغ: ${bgNumber}`,"success");
      }else{
@@ -1631,6 +1632,32 @@ tr:hover td{background:#fafbfd}
       }catch(e){
           console.error(e);
           alert("حدث خطأ أثناء حذف البلاغات الحالية. تأكد من RLS/Policies.");
+      }
+  };
+
+  // ✅ تمت الإضافة: حذف الأرشيف
+  window.clearArchiveReports = async function(){
+      if(!archivedReports.length){
+          alert("لا توجد بلاغات مؤرشفة.");
+          return;
+      }
+
+      if(!confirm("هل أنت متأكد من حذف جميع البلاغات المؤرشفة؟")) return;
+
+      try{
+          const { error } = await supabase
+            .from("reports")
+            .delete()
+            .eq("status","مكتمل");
+
+          if(error) throw error;
+
+          await fetchReportsFromDB();
+          renderAdmin();
+          alert("تم حذف الأرشيف بنجاح ✅");
+      }catch(e){
+          console.error(e);
+          alert("حدث خطأ أثناء حذف الأرشيف. تأكد من RLS/Policies.");
       }
   };
 
