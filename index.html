@@ -1005,10 +1005,10 @@ tr:hover td{background:#fafbfd}
           .replaceAll("'","&#039;");
   }
 
-  // ✅ في جدولك لا يوجد report_number، فنستخدم id كرقم بلاغ
   function formatBGNumber(reportNumber){
       if(reportNumber === null || reportNumber === undefined || reportNumber === "") return "-";
-      return `#${reportNumber}`;
+      // report_number عندك غالباً يطلع مثل "BG-20"
+      return reportNumber;
   }
 
   function showPage(pageId){
@@ -1065,11 +1065,11 @@ tr:hover td{background:#fafbfd}
       if(selected!=="أخرى")input.value="";
   }
 
-  // ✅ التعديل الأساسي: حذف report_number من select لأنه غير موجود في جدول reports عندك
   async function fetchReportsFromDB(){
+      // ✅ تعديل: جلب report_number من الجدول
       const { data: pending, error: err1 } = await supabase
         .from("reports")
-        .select("id,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
+        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
         .eq("status","قيد التنفيذ")
         .order("created_at",{ascending:false});
 
@@ -1077,7 +1077,7 @@ tr:hover td{background:#fafbfd}
 
       const { data: done, error: err2 } = await supabase
         .from("reports")
-        .select("id,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
+        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
         .eq("status","مكتمل")
         .order("completed_at",{ascending:false});
 
@@ -1085,7 +1085,7 @@ tr:hover td{background:#fafbfd}
 
       reports = (pending || []).map(r => ({
           id: r.id,
-          reportNumber: r.id, // ✅ بديل report_number
+          reportNumber: r.report_number, // ✅ الآن مثل "BG-20"
           location: r.title || "",
           type: r.reporter_id || "",
           description: r.description || "",
@@ -1100,7 +1100,7 @@ tr:hover td{background:#fafbfd}
 
       archivedReports = (done || []).map(r => ({
           id: r.id,
-          reportNumber: r.id, // ✅ بديل report_number
+          reportNumber: r.report_number, // ✅
           location: r.title || "",
           type: r.reporter_id || "",
           description: r.description || "",
@@ -1488,8 +1488,6 @@ tr:hover td{background:#fafbfd}
       document.getElementById("adminEmail").value="";
   }
 
-  // ✅ تعديل مهم: عند الإدراج كنّا نرسل reporter_id فقط (type) وتجاهل reporter_name/reporter_phone
-  // الآن نرسلها أيضًا حسب أعمدة جدولك.
   document.getElementById("reportForm").addEventListener("submit", async function(event){
       event.preventDefault();
 
@@ -1515,14 +1513,14 @@ tr:hover td{background:#fafbfd}
 
       try{
          const payload = {
-            title: location,               // الإدارة/الموقع
-            reporter_id: type,            // نوع البلاغ (كما تستخدمه أنت في الكود)
+            title: location,
+            reporter_id: type,
             description: description,
             status: "قيد التنفيذ",
             technician: "",
             notes: "",
-            reporter_name: reporterName, // ✅
-            reporter_phone: reporterPhone // ✅
+            reporter_name: reporterName,
+            reporter_phone: reporterPhone
          };
 
           const { error } = await supabase.from("reports").insert(payload);
@@ -1623,7 +1621,6 @@ tr:hover td{background:#fafbfd}
       }
   };
 
-  // ✅ initial
   loadFormOptions();
   renderSettings();
 
