@@ -828,25 +828,27 @@ tr:hover td{background:#fafbfd}
                 </table>
             </div>
 
-            <!-- ✅ تم التعديل هنا: إضافة تحديث + جعل حذف الأرشيف أحمر -->
+            <!-- ✅ التعديلات هنا: 
+                 - تنزيل الأرشيف باللون الأخضر
+                 - تحديث الصفحة باللون الأصفر
+            -->
             <div class="toolbar">
-    <button class="btn-success archive-button" onclick="exportArchiveExcel()">
-        تنزيل الأرشيف
-    </button>
+                <button class="btn-success" onclick="exportArchiveExcel()">
+                    تنزيل الأرشيف
+                </button>
 
-    <button class="btn-primary" onclick="refreshAdminPage()">
-        تحديث الصفحة
-    </button>
+                <button class="btn-primary" onclick="refreshAdminPage()">
+                    تحديث الصفحة
+                </button>
 
-    <button class="btn-danger" onclick="clearAllReports()">
-        حذف البلاغات الحالية
-    </button>
+                <button class="btn-danger" onclick="clearAllReports()">
+                    حذف البلاغات الحالية
+                </button>
 
-    <button class="btn-danger" onclick="clearArchiveReports()">
-        حذف الأرشيف
-    </button>
-</div>
-
+                <button class="btn-danger" onclick="clearArchiveReports()">
+                    حذف الأرشيف
+                </button>
+            </div>
 
             <div class="settings">
                 <h2>إعدادات البلاغات</h2>
@@ -1460,20 +1462,6 @@ tr:hover td{background:#fafbfd}
       renderSettings();
 
       try{
-          const { data: testData, error: testError } = await supabase
-              .from("reports")
-              .select("id,status,created_at")
-              .order("created_at", { ascending: false })
-              .limit(5);
-
-          console.log("=== TEST SELECT AFTER LOGIN ===");
-          console.log("testError:", testError);
-          console.log("testData:", testData);
-      }catch(e){
-          console.error("=== TEST SELECT FAILED ===", e);
-      }
-
-      try{
           await fetchReportsFromDB();
           renderAdmin();
           showAlert("loginAlert","تم تسجيل الدخول بنجاح.","success");
@@ -1616,7 +1604,7 @@ tr:hover td{background:#fafbfd}
       XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
   };
 
-  // ✅ زر تحديث الصفحة (يحدّث بيانات الجدول فقط)
+  // ✅ تحديث الصفحة (تحميل البيانات وإعادة رسم الجدول)
   window.refreshAdminPage = async function(){
       try{
           await fetchReportsFromDB();
@@ -1651,7 +1639,6 @@ tr:hover td{background:#fafbfd}
       }
   };
 
-  // ✅ حذف الأرشيف
   window.clearArchiveReports = async function(){
       if(!archivedReports.length){
           alert("لا توجد بلاغات مؤرشفة.");
