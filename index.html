@@ -1489,54 +1489,67 @@ tr:hover td{background:#fafbfd}
   }
 
   document.getElementById("reportForm").addEventListener("submit", async function(event){
-      event.preventDefault();
+  event.preventDefault();
 
-      let location=document.getElementById("location").value.trim();
-      let type=document.getElementById("reportType").value.trim();
+  let location=document.getElementById("location").value.trim();
+  let type=document.getElementById("reportType").value.trim();
 
-      if(location==="أخرى"){
-          location=document.getElementById("otherLocation").value.trim();
-      }
+  if(location==="أخرى"){
+      location=document.getElementById("otherLocation").value.trim();
+  }
 
-      if(type==="أخرى"){
-          type=document.getElementById("otherType").value.trim();
-      }
+  if(type==="أخرى"){
+      type=document.getElementById("otherType").value.trim();
+  }
 
-      const reporterName=document.getElementById("reporterName").value.trim();
-      const reporterPhone=document.getElementById("reporterPhone").value.trim();
-      const description=document.getElementById("description").value.trim();
+  const reporterName=document.getElementById("reporterName").value.trim();
+  const reporterPhone=document.getElementById("reporterPhone").value.trim();
+  const description=document.getElementById("description").value.trim();
 
-      if(!location || !type || !description || !reporterName || !reporterPhone){
-          showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
-          return;
-      }
+  if(!location || !type || !description || !reporterName || !reporterPhone){
+      showAlert("formAlert","يرجى تعبئة جميع الخانات المطلوبة.","error");
+      return;
+  }
 
-      try{
-         const payload = {
-            title: location,
-            reporter_id: type,
-            description: description,
-            status: "قيد التنفيذ",
-            technician: "",
-            notes: "",
-            reporter_name: reporterName,
-            reporter_phone: reporterPhone
-         };
+  try{
+     const payload = {
+        title: location,
+        reporter_id: type,
+        description: description,
+        status: "قيد التنفيذ",
+        technician: "",
+        notes: "",
+        reporter_name: reporterName,
+        reporter_phone: reporterPhone
+     };
 
-          const { error } = await supabase.from("reports").insert(payload);
-          if(error) throw error;
+     // ✅ ارجع لنا report_number للسجل الذي تم إدراجه
+     const { data, error } = await supabase
+        .from("reports")
+        .insert(payload)
+        .select("report_number")
+        .single();
 
-          this.reset();
-          document.getElementById("otherLocationField").classList.remove("show");
-          document.getElementById("otherTypeField").classList.remove("show");
+     if(error) throw error;
 
-          showAlert("formAlert","تم إرسال البلاغ بنجاح.","success");
+     const bgNumber = data?.report_number ?? "";
 
-      }catch(err){
-          console.error(err);
-          showAlert("formAlert","فشل إرسال البلاغ. تأكد من إعدادات RLS و أعمدة الجدول.","error");
-      }
-  });
+     this.reset();
+     document.getElementById("otherLocationField").classList.remove("show");
+     document.getElementById("otherTypeField").classList.remove("show");
+
+     // ✅ رسالة فيها رقم البلاغ
+     if(bgNumber){
+        showAlert("formAlert",`تم إرسال البلاغ بنجاح. رقم البلاغ: ${bgNumber}`,"success");
+     }else{
+        showAlert("formAlert","تم إرسال البلاغ بنجاح.","success");
+     }
+
+  }catch(err){
+      console.error(err);
+      showAlert("formAlert","فشل إرسال البلاغ. تأكد من إعدادات RLS و أعمدة الجدول.","error");
+  }
+});
 
   window.completeReport = async function(id){
       const technician=document.getElementById("technician-"+id).value.trim();
