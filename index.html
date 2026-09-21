@@ -767,10 +767,24 @@ tr:hover td{background:#fafbfd}
             <h2 class="section-title">تسجيل الدخول</h2>
 
             <p class="description">
-                أدخل كلمة المرور للوصول إلى لوحة البلاغات.
+                أدخل بيانات تسجيل الدخول للوصول إلى لوحة البلاغات.
             </p>
 
             <div id="loginAlert" class="alert"></div>
+
+            <!-- ✅ تمت إضافة حقل الإيميل -->
+            <div class="field">
+                <label for="adminEmail">الإيميل</label>
+                <input
+                    id="adminEmail"
+                    type="email"
+                    placeholder="name@example.com"
+                    autocomplete="email"
+                    onkeydown="if(event.key==='Enter') loginAdmin()"
+                >
+            </div>
+
+            <br>
 
             <div class="field">
                 <label for="adminPassword">كلمة المرور</label>
@@ -779,6 +793,7 @@ tr:hover td{background:#fafbfd}
                     id="adminPassword"
                     type="password"
                     placeholder="أدخل كلمة المرور"
+                    autocomplete="current-password"
                     onkeydown="if(event.key==='Enter') loginAdmin()"
                 >
             </div>
@@ -938,23 +953,21 @@ tr:hover td{background:#fafbfd}
   </div>
 </div>
 
-<!-- ✅ Supabase + كل كود JS (مع الحفاظ على الكود الحالي قدر الإمكان) -->
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
   const SUPABASE_URL = "https://sipumbqxcewdyttnurii.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_wr_BnVo-z-zF45zwLFXGtQ_usB7XEjf";
 
+  // ✅ مهم: استخدم client للـ Auth حتى تصير الجلسة authenticated
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const ADMIN_PASSWORD="1234";
 
   // settings فقط نخليها localStorage مثل الكود الأصلي
   const DEPARTMENTS_KEY="public_services_departments";
   const TYPES_KEY="public_services_types";
 
-  let reports = [];         // قيد التنفيذ من DB
-  let archivedReports = []; // مكتمل من DB
+  let reports = [];
+  let archivedReports = [];
 
   let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
       "إدارة الخدمات المالية و الادارية و الصيانة",
@@ -1057,33 +1070,7 @@ tr:hover td{background:#fafbfd}
       if(selected!=="أخرى")input.value="";
   }
 
-  // ✅ جلب بيانات DB: قيد التنفيذ + المؤرشفة
   async function fetchReportsFromDB(){
-      // جدولك حسب الصورة عنده أعمدة: id, reporter_id, title, description, status, created_at, updated_at, technician, notes, completed_at
-      // وبما إن الكود يستخدم: id, location, type, reporterName, reporterPhone, ...
-      // نعمل Mapping:
-      // - location -> title
-      // - type -> reporter_id (أو تعديل Mapping حسب تصميمك)
-      // - reporterName -> report.description? لا.
-      //
-      // IMPORTANT:
-      // كودك الأصلي يحفظ location/type/reporterName/reporterPhone في localStorage.
-      // لازم يكون عندك mapping مطابق في الجدول.
-      //
-      // لكي ما أخربك، افترضنا التالي (شائع):
-      // title = location
-      // description = وصف المشكلة
-      // reporter_id = نوع البلاغ
-      // notes = الملاحظات
-      // technician = اسم الفني
-      // completed_at = تاريخ الإنجاز
-      // status = قيد التنفيذ / مكتمل
-      // و *لموجودات reporterName/reporterPhone* لازم تتوفر بأعمدة فعلًا.
-      // إذا عندك reporter_id مستخدم لاسم/هاتف، عدّل mapping في code (أخبرني بأعمدة جدولك وسأسويها مضبوط 100%).
-      //
-      // لذلك: هنا سنقرأ columns الموجوده فقط ونبني شاشة admin على الأكثر تطابقًا.
-      //
-      // إذا كانت أعمدة جدولك مختلفة، قلّي أسماء الأعمدة (من Supabase) وسأعدل الكود بدقة.
       const { data: pending, error: err1 } = await supabase
         .from("reports")
         .select("id,title,description,status,created_at,updated_at,technician,notes,completed_at,reporter_id")
@@ -1103,7 +1090,7 @@ tr:hover td{background:#fafbfd}
       reports = (pending || []).map(r => ({
           id: r.id,
           location: r.title || "",
-          type: r.reporter_id || "",        // تعديل إن كان عندك عمود مختلف
+          type: r.reporter_id || "",
           description: r.description || "",
           createdAt: r.created_at,
           technician: r.technician || "",
@@ -1347,8 +1334,6 @@ tr:hover td{background:#fafbfd}
       }
 
       if(which==="uniqueReporters"){
-          // بما أننا لم نُنشئ mapping لحقل reporterName في الجدول الحالي (حسب أعمدتك بالصورة)
-          // هذا العدد قد يحتاج تعديله بعد ما تقول لي كيف تحفظ الاسم/الهاتف في الجدول.
           const count = new Set(reports.map(r=>r.reporterName).filter(Boolean)).size;
           openDetailsModalWithTitle("عدد المبلغين", `
               <p style="color:#536477;line-height:1.8">
@@ -1449,40 +1434,57 @@ tr:hover td{background:#fafbfd}
       `).join("");
   }
 
-  // ✅ تسجيل دخول (نفس فكرة الكود الحالي، لكن البيانات من Supabase)
+  // ✅ تسجيل دخول عبر Supabase Auth (email/password)
   async function loginAdmin(){
-      const password=document.getElementById("adminPassword").value;
+      const email = document.getElementById("adminEmail").value.trim();
+      const password = document.getElementById("adminPassword").value;
 
-      if(password===ADMIN_PASSWORD){
-          document.getElementById("loginBox").style.display="none";
-          document.getElementById("adminPanel").classList.add("active");
+      if(!email || !password){
+          showAlert("loginAlert","الرجاء إدخال الإيميل وكلمة المرور.","error");
+          return;
+      }
 
-          document.getElementById("logoutButton").style.display="block";
+      const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+      });
 
-          loadFormOptions();
-          renderSettings();
+      if(error){
+          showAlert("loginAlert", error.message, "error");
+          return;
+      }
 
-          try{
-              await fetchReportsFromDB();
-              renderAdmin();
-          }catch(e){
-              console.error(e);
-              showAlert("loginAlert","حدث خطأ أثناء جلب بيانات البلاغات من قاعدة البيانات.","error");
-          }
-      }else{
-          showAlert("loginAlert","كلمة المرور غير صحيحة.","error");
+      document.getElementById("loginBox").style.display="none";
+      document.getElementById("adminPanel").classList.add("active");
+      document.getElementById("logoutButton").style.display="block";
+
+      loadFormOptions();
+      renderSettings();
+
+      try{
+          await fetchReportsFromDB();
+          renderAdmin();
+          showAlert("loginAlert","تم تسجيل الدخول بنجاح.","success");
+      }catch(e){
+          console.error(e);
+          showAlert("loginAlert","حدث خطأ أثناء جلب بيانات البلاغات من قاعدة البيانات.","error");
       }
   }
 
-  function logoutAdmin(){
+  async function logoutAdmin(){
+      try{
+          await supabase.auth.signOut();
+      }catch(e){
+          console.warn(e);
+      }
+
       document.getElementById("adminPanel").classList.remove("active");
       document.getElementById("loginBox").style.display="block";
-
       document.getElementById("logoutButton").style.display="none";
       document.getElementById("adminPassword").value="";
+      document.getElementById("adminEmail").value="";
   }
 
-  // ✅ إرسال بلاغ إلى DB
   document.getElementById("reportForm").addEventListener("submit", async function(event){
       event.preventDefault();
 
@@ -1513,21 +1515,13 @@ tr:hover td{background:#fafbfd}
       }
 
       try{
-          // ✅ حسب أعمدة جدولك من الصورة: لا توجد حقول reporterName/reporterPhone بشكل صريح
-          // عندنا فقط reporter_id و title و description...
-          // لذلك: نستخدم reporter_id لتخزين "type" بشكل مؤقت مثل ما استخدمنا في القراءة
-          // ونخزن الاسم/الهاتف داخل description (لضمان عدم فقد البيانات).
-          //
-          // إذا تبي أخليه مضبوط 100%: أرسل لي أسماء الأعمدة الحقيقية للجدول (reporterName/reporterPhone موجودة؟)
           const payload = {
-              // id غالباً UUID عندك (قد يكون default)، لا نرسله إن كان UUID يُولد تلقائيًا
-              title: location,                 // location
-              reporter_id: type,             // type
+              title: location,
+              reporter_id: type,
               description: description + `\n\n(اسم المبلغ: ${reporterName} | رقم المبلغ: ${reporterPhone})`,
               status: "قيد التنفيذ",
               technician: "",
-              notes: "",
-              // created_at و updated_at و completed_at غالباً defaults/trigger تلقائي
+              notes: ""
           };
 
           const { error } = await supabase.from("reports").insert(payload);
@@ -1537,11 +1531,7 @@ tr:hover td{background:#fafbfd}
           document.getElementById("otherLocationField").classList.remove("show");
           document.getElementById("otherTypeField").classList.remove("show");
 
-          showAlert(
-              "formAlert",
-              "تم إرسال البلاغ بنجاح.",
-              "success"
-          );
+          showAlert("formAlert","تم إرسال البلاغ بنجاح.","success");
 
       }catch(err){
           console.error(err);
@@ -1549,7 +1539,6 @@ tr:hover td{background:#fafbfd}
       }
   });
 
-  // ✅ إنهاء بلاغ: update status + technician + notes + completed_at
   window.completeReport = async function(id){
       const report = reports.find(item=>String(item.id)===String(id));
       if(!report)return;
@@ -1586,7 +1575,6 @@ tr:hover td{background:#fafbfd}
       }
   };
 
-  // ✅ تنزيل الأرشيف (مكتمل)
   window.exportArchiveExcel = function(){
       if(!archivedReports.length){
           alert("لا توجد بلاغات مؤرشفة.");
@@ -1611,7 +1599,6 @@ tr:hover td{background:#fafbfd}
       XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
   };
 
-  // ✅ حذف البلاغات الحالية (قيد التنفيذ)
   window.clearAllReports = async function(){
       if(!reports.length){
           alert("لا توجد بلاغات حالية.");
@@ -1640,14 +1627,15 @@ tr:hover td{background:#fafbfd}
   loadFormOptions();
   renderSettings();
 
-  // ✅ عشان نقدر نسمي showPage من onclick (ليس ضمن window)
   window.showPage = showPage;
   window.loginAdmin = loginAdmin;
   window.logoutAdmin = logoutAdmin;
+
   window.addDepartment = addDepartment;
   window.addReportType = addReportType;
   window.deleteDepartment = deleteDepartment;
   window.deleteReportType = deleteReportType;
+
   window.openSummaryDetails = openSummaryDetails;
   window.openStatDetails = openStatDetails;
 
@@ -1657,7 +1645,6 @@ tr:hover td{background:#fafbfd}
   window.completeReport = window.completeReport;
 </script>
 
-<!-- حركات ظهور تدريجي -->
 <script>
 (function(){
   const targets = document.querySelectorAll(
