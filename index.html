@@ -1066,7 +1066,6 @@ tr:hover td{background:#fafbfd}
   }
 
   async function fetchReportsFromDB(){
-      // ✅ أضفنا report_number في select (مهم لعرض رقم المبلغ)
       const { data: pending, error: err1 } = await supabase
         .from("reports")
         .select("id,report_number,title,description,status,created_at,updated_at,technician,notes,completed_at,reporter_id")
@@ -1085,7 +1084,7 @@ tr:hover td{background:#fafbfd}
 
       reports = (pending || []).map(r => ({
           id: r.id,
-          reportNumber: r.report_number ?? null,   // ✅
+          reportNumber: r.report_number ?? null,
           location: r.title || "",
           type: r.reporter_id || "",
           description: r.description || "",
@@ -1098,7 +1097,7 @@ tr:hover td{background:#fafbfd}
 
       archivedReports = (done || []).map(r => ({
           id: r.id,
-          reportNumber: r.report_number ?? null,   // ✅
+          reportNumber: r.report_number ?? null,
           location: r.title || "",
           type: r.reporter_id || "",
           description: r.description || "",
@@ -1238,7 +1237,6 @@ tr:hover td{background:#fafbfd}
           return;
       }
       if(which==="topReporter"){
-          // reporterName غير موجود عندك في الجدول حسب صورك، فخلّيناها "-"
           openDetailsModalWithTitle("أكثر شخص يطلب إصلاحات", "<p style='color:var(--muted)'>لا توجد بيانات اسم المبلغ حالياً في قاعدة البيانات.</p>");
           return;
       }
@@ -1329,7 +1327,6 @@ tr:hover td{background:#fafbfd}
       }
 
       if(which==="uniqueReporters"){
-          // reporterName غير موجود عندك في الجدول حسب صورك، فنعرض عدد 0
           openDetailsModalWithTitle("عدد المبلغين", `
               <p style="color:#536477;line-height:1.8">
                 عدد المبلغين: <b>-</b>
@@ -1361,7 +1358,6 @@ tr:hover td{background:#fafbfd}
               new Date(report.createdAt).toISOString().substring(0,10)===today
           ).length;
 
-      // هذا يتأثر بـ reporterName غير موجود عندك، نخليه "-":
       document.getElementById("uniqueReporters").textContent = "-";
 
       const type=mostFrequent(reports,"type");
@@ -1392,7 +1388,6 @@ tr:hover td{background:#fafbfd}
 
       body.innerHTML=filtered.map(report=>`
           <tr>
-              <!-- ✅ رقم البلاغ من report_number -->
               <td><span class="badge">${escapeHtml(formatBGNumber(report.reportNumber))}</span></td>
 
               <td>${formatDate(report.createdAt)}</td>
@@ -1400,8 +1395,6 @@ tr:hover td{background:#fafbfd}
               <td>${escapeHtml(report.type)}</td>
               <td>${escapeHtml(report.description)}</td>
 
-              <!-- بما أن reporterName/reporterPhone غير موجودين عندك في الجدول حسب الصور:
-                   نخليهم فاضيين لتجنب كسر العرض -->
               <td></td>
               <td></td>
 
@@ -1432,6 +1425,7 @@ tr:hover td{background:#fafbfd}
       `).join("");
   }
 
+  // ✅ تعديل: استبدلت loginAdmin بالكامل
   async function loginAdmin(){
       const email = document.getElementById("adminEmail").value.trim();
       const password = document.getElementById("adminPassword").value;
@@ -1455,13 +1449,32 @@ tr:hover td{background:#fafbfd}
       loadFormOptions();
       renderSettings();
 
+      // 1) ✅ اختبار SELECT بعد login (يطبع Error/Data بالـ Console)
+      try{
+          const { data: testData, error: testError } = await supabase
+              .from("reports")
+              .select("id,status,created_at")
+              .order("created_at", { ascending: false })
+              .limit(5);
+
+          console.log("=== TEST SELECT AFTER LOGIN ===");
+          console.log("testError:", testError);
+          console.log("testData:", testData);
+      }catch(e){
+          console.error("=== TEST SELECT FAILED ===", e);
+      }
+
+      // 2) جلب بيانات البلاغات مع إظهار الخطأ الحقيقي
       try{
           await fetchReportsFromDB();
           renderAdmin();
           showAlert("loginAlert","تم تسجيل الدخول بنجاح.","success");
       }catch(e){
           console.error(e);
-          showAlert("loginAlert","حدث خطأ أثناء جلب بيانات البلاغات من قاعدة البيانات.","error");
+          showAlert("loginAlert",
+              (e && e.message) ? e.message : String(e),
+              "error"
+          );
       }
   }
 
@@ -1489,8 +1502,8 @@ tr:hover td{background:#fafbfd}
           type=document.getElementById("otherType").value.trim();
       }
 
-      const reporterName=document.getElementById("reporterName").value.trim(); // (غير مستخدم في insert حالياً)
-      const reporterPhone=document.getElementById("reporterPhone").value.trim(); // (غير مستخدم في insert حالياً)
+      const reporterName=document.getElementById("reporterName").value.trim();
+      const reporterPhone=document.getElementById("reporterPhone").value.trim();
       const description=document.getElementById("description").value.trim();
 
       if(!location || !type || !description || !reporterName || !reporterPhone){
@@ -1502,11 +1515,10 @@ tr:hover td{background:#fafbfd}
          const payload = {
             title: location,
             reporter_id: type,
-            description: description,   // ✅ إصلاح الخطأ هنا
+            description: description,
             status: "قيد التنفيذ",
             technician: "",
             notes: ""
-            // ✅ لا نرسل report_number ولا BG، لأنه يتولد من DB (sequence/default)
          };
 
           const { error } = await supabase.from("reports").insert(payload);
