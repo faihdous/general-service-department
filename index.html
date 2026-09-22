@@ -36,7 +36,6 @@ body{
     radial-gradient(circle at 90% 80%,rgba(200,169,81,.09),transparent 28%),
     var(--bg);
 
-    /* ✅ للتأكد أن الفوتر يكون أسفل الموقع */
     display:flex;
     flex-direction:column;
 }
@@ -52,7 +51,6 @@ button:hover{
     filter:brightness(1.05)
 }
 
-/* تحسينات عامة */
 @keyframes fadeUp {
   from{ opacity:0; transform:translateY(14px); }
   to{ opacity:1; transform:translateY(0); }
@@ -71,13 +69,11 @@ button:hover{
 .page{display:none}
 .page.active{display:block; animation:fadeUp .35s ease both}
 
-/* ✅ يجعل محتوى الصفحات يأخذ المساحة المتاحة */
 #pagesWrap{
   flex:1;
   display:block;
 }
 
-/* ✅ الفوتر في أسفل الموقع ووسط */
 .site-footer{
   width:100%;
   text-align:center;
@@ -87,7 +83,6 @@ button:hover{
   font-size:14px;
 }
 
-/* HERO */
 .hero{
     position:relative;
     min-height:620px;
@@ -101,7 +96,6 @@ button:hover{
     linear-gradient(135deg,rgba(4,18,37,.98),rgba(12,47,83,.95)),var(--navy)
 }
 
-/* خلفية حركية */
 .hero::before{
     content:"";
     position:absolute;
@@ -135,7 +129,6 @@ button:hover{
     padding:42px 25px
 }
 
-/* ✅ زر الصفحة الإدارية فوق وبالزاوية */
 .admin-top-btn{
     position:absolute;
     top:12px;
@@ -294,7 +287,6 @@ button:hover{
     flex-wrap:wrap
 }
 
-/* Content */
 .content{
     width:min(1400px,94%);
     margin:30px auto
@@ -657,9 +649,6 @@ tr:hover td{background:#fafbfd}
             </div>
         </div>
     </div>
-
-    <!-- ✅ تم حذف footer من داخل homePage
-         عشان يصير واحد فقط في أسفل الصفحة لجميع الصفحات -->
 </section>
 
 <section id="reportPage" class="page">
@@ -953,14 +942,12 @@ tr:hover td{background:#fafbfd}
     </main>
 </section>
 
-</div> <!-- end pagesWrap -->
+</div>
 
-<!-- ✅ الفوتر يكون أسفل الموقع دائماً -->
 <footer class="site-footer">
   جميع الحقوق محفوظة © قسم الخدمات العامة
 </footer>
 
-<!-- Modal Details -->
 <div id="detailsModal" style="
   position:fixed; inset:0; background:rgba(0,0,0,.55);
   display:none; align-items:center; justify-content:center; z-index:99999;
@@ -1101,6 +1088,10 @@ tr:hover td{background:#fafbfd}
       input.required=selected==="أخرى";
       if(selected!=="أخرى")input.value="";
   }
+
+  // ✅ التعديل الأساسي: جعل onChange inline يشتغل مع script type="module"
+  window.handleOtherLocation = handleOtherLocation;
+  window.handleOtherType = handleOtherType;
 
   async function fetchReportsFromDB(){
       const { data: pending, error: err1 } = await supabase
@@ -1630,7 +1621,6 @@ tr:hover td{background:#fafbfd}
       XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
   };
 
-  // ✅ تحديث الصفحة (تحميل البيانات وإعادة رسم الجدول)
   window.refreshAdminPage = async function(){
       try{
           await fetchReportsFromDB();
@@ -1708,6 +1698,7 @@ tr:hover td{background:#fafbfd}
   window.closeDetailsModal = closeDetailsModal;
   window.openDetailsModalWithTitle = openDetailsModalWithTitle;
 
+  // (ملاحظة: هذا السطر غير ضروري لكنه موجود عندك)
   window.completeReport = window.completeReport;
 </script>
 
