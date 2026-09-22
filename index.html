@@ -31,6 +31,10 @@ body{
     margin:0;
     color:var(--text);
     font-family:Tahoma,Arial,sans-serif;
+
+    /* ✅ دعم احتياطي يمنع ظهور الأبيض لو صار أي فراغ في الخلفية */
+    background-color: var(--navy);
+
     background:
     radial-gradient(circle at 10% 10%,rgba(47,101,165,.08),transparent 28%),
     radial-gradient(circle at 90% 80%,rgba(200,169,81,.09),transparent 28%),
@@ -81,6 +85,9 @@ button:hover{
     color:#6b7a90;
     margin-top:auto;
     font-size:14px;
+
+    /* ✅ منع خلفية بيضاء/تعارض مع باقي الصفحة على الآيفون */
+    background: transparent !important;
 }
 
 .hero{
@@ -573,8 +580,16 @@ tr:hover td{background:#fafbfd}
 #detailsModalHideArea{position:absolute; inset:0;}
 #detailsModalCard{max-height:80vh; overflow:auto;}
 
+/* ✅ تغطية الفراغ الأبيض تحت في الآيفون */
+#homePage{ min-height: 100vh; }
+#homePage .hero{ min-height: 100vh; padding-bottom: 40px; }
+
+/* Responsive */
 @media(max-width:800px){
     .hero{min-height:570px}
+    /* ✅ في الجوال نخلي الرئيسية تطلع 100vh بشكل أفضل */
+    #homePage .hero{min-height:100vh}
+
     .logo-frame{width:155px;height:155px}
     .admin-top-btn{top:6px;right:6px;padding:10px 14px;font-size:13px}
     .hero-buttons{flex-direction:column;width:min(300px,100%);margin-right:auto;margin-left:auto}
@@ -925,7 +940,7 @@ tr:hover td{background:#fafbfd}
   }
 
   // ==============
-  // LocalStorage lists
+// LocalStorage lists
   // ==============
   let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
       "إدارة الخدمات المالية و الادارية و الصيانة",
