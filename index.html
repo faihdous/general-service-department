@@ -75,12 +75,12 @@ button:hover{
 }
 
 .site-footer{
-  width:100%;
-  text-align:center;
-  padding:18px 12px;
-  color:#6b7a90;
-  margin-top:auto;
-  font-size:14px;
+    width:100%;
+    text-align:center;
+    padding:18px 12px;
+    color:#6b7a90;
+    margin-top:auto;
+    font-size:14px;
 }
 
 .hero{
@@ -876,7 +876,7 @@ tr:hover td{background:#fafbfd}
   let archivedReports = [];
 
   // =========================
-  // ✅ Realtime (مع Debug)
+  // ✅ Realtime (مع Debug - event: "*")
   // =========================
   let realtimeChannel = null;
   let realtimeBusy = false;
@@ -890,12 +890,12 @@ tr:hover td{background:#fafbfd}
       .channel("reports-realtime")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "reports" },
+        { event: "*", schema: "public", table: "reports" },
         async (payload) => {
-          console.log("📥 [Realtime] INSERT received:", payload);
+          console.log("📥 [Realtime] ANY event received:", payload);
 
           if (realtimeBusy) {
-            console.log("⏳ [Realtime] busy - ignoring INSERT");
+            console.log("⏳ [Realtime] busy - ignoring event");
             return;
           }
           realtimeBusy = true;
@@ -903,32 +903,9 @@ tr:hover td{background:#fafbfd}
           try{
             await fetchReportsFromDB();
             renderAdmin();
-            console.log("✅ [Realtime] UI updated after INSERT");
+            console.log("✅ [Realtime] UI updated after event");
           }catch(e){
-            console.error("❌ [Realtime] INSERT refresh error:", e);
-          }finally{
-            realtimeBusy = false;
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "reports" },
-        async (payload) => {
-          console.log("📥 [Realtime] UPDATE received:", payload);
-
-          if (realtimeBusy) {
-            console.log("⏳ [Realtime] busy - ignoring UPDATE");
-            return;
-          }
-          realtimeBusy = true;
-
-          try{
-            await fetchReportsFromDB();
-            renderAdmin();
-            console.log("✅ [Realtime] UI updated after UPDATE");
-          }catch(e){
-            console.error("❌ [Realtime] UPDATE refresh error:", e);
+            console.error("❌ [Realtime] refresh error:", e);
           }finally{
             realtimeBusy = false;
           }
