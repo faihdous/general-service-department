@@ -238,12 +238,6 @@ button:hover{
     border-color:rgba(200,169,81,.65);
 }
 
-.archive-button{
-    color:#17202b !important;
-    background:#fff !important;
-    border:1px solid #d9e0e9 !important
-}
-
 .btn-danger{color:#fff;background:var(--danger)}
 .btn-success{color:#fff;background:var(--success)}
 
@@ -471,15 +465,6 @@ tr:hover td{background:#fafbfd}
     overflow:hidden;
 }
 
-.stat::before{
-    content:"";
-    position:absolute;
-    inset:-60px -60px auto -60px;
-    height:110px;
-    background:radial-gradient(circle at 30% 30%, rgba(200,169,81,.26), transparent 60%);
-    pointer-events:none;
-}
-
 .stat small{color:var(--muted)}
 
 .stat strong{
@@ -592,27 +577,14 @@ tr:hover td{background:#fafbfd}
     .hero{min-height:570px}
     .logo-frame{width:155px;height:155px}
     .admin-top-btn{top:6px;right:6px;padding:10px 14px;font-size:13px}
-    .hero-buttons{
-        flex-direction:column;
-        width:min(300px,100%);
-        margin-right:auto;
-        margin-left:auto
-    }
+    .hero-buttons{flex-direction:column;width:min(300px,100%);margin-right:auto;margin-left:auto}
     .hero-buttons button{width:100%}
-    .topbar{
-        align-items:flex-start;
-        flex-direction:column
-    }
+    .topbar{align-items:flex-start;flex-direction:column}
     .topbar-actions{width:100%}
     .topbar-actions button{flex:1}
     .content{width:94%;margin:20px auto}
     .card{padding:19px}
-    .form-grid,
-    .stats,
-    .summary,
-    .settings-grid{
-        grid-template-columns:1fr
-    }
+    .form-grid,.stats,.summary,.settings-grid{grid-template-columns:1fr}
     .field.full{grid-column:auto}
     .add-row{flex-direction:column}
     .toolbar button{width:100%}
@@ -985,6 +957,59 @@ tr:hover td{background:#fafbfd}
   let reports = [];
   let archivedReports = [];
 
+  // ✅ Realtime channel (new)
+  let realtimeChannel = null;
+  let realtimeBusy = false;
+
+  function startRealtime(){
+    // يمنع التكرار
+    if (realtimeChannel) return;
+
+    realtimeChannel = supabase
+      .channel("reports-realtime")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "reports" },
+        async () => {
+          // لتخفيف الضغط: إذا جاك حدثين بسرعة نعمل refresh واحد
+          if (realtimeBusy) return;
+          realtimeBusy = true;
+          try{
+            await fetchReportsFromDB();
+            renderAdmin();
+          }catch(e){
+            console.error("Realtime INSERT refresh error:", e);
+          }finally{
+            realtimeBusy = false;
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "reports" },
+        async () => {
+          if (realtimeBusy) return;
+          realtimeBusy = true;
+          try{
+            await fetchReportsFromDB();
+            renderAdmin();
+          }catch(e){
+            console.error("Realtime UPDATE refresh error:", e);
+          }finally{
+            realtimeBusy = false;
+          }
+        }
+      )
+      .subscribe();
+  }
+
+  function stopRealtime(){
+    if (realtimeChannel){
+      supabase.removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+  }
+
   let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
       "إدارة الخدمات المالية و الادارية و الصيانة",
       "إدارة الجنسية",
@@ -1089,7 +1114,6 @@ tr:hover td{background:#fafbfd}
       if(selected!=="أخرى")input.value="";
   }
 
-  // ✅ التعديل الأساسي: جعل onChange inline يشتغل مع script type="module"
   window.handleOtherLocation = handleOtherLocation;
   window.handleOtherType = handleOtherType;
 
@@ -1481,6 +1505,10 @@ tr:hover td{background:#fafbfd}
       try{
           await fetchReportsFromDB();
           renderAdmin();
+
+          // ✅ ابدأ الاستماع realtime بعد نجاح الدخول
+          startRealtime();
+
           showAlert("loginAlert","تم تسجيل الدخول بنجاح.","success");
       }catch(e){
           console.error(e);
@@ -1492,6 +1520,8 @@ tr:hover td{background:#fafbfd}
   }
 
   async function logoutAdmin(){
+      stopRealtime(); // ✅ إيقاف الاستماع عند الخروج
+
       try{ await supabase.auth.signOut(); }catch(e){ console.warn(e); }
 
       document.getElementById("adminPanel").classList.remove("active");
@@ -1698,7 +1728,6 @@ tr:hover td{background:#fafbfd}
   window.closeDetailsModal = closeDetailsModal;
   window.openDetailsModalWithTitle = openDetailsModalWithTitle;
 
-  // (ملاحظة: هذا السطر غير ضروري لكنه موجود عندك)
   window.completeReport = window.completeReport;
 </script>
 
