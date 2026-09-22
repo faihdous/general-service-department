@@ -627,7 +627,6 @@ tr:hover td{background:#fafbfd}
     <div class="topbar">
         <div class="topbar-brand">
             <img class="topbar-logo" src="logo.png" alt="الشعار">
-
             <div>
                 <h2>بلاغ قسم الخدمات العامة</h2>
                 <small>تقديم بلاغ جديد</small>
@@ -643,80 +642,54 @@ tr:hover td{background:#fafbfd}
         <div class="card form-card">
             <h2 class="section-title">نموذج البلاغ</h2>
 
-            <p class="description">
-                يرجى تعبئة البيانات المطلوبة لإرسال البلاغ.
-            </p>
+            <p class="description">يرجى تعبئة البيانات المطلوبة لإرسال البلاغ.</p>
 
             <div id="formAlert" class="alert"></div>
 
             <form id="reportForm">
                 <div class="form-grid">
-
                     <div class="field">
-                        <label for="location">
-                            الإدارة أو موقع البلاغ <span>*</span>
-                        </label>
-
+                        <label for="location">الإدارة أو موقع البلاغ <span>*</span></label>
                         <select id="location" required onchange="handleOtherLocation()">
                             <option value="">اختر الإدارة أو الموقع</option>
                         </select>
                     </div>
 
                     <div class="field">
-                        <label for="reportType">
-                            نوع البلاغ <span>*</span>
-                        </label>
-
+                        <label for="reportType">نوع البلاغ <span>*</span></label>
                         <select id="reportType" required onchange="handleOtherType()">
                             <option value="">اختر نوع البلاغ</option>
                         </select>
                     </div>
 
                     <div class="field other-field" id="otherLocationField">
-                        <label for="otherLocation">
-                            اكتب الإدارة أو الموقع <span>*</span>
-                        </label>
-
+                        <label for="otherLocation">اكتب الإدارة أو الموقع <span>*</span></label>
                         <input id="otherLocation" type="text">
                     </div>
 
                     <div class="field other-field" id="otherTypeField">
-                        <label for="otherType">
-                            اكتب نوع البلاغ <span>*</span>
-                        </label>
-
+                        <label for="otherType">اكتب نوع البلاغ <span>*</span></label>
                         <input id="otherType" type="text">
                     </div>
 
                     <div class="field full">
-                        <label for="description">
-                            وصف المشكلة <span>*</span>
-                        </label>
-
+                        <label for="description">وصف المشكلة <span>*</span></label>
                         <textarea id="description" required placeholder="اكتب وصفاً واضحاً للمشكلة..."></textarea>
                     </div>
 
                     <div class="field">
-                        <label for="reporterName">
-                            اسم المبلغ <span>*</span>
-                        </label>
-
+                        <label for="reporterName">اسم المبلغ <span>*</span></label>
                         <input id="reporterName" type="text" required placeholder="الاسم الكامل">
                     </div>
 
                     <div class="field">
-                        <label for="reporterPhone">
-                            رقم المبلغ <span>*</span>
-                        </label>
-
+                        <label for="reporterPhone">رقم المبلغ <span>*</span></label>
                         <input id="reporterPhone" type="tel" required placeholder="رقم الهاتف">
                     </div>
                 </div>
 
                 <div class="submit-row">
-                    <button class="btn-primary" type="submit">
-                        إرسال البلاغ
-                    </button>
+                    <button class="btn-primary" type="submit">إرسال البلاغ</button>
                 </div>
             </form>
         </div>
@@ -727,7 +700,6 @@ tr:hover td{background:#fafbfd}
     <div class="topbar">
         <div class="topbar-brand">
             <img class="topbar-logo" src="logo.png" alt="الشعار">
-
             <div>
                 <h2>الصفحة الإدارية</h2>
                 <small>إدارة ومتابعة البلاغات</small>
@@ -738,54 +710,29 @@ tr:hover td{background:#fafbfd}
             <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
                 تسجيل الخروج
             </button>
-
-            <button class="btn-secondary" onclick="showPage('homePage')">
-                الرئيسية
-            </button>
+            <button class="btn-secondary" onclick="showPage('homePage')">الرئيسية</button>
         </div>
     </div>
 
     <main class="content">
-
         <div id="loginBox" class="card login-card">
             <h2 class="section-title">تسجيل الدخول</h2>
-
-            <p class="description">
-                أدخل بيانات تسجيل الدخول للوصول إلى لوحة البلاغات.
-            </p>
-
+            <p class="description">أدخل بيانات تسجيل الدخول للوصول إلى لوحة البلاغات.</p>
             <div id="loginAlert" class="alert"></div>
 
             <div class="field">
                 <label for="adminEmail">الإيميل</label>
-                <input
-                    id="adminEmail"
-                    type="email"
-                    placeholder="name@example.com"
-                    autocomplete="email"
-                    onkeydown="if(event.key==='Enter') loginAdmin()"
-                >
+                <input id="adminEmail" type="email" placeholder="name@example.com"
+                       autocomplete="email" onkeydown="if(event.key==='Enter') loginAdmin()">
             </div>
-
             <br>
-
             <div class="field">
                 <label for="adminPassword">كلمة المرور</label>
-
-                <input
-                    id="adminPassword"
-                    type="password"
-                    placeholder="أدخل كلمة المرور"
-                    autocomplete="current-password"
-                    onkeydown="if(event.key==='Enter') loginAdmin()"
-                >
+                <input id="adminPassword" type="password" placeholder="أدخل كلمة المرور"
+                       autocomplete="current-password" onkeydown="if(event.key==='Enter') loginAdmin()">
             </div>
-
             <br>
-
-            <button class="btn-primary" onclick="loginAdmin()">
-                دخول
-            </button>
+            <button class="btn-primary" onclick="loginAdmin()">دخول</button>
         </div>
 
         <div id="adminPanel" class="admin-panel">
@@ -807,60 +754,39 @@ tr:hover td{background:#fafbfd}
                             <th>الإجراء</th>
                         </tr>
                     </thead>
-
                     <tbody id="reportsTableBody"></tbody>
                 </table>
             </div>
 
             <div class="toolbar">
-                <button class="btn-success" onclick="exportArchiveExcel()">
-                    تنزيل الأرشيف
-                </button>
-
-                <button class="btn-primary" onclick="refreshAdminPage()">
-                    تحديث الصفحة
-                </button>
-
-                <button class="btn-danger" onclick="clearAllReports()">
-                    حذف البلاغات الحالية
-                </button>
-
-                <button class="btn-danger" onclick="clearArchiveReports()">
-                    حذف الأرشيف
-                </button>
+                <button class="btn-success" onclick="exportArchiveExcel()">تنزيل الأرشيف</button>
+                <button class="btn-primary" onclick="refreshAdminPage()">تحديث الصفحة</button>
+                <button class="btn-danger" onclick="clearAllReports()">حذف البلاغات الحالية</button>
+                <button class="btn-danger" onclick="clearArchiveReports()">حذف الأرشيف</button>
             </div>
 
             <div class="settings">
                 <h2>إعدادات البلاغات</h2>
-
-                <p class="description">
-                    أضف الإدارات وأنواع البلاغات التي ستظهر في نموذج البلاغ.
-                </p>
+                <p class="description">أضف الإدارات وأنواع البلاغات التي ستظهر في نموذج البلاغ.</p>
 
                 <div class="settings-grid">
-
                     <div class="settings-box">
                         <h3>الإدارات والمواقع</h3>
-
                         <div class="add-row">
                             <input id="newDepartment" type="text" placeholder="اسم الإدارة أو الموقع">
                             <button class="btn-primary" onclick="addDepartment()">إضافة</button>
                         </div>
-
                         <div id="departmentsList" class="items-list"></div>
                     </div>
 
                     <div class="settings-box">
                         <h3>أنواع البلاغات</h3>
-
                         <div class="add-row">
                             <input id="newReportType" type="text" placeholder="نوع البلاغ">
                             <button class="btn-primary" onclick="addReportType()">إضافة</button>
                         </div>
-
                         <div id="reportTypesList" class="items-list"></div>
                     </div>
-
                 </div>
             </div>
 
@@ -869,17 +795,14 @@ tr:hover td{background:#fafbfd}
                     <small>إجمالي البلاغات الحالية</small>
                     <strong id="totalReports">0</strong>
                 </div>
-
                 <div class="stat clickable-card" onclick="openStatDetails('todayReports')">
                     <small>بلاغات اليوم</small>
                     <strong id="todayReports">0</strong>
                 </div>
-
                 <div class="stat clickable-card" onclick="openStatDetails('mostType')">
                     <small>أكثر نوع بلاغ</small>
                     <strong id="mostType">-</strong>
                 </div>
-
                 <div class="stat clickable-card" onclick="openStatDetails('uniqueReporters')">
                     <small>عدد المبلغين</small>
                     <strong id="uniqueReporters">0</strong>
@@ -931,14 +854,9 @@ tr:hover td{background:#fafbfd}
     border:1px solid rgba(221,231,245,.9);
   ">
     <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
-      <h2 class="section-title" style="margin:0; border-right:4px solid var(--gold);">
-        تفاصيل
-      </h2>
-      <button class="btn-secondary" onclick="closeDetailsModal()">
-        إغلاق
-      </button>
+      <h2 class="section-title" style="margin:0; border-right:4px solid var(--gold);">تفاصيل</h2>
+      <button class="btn-secondary" onclick="closeDetailsModal()">إغلاق</button>
     </div>
-
     <div id="detailsBody" style="margin-top:14px; line-height:1.9;"></div>
   </div>
 </div>
@@ -957,28 +875,37 @@ tr:hover td{background:#fafbfd}
   let reports = [];
   let archivedReports = [];
 
-  // ✅ Realtime channel (new)
+  // =========================
+  // ✅ Realtime (مع Debug)
+  // =========================
   let realtimeChannel = null;
   let realtimeBusy = false;
 
   function startRealtime(){
-    // يمنع التكرار
     if (realtimeChannel) return;
+
+    console.log("🟢 [Realtime] starting...");
 
     realtimeChannel = supabase
       .channel("reports-realtime")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "reports" },
-        async () => {
-          // لتخفيف الضغط: إذا جاك حدثين بسرعة نعمل refresh واحد
-          if (realtimeBusy) return;
+        async (payload) => {
+          console.log("📥 [Realtime] INSERT received:", payload);
+
+          if (realtimeBusy) {
+            console.log("⏳ [Realtime] busy - ignoring INSERT");
+            return;
+          }
           realtimeBusy = true;
+
           try{
             await fetchReportsFromDB();
             renderAdmin();
+            console.log("✅ [Realtime] UI updated after INSERT");
           }catch(e){
-            console.error("Realtime INSERT refresh error:", e);
+            console.error("❌ [Realtime] INSERT refresh error:", e);
           }finally{
             realtimeBusy = false;
           }
@@ -987,29 +914,42 @@ tr:hover td{background:#fafbfd}
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "reports" },
-        async () => {
-          if (realtimeBusy) return;
+        async (payload) => {
+          console.log("📥 [Realtime] UPDATE received:", payload);
+
+          if (realtimeBusy) {
+            console.log("⏳ [Realtime] busy - ignoring UPDATE");
+            return;
+          }
           realtimeBusy = true;
+
           try{
             await fetchReportsFromDB();
             renderAdmin();
+            console.log("✅ [Realtime] UI updated after UPDATE");
           }catch(e){
-            console.error("Realtime UPDATE refresh error:", e);
+            console.error("❌ [Realtime] UPDATE refresh error:", e);
           }finally{
             realtimeBusy = false;
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("🔌 [Realtime] channel status:", status);
+      });
   }
 
   function stopRealtime(){
+    console.log("🛑 [Realtime] stopping...");
     if (realtimeChannel){
       supabase.removeChannel(realtimeChannel);
       realtimeChannel = null;
     }
   }
 
+  // ==============
+  // LocalStorage lists
+  // ==============
   let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
       "إدارة الخدمات المالية و الادارية و الصيانة",
       "إدارة الجنسية",
@@ -1167,10 +1107,7 @@ tr:hover td{background:#fafbfd}
 
   function formatDate(value){
       if(!value)return "-";
-      return new Intl.DateTimeFormat("ar-KW",{
-          dateStyle:"medium",
-          timeStyle:"short"
-      }).format(new Date(value));
+      return new Intl.DateTimeFormat("ar-KW",{dateStyle:"medium",timeStyle:"short"}).format(new Date(value));
   }
 
   function mostFrequent(list,property){
@@ -1179,8 +1116,7 @@ tr:hover td{background:#fafbfd}
           const value=item[property]||"غير محدد";
           counts[value]=(counts[value]||0)+1;
       });
-      const result=Object.entries(counts)
-          .sort((a,b)=>b[1]-a[1])[0];
+      const result=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
       return result?{name:result[0],count:result[1]}:null;
   }
 
@@ -1190,9 +1126,7 @@ tr:hover td{background:#fafbfd}
           const key = (r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
           counts[key] = (counts[key] || 0) + 1;
       });
-      return Object.entries(counts)
-          .sort((a,b)=>b[1]-a[1])
-          .map(([name,count])=>({name,count}));
+      return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}));
   }
 
   function topListHtml(list, limit=10){
@@ -1402,13 +1336,9 @@ tr:hover td{background:#fafbfd}
       }
   }
 
-  function getFilteredReports(){
-      return reports;
-  }
-
   function renderAdmin(){
       const body=document.getElementById("reportsTableBody");
-      const filtered=getFilteredReports();
+      const filtered=reports;
 
       document.getElementById("totalReports").textContent=reports.length;
       document.getElementById("archiveCount").textContent=archivedReports.length;
@@ -1433,9 +1363,7 @@ tr:hover td{background:#fafbfd}
       if(!filtered.length){
           body.innerHTML=`
               <tr>
-                  <td colspan="10" class="empty">
-                      لا توجد بلاغات حالية.
-                  </td>
+                  <td colspan="10" class="empty">لا توجد بلاغات حالية.</td>
               </tr>
           `;
           return;
@@ -1453,27 +1381,18 @@ tr:hover td{background:#fafbfd}
               <td>${escapeHtml(report.reporterPhone || "")}</td>
 
               <td>
-                  <input
-                      class="admin-input"
-                      id="technician-${report.id}"
-                      type="text"
-                      placeholder="اسم الفني"
-                      value="${escapeHtml(report.technician || '')}"
-                  >
+                  <input class="admin-input" id="technician-${report.id}" type="text"
+                         placeholder="اسم الفني" value="${escapeHtml(report.technician || '')}">
               </td>
 
               <td>
-                  <textarea
-                      class="admin-input notes-input"
-                      id="notes-${report.id}"
-                      placeholder="الملاحظات"
-                  >${escapeHtml(report.notes || '')}</textarea>
+                  <textarea class="admin-input notes-input" id="notes-${report.id}" placeholder="الملاحظات">
+                    ${escapeHtml(report.notes || '')}
+                  </textarea>
               </td>
 
               <td>
-                  <button class="btn-success" onclick="completeReport('${report.id}')">
-                      تم الإنجاز
-                  </button>
+                  <button class="btn-success" onclick="completeReport('${report.id}')">تم الإنجاز</button>
               </td>
           </tr>
       `).join("");
@@ -1512,15 +1431,12 @@ tr:hover td{background:#fafbfd}
           showAlert("loginAlert","تم تسجيل الدخول بنجاح.","success");
       }catch(e){
           console.error(e);
-          showAlert("loginAlert",
-              (e && e.message) ? e.message : String(e),
-              "error"
-          );
+          showAlert("loginAlert",(e && e.message)?e.message:String(e),"error");
       }
   }
 
   async function logoutAdmin(){
-      stopRealtime(); // ✅ إيقاف الاستماع عند الخروج
+      stopRealtime();
 
       try{ await supabase.auth.signOut(); }catch(e){ console.warn(e); }
 
@@ -1537,13 +1453,8 @@ tr:hover td{background:#fafbfd}
     let location=document.getElementById("location").value.trim();
     let type=document.getElementById("reportType").value.trim();
 
-    if(location==="أخرى"){
-        location=document.getElementById("otherLocation").value.trim();
-    }
-
-    if(type==="أخرى"){
-        type=document.getElementById("otherType").value.trim();
-    }
+    if(location==="أخرى") location=document.getElementById("otherLocation").value.trim();
+    if(type==="أخرى") type=document.getElementById("otherType").value.trim();
 
     const reporterName=document.getElementById("reporterName").value.trim();
     const reporterPhone=document.getElementById("reporterPhone").value.trim();
@@ -1600,7 +1511,6 @@ tr:hover td{background:#fafbfd}
           alert("يرجى كتابة اسم القائم بالإنجاز.");
           return;
       }
-
       if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟"))return;
 
       try{
@@ -1666,7 +1576,6 @@ tr:hover td{background:#fafbfd}
           alert("لا توجد بلاغات حالية.");
           return;
       }
-
       if(!confirm("هل أنت متأكد من حذف جميع البلاغات الحالية؟")) return;
 
       try{
@@ -1690,7 +1599,6 @@ tr:hover td{background:#fafbfd}
           alert("لا توجد بلاغات مؤرشفة.");
           return;
       }
-
       if(!confirm("هل أنت متأكد من حذف جميع البلاغات المؤرشفة؟")) return;
 
       try{
@@ -1710,6 +1618,7 @@ tr:hover td{background:#fafbfd}
       }
   };
 
+  // init
   loadFormOptions();
   renderSettings();
 
