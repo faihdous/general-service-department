@@ -32,7 +32,6 @@ body{
     color:var(--text);
     font-family:Tahoma,Arial,sans-serif;
 
-    /* ✅ دعم احتياطي يمنع ظهور الأبيض لو صار أي فراغ في الخلفية */
     background-color: var(--navy);
 
     background:
@@ -85,8 +84,6 @@ button:hover{
     color:#6b7a90;
     margin-top:auto;
     font-size:14px;
-
-    /* ✅ منع خلفية بيضاء/تعارض مع باقي الصفحة على الآيفون */
     background: transparent !important;
 }
 
@@ -454,33 +451,57 @@ tr:hover td{background:#fafbfd}
     resize:vertical
 }
 
-/* Stats / Summary */
+/* ✅ Stats/مربعات الصورة (تم التعديل هنا) */
 .stats{
     display:grid;
     grid-template-columns:repeat(4,1fr);
-    gap:15px;
-    margin:20px 0
+    gap:18px;
+    margin:22px 0;
 }
 
 .stat{
-    padding:20px;
-    background:#fff;
-    border-right:4px solid var(--gold);
-    border-radius:14px;
-    box-shadow:0 8px 25px rgba(15,39,66,.06);
+    padding:18px 20px 16px;
+    background:rgba(255,255,255,.97);
+    border:2px solid rgba(200,169,81,.95);
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(15,39,66,.08);
+    min-height:118px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-start;
+
     position:relative;
     overflow:hidden;
+
+    /* مهم عشان ما يجي من observer */
+    opacity:1;
+    transform:none;
 }
 
-.stat small{color:var(--muted)}
+.stat small{
+    color:#5b6b7e;
+    font-weight:800;
+    font-size:13px;
+    margin-bottom:10px;
+}
 
 .stat strong{
     display:block;
-    margin-top:8px;
     color:var(--navy);
-    font-size:25px
+    font-size:44px;
+    line-height:1;
+    font-weight:900;
 }
 
+.clickable-card{cursor:pointer;}
+.stat.clickable-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 16px 40px rgba(15,39,66,.12);
+}
+
+/* Summary */
 .summary{
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -584,10 +605,8 @@ tr:hover td{background:#fafbfd}
 #homePage{ min-height: 100vh; }
 #homePage .hero{ min-height: 100vh; padding-bottom: 40px; }
 
-/* Responsive */
 @media(max-width:800px){
     .hero{min-height:570px}
-    /* ✅ في الجوال نخلي الرئيسية تطلع 100vh بشكل أفضل */
     #homePage .hero{min-height:100vh}
 
     .logo-frame{width:155px;height:155px}
@@ -890,16 +909,12 @@ tr:hover td{background:#fafbfd}
   let reports = [];
   let archivedReports = [];
 
-  // =========================
-  // ✅ Realtime (مع Debug - event: "*")
-  // =========================
+  // Realtime
   let realtimeChannel = null;
   let realtimeBusy = false;
 
   function startRealtime(){
     if (realtimeChannel) return;
-
-    console.log("🟢 [Realtime] starting...");
 
     realtimeChannel = supabase
       .channel("reports-realtime")
@@ -907,41 +922,29 @@ tr:hover td{background:#fafbfd}
         "postgres_changes",
         { event: "*", schema: "public", table: "reports" },
         async (payload) => {
-          console.log("📥 [Realtime] ANY event received:", payload);
-
-          if (realtimeBusy) {
-            console.log("⏳ [Realtime] busy - ignoring event");
-            return;
-          }
+          if (realtimeBusy) return;
           realtimeBusy = true;
-
           try{
             await fetchReportsFromDB();
             renderAdmin();
-            console.log("✅ [Realtime] UI updated after event");
           }catch(e){
-            console.error("❌ [Realtime] refresh error:", e);
+            console.error("Realtime refresh error:", e);
           }finally{
             realtimeBusy = false;
           }
         }
       )
-      .subscribe((status) => {
-        console.log("🔌 [Realtime] channel status:", status);
-      });
+      .subscribe();
   }
 
   function stopRealtime(){
-    console.log("🛑 [Realtime] stopping...");
     if (realtimeChannel){
       supabase.removeChannel(realtimeChannel);
       realtimeChannel = null;
     }
   }
 
-  // ==============
-// LocalStorage lists
-  // ==============
+  // LocalStorage lists
   let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
       "إدارة الخدمات المالية و الادارية و الصيانة",
       "إدارة الجنسية",
@@ -1198,10 +1201,17 @@ tr:hover td{background:#fafbfd}
       document.getElementById("detailsModal").style.display="none";
   }
 
+  // ✅ تعديل: تأكد من ظهور محتوى المودال دائماً
   function openDetailsModalWithTitle(title, html){
       document.querySelector("#detailsModal .section-title").textContent = title;
       document.getElementById("detailsBody").innerHTML = html;
-      document.getElementById("detailsModal").style.display="flex";
+      document.getElementById("detailsModal").style.display = "flex";
+
+      const card = document.getElementById("detailsModalCard");
+      if(card){
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }
   }
 
   function openSummaryDetails(which){
@@ -1416,10 +1426,7 @@ tr:hover td{background:#fafbfd}
       try{
           await fetchReportsFromDB();
           renderAdmin();
-
-          // ✅ ابدأ الاستماع realtime بعد نجاح الدخول
           startRealtime();
-
           showAlert("loginAlert","تم تسجيل الدخول بنجاح.","success");
       }catch(e){
           console.error(e);
@@ -1632,13 +1639,28 @@ tr:hover td{background:#fafbfd}
   window.completeReport = window.completeReport;
 </script>
 
+<!-- ✅ Observer مضبوط: لا يؤثر على المودال ولا يخرب الأرشيف -->
 <script>
 (function(){
-  const targets = document.querySelectorAll(
-    '.card, .stat, .summary-card, .settings, .table-wrapper, .form-card, .login-card'
+  if(!('IntersectionObserver' in window)) return;
+
+  // ✅ استبعد عناصر المودال بالكامل
+  const modalCard = document.getElementById('detailsModalCard');
+  const modal = document.getElementById('detailsModal');
+
+  // نخلي المؤثر على عناصر الواجهة الرئيسية فقط
+  let targets = document.querySelectorAll(
+    '.stat, .summary-card, .settings, .table-wrapper, .form-card, .login-card'
   );
 
-  if(!('IntersectionObserver' in window)) return;
+  targets = Array.from(targets).filter(el => {
+    // استبعاد المودال إن صارت ضمن DOM/أثناء العرض
+    if(modal && modal.contains && modal.contains(el)) return false;
+    if(modalCard && el === modalCard) return false;
+    // أيضاً استبعد أي داخل المودال
+    if(modalCard && modalCard.contains && modalCard.contains(el)) return false;
+    return true;
+  });
 
   const obs = new IntersectionObserver((entries)=>{
     entries.forEach(e=>{
