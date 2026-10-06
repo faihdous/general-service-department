@@ -1115,13 +1115,28 @@ tr:hover td{background:#fafbfd}
       return result?{name:result[0],count:result[1]}:null;
   }
 
-  function getCounts(list, prop){
+  // ✅ getCounts يدعم:
+  // prop عادي لـ location/type
+  // prop=null مع byNamePhone=true لحساب reporter_name + reporter_phone
+  function getCounts(list, prop, byNamePhone=false){
       const counts = {};
+
       list.forEach(r=>{
-          const key = (r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
+          if(byNamePhone){
+              const name = (r.reporterName || "").trim() || "غير محدد";
+              const phone = (r.reporterPhone || "").trim() || "غير محدد";
+              const key = `${name} — ${phone}`;
+              counts[key] = (counts[key] || 0) + 1;
+              return;
+          }
+
+          const key = (prop && r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
           counts[key] = (counts[key] || 0) + 1;
       });
-      return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}));
+
+      return Object.entries(counts)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([name,count])=>({name,count}));
   }
 
   function topListHtml(list, limit=10){
@@ -1135,6 +1150,24 @@ tr:hover td{background:#fafbfd}
         `).join("")}
         ${list.length>limit ? `<p style="color:var(--muted);font-size:13px;margin-top:10px">عرض أول ${limit} فقط</p>` : ``}
       `;
+  }
+
+  // ✅ عدد المبلغين حسب (الاسم + الهاتف)
+  function uniqueReportersCountByNamePhone(list){
+      const set = new Set(
+        (list || []).map(r=>{
+          const name = (r.reporterName || "").trim();
+          const phone = (r.reporterPhone || "").trim();
+          if(!name && !phone) return "";
+          return `${name||"غير محدد"}__${phone||"غير محدد"}`;
+        }).filter(Boolean)
+      );
+      return set.size;
+  }
+
+  // ✅ مصدر إحصائيات المربعات: استخدم reports إن وُجدت وإلا استخدم archivedReports
+  function getStatsSource(){
+      return reports.length ? reports : archivedReports;
   }
 
   function renderSettings(){
@@ -1201,12 +1234,10 @@ tr:hover td{background:#fafbfd}
       document.getElementById("detailsModal").style.display="none";
   }
 
-  // ✅ تعديل: تأكد من ظهور محتوى المودال دائماً
   function openDetailsModalWithTitle(title, html){
       document.querySelector("#detailsModal .section-title").textContent = title;
       document.getElementById("detailsBody").innerHTML = html;
       document.getElementById("detailsModal").style.display = "flex";
-
       const card = document.getElementById("detailsModalCard");
       if(card){
         card.style.opacity = '1';
@@ -1215,26 +1246,38 @@ tr:hover td{background:#fafbfd}
   }
 
   function openSummaryDetails(which){
-      if(reports.length===0 && (which!=="archiveCount" || archivedReports.length===0)){
+      const source = getStatsSource();
+
+      if(source.length===0 && (which!=="archiveCount" || archivedReports.length===0)){
           openDetailsModalWithTitle("تفاصيل", "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>");
           return;
       }
 
       if(which==="topLocations"){
-          openDetailsModalWithTitle("أكثر المواقع طلباً للبلاغات", topListHtml(getCounts(reports,"location"), 12));
-          return;
-      }
-      if(which==="topReportType"){
-          openDetailsModalWithTitle("أكثر نوع بلاغ", topListHtml(getCounts(reports,"type"), 12));
-          return;
-      }
-      if(which==="topReporter"){
           openDetailsModalWithTitle(
-            "أكثر شخص يطلب إصلاحات",
-            "<p style='color:var(--muted)'>يعتمد على الاسم من عمود reporter_name.</p>"
+            "أكثر المواقع طلباً للبلاغات",
+            topListHtml(getCounts(source, "location"), 12)
           );
           return;
       }
+
+      if(which==="topReportType"){
+          openDetailsModalWithTitle(
+            "أكثر نوع بلاغ",
+            topListHtml(getCounts(source, "type"), 12)
+          );
+          return;
+      }
+
+      if(which==="topReporter"){
+          // ✅ (name + phone)
+          openDetailsModalWithTitle(
+            "أكثر شخص يطلب إصلاحات",
+            topListHtml(getCounts(source, null, true), 12)
+          );
+          return;
+      }
+
       if(which==="archiveCount"){
           const rows = archivedReports.map(r=>({
               id:r.id,
@@ -1279,11 +1322,14 @@ tr:hover td{background:#fafbfd}
   }
 
   function openStatDetails(which){
+      const source = getStatsSource();
+
       if(which==="totalReports"){
-          const counts = getCounts(reports,"location");
+          // يعرض “إجمالي” على أساس المصدر المختار (reports أو archivedReports)
+          const counts = getCounts(source, "location");
           openDetailsModalWithTitle("إجمالي البلاغات الحالية", `
               <p style="color:#536477;line-height:1.8">
-                الإجمالي: <b>${reports.length}</b>
+                الإجمالي: <b>${source.length}</b>
               </p>
               <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">توزيع حسب الموقع (مختصر)</h3>
               ${topListHtml(counts, 10)}
@@ -1293,7 +1339,8 @@ tr:hover td{background:#fafbfd}
 
       if(which==="todayReports"){
           const today = new Date().toISOString().substring(0,10);
-          const list = reports.filter(r => r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today);
+          const list = source.filter(r => r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today);
+
           openDetailsModalWithTitle("بلاغات اليوم", `
               <p style="color:#536477;line-height:1.8">
                 تاريخ اليوم: <b>${today}</b><br>
@@ -1314,13 +1361,13 @@ tr:hover td{background:#fafbfd}
       }
 
       if(which==="mostType"){
-          const t = mostFrequent(reports,"type");
+          const t = mostFrequent(source,"type");
           openDetailsModalWithTitle("أكثر نوع بلاغ", `
               <p style="color:#536477;line-height:1.8">
                 ${t ? `النوع: <b>${escapeHtml(t.name)}</b> — العدد: <b>${t.count}</b>` : "لا توجد بيانات حالياً"}
               </p>
               <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أفضل الأنواع (مختصر)</h3>
-              ${topListHtml(getCounts(reports,"type"), 10)}
+              ${topListHtml(getCounts(source,"type"), 10)}
           `);
           return;
       }
@@ -1328,10 +1375,10 @@ tr:hover td{background:#fafbfd}
       if(which==="uniqueReporters"){
           openDetailsModalWithTitle("عدد المبلغين", `
               <p style="color:#536477;line-height:1.8">
-                عدد المبلغين: <b>-</b>
+                عدد المبلغين: <b>${uniqueReportersCountByNamePhone(source)}</b>
               </p>
               <p style="color:var(--muted);margin-top:8px">
-                يظهر الأسماء/الهاتف من reporter_name و reporter_phone.
+                حسب (اسم المبلغ + رقم الهاتف) معاً.
               </p>
           `);
           return;
@@ -1340,38 +1387,46 @@ tr:hover td{background:#fafbfd}
 
   function renderAdmin(){
       const body=document.getElementById("reportsTableBody");
-      const filtered=reports;
+      const source = getStatsSource();
 
-      document.getElementById("totalReports").textContent=reports.length;
-      document.getElementById("archiveCount").textContent=archivedReports.length;
+      // مربعات الإحصائيات:
+      // - تعرض من source (reports أو archivedReports)
+      // - لكن جدول القيد يبقى على reports فقط
+      document.getElementById("totalReports").textContent = reports.length; // قيمة المربع كما هي (الحالي)
+      document.getElementById("archiveCount").textContent = archivedReports.length;
 
       const today=new Date().toISOString().substring(0,10);
-
-      document.getElementById("todayReports").textContent=
-          reports.filter(report=>
+      document.getElementById("todayReports").textContent =
+          source.filter(report =>
               report.createdAt &&
               new Date(report.createdAt).toISOString().substring(0,10)===today
           ).length;
 
-      const type=mostFrequent(reports,"type");
-      const location=mostFrequent(reports,"location");
+      const type=mostFrequent(source,"type");
+      const location=mostFrequent(source,"location");
 
       document.getElementById("mostType").textContent= type?`${type.name} (${type.count})`:"-";
       document.getElementById("topLocations").textContent= location?`${location.name} — ${location.count} بلاغ`:"لا توجد بيانات حالياً";
       document.getElementById("topReportType").textContent= type?`${type.name} — ${type.count} بلاغ`:"لا توجد بيانات حالياً";
-      document.getElementById("topReporter").textContent= "-";
-      document.getElementById("uniqueReporters").textContent = "-";
 
-      if(!filtered.length){
+      // ✅ أكثر شخص = (name + phone) معاً
+      const topRepList = getCounts(source, null, true);
+      const topRep = topRepList[0];
+      document.getElementById("topReporter").textContent = topRep ? topRep.name : "-";
+
+      document.getElementById("uniqueReporters").textContent = uniqueReportersCountByNamePhone(source) || 0;
+
+      // ✅ جدول البلاغات الحالية:
+      if(!reports.length){
           body.innerHTML=`
               <tr>
-                  <td colspan="10" class="empty">لا توجد بلاغات حالية.</td>
+                  <td colspan="10" class="empty">لا توجد بلاغات قيد التنفيذ حالياً. يوجد أرشيف: ${archivedReports.length}</td>
               </tr>
           `;
           return;
       }
 
-      body.innerHTML=filtered.map(report=>`
+      body.innerHTML=reports.map(report=>`
           <tr>
               <td><span class="badge">${escapeHtml(formatBGNumber(report.reportNumber))}</span></td>
               <td>${formatDate(report.createdAt)}</td>
@@ -1648,16 +1703,13 @@ tr:hover td{background:#fafbfd}
   const modalCard = document.getElementById('detailsModalCard');
   const modal = document.getElementById('detailsModal');
 
-  // نخلي المؤثر على عناصر الواجهة الرئيسية فقط
   let targets = document.querySelectorAll(
     '.stat, .summary-card, .settings, .table-wrapper, .form-card, .login-card'
   );
 
   targets = Array.from(targets).filter(el => {
-    // استبعاد المودال إن صارت ضمن DOM/أثناء العرض
     if(modal && modal.contains && modal.contains(el)) return false;
     if(modalCard && el === modalCard) return false;
-    // أيضاً استبعد أي داخل المودال
     if(modalCard && modalCard.contains && modalCard.contains(el)) return false;
     return true;
   });
