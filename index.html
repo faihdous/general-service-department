@@ -451,7 +451,7 @@ tr:hover td{background:#fafbfd}
     resize:vertical
 }
 
-/* ✅ Stats/مربعات الصورة (تم التعديل هنا) */
+/* ✅ Stats/مربعات الصورة */
 .stats{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -475,7 +475,6 @@ tr:hover td{background:#fafbfd}
     position:relative;
     overflow:hidden;
 
-    /* مهم عشان ما يجي من observer */
     opacity:1;
     transform:none;
 }
@@ -501,10 +500,10 @@ tr:hover td{background:#fafbfd}
     box-shadow:0 16px 40px rgba(15,39,66,.12);
 }
 
-/* Summary */
+/* ✅ Summary (بقي إطار ذهبي مثل stat) */
 .summary{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(2,1fr);
     gap:15px;
     margin:20px 0
 }
@@ -514,7 +513,7 @@ tr:hover td{background:#fafbfd}
     background:#fff;
     border-radius:14px;
     box-shadow:0 8px 25px rgba(15,39,66,.06);
-    border:1px solid rgba(221,231,245,.9);
+    border:2px solid rgba(200,169,81,.95); /* ✅ إطار ذهبي */
 }
 
 .summary-card h3{
@@ -526,6 +525,11 @@ tr:hover td{background:#fafbfd}
 .summary-card p{
     color:#536477;
     line-height:1.8
+}
+
+.summary-card.clickable-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 16px 40px rgba(15,39,66,.12);
 }
 
 /* Settings */
@@ -849,11 +853,7 @@ tr:hover td{background:#fafbfd}
                     <p id="topLocations">لا توجد بيانات حالياً</p>
                 </div>
 
-                <div class="summary-card clickable-card" onclick="openSummaryDetails('topReportType')">
-                    <h3>أكثر نوع بلاغ</h3>
-                    <p id="topReportType">لا توجد بيانات حالياً</p>
-                </div>
-
+                <!-- ✅ تم حذف "أكثر نوع بلاغ" من الـ Summary -->
                 <div class="summary-card clickable-card" onclick="openSummaryDetails('topReporter')">
                     <h3>أكثر شخص يطلب إصلاحات</h3>
                     <p id="topReporter">لا توجد بيانات حالياً</p>
@@ -921,7 +921,7 @@ tr:hover td{background:#fafbfd}
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "reports" },
-        async (payload) => {
+        async () => {
           if (realtimeBusy) return;
           realtimeBusy = true;
           try{
@@ -1115,9 +1115,9 @@ tr:hover td{background:#fafbfd}
       return result?{name:result[0],count:result[1]}:null;
   }
 
-  // ✅ getCounts يدعم:
+  // يدعم:
   // prop عادي لـ location/type
-  // prop=null مع byNamePhone=true لحساب reporter_name + reporter_phone
+  // prop=null + byNamePhone=true لحساب reporter_name + reporter_phone
   function getCounts(list, prop, byNamePhone=false){
       const counts = {};
 
@@ -1152,7 +1152,6 @@ tr:hover td{background:#fafbfd}
       `;
   }
 
-  // ✅ عدد المبلغين حسب (الاسم + الهاتف)
   function uniqueReportersCountByNamePhone(list){
       const set = new Set(
         (list || []).map(r=>{
@@ -1165,8 +1164,8 @@ tr:hover td{background:#fafbfd}
       return set.size;
   }
 
-  // ✅ مصدر إحصائيات المربعات: استخدم reports إن وُجدت وإلا استخدم archivedReports
   function getStatsSource(){
+      // إذا ما فيه قيد تنفيذ استخدم الأرشيف
       return reports.length ? reports : archivedReports;
   }
 
@@ -1238,6 +1237,7 @@ tr:hover td{background:#fafbfd}
       document.querySelector("#detailsModal .section-title").textContent = title;
       document.getElementById("detailsBody").innerHTML = html;
       document.getElementById("detailsModal").style.display = "flex";
+
       const card = document.getElementById("detailsModalCard");
       if(card){
         card.style.opacity = '1';
@@ -1261,19 +1261,10 @@ tr:hover td{background:#fafbfd}
           return;
       }
 
-      if(which==="topReportType"){
-          openDetailsModalWithTitle(
-            "أكثر نوع بلاغ",
-            topListHtml(getCounts(source, "type"), 12)
-          );
-          return;
-      }
-
       if(which==="topReporter"){
-          // ✅ (name + phone)
           openDetailsModalWithTitle(
             "أكثر شخص يطلب إصلاحات",
-            topListHtml(getCounts(source, null, true), 12)
+            topListHtml(getCounts(source, null, true), 12) // اسم + هاتف
           );
           return;
       }
@@ -1325,7 +1316,6 @@ tr:hover td{background:#fafbfd}
       const source = getStatsSource();
 
       if(which==="totalReports"){
-          // يعرض “إجمالي” على أساس المصدر المختار (reports أو archivedReports)
           const counts = getCounts(source, "location");
           openDetailsModalWithTitle("إجمالي البلاغات الحالية", `
               <p style="color:#536477;line-height:1.8">
@@ -1389,10 +1379,8 @@ tr:hover td{background:#fafbfd}
       const body=document.getElementById("reportsTableBody");
       const source = getStatsSource();
 
-      // مربعات الإحصائيات:
-      // - تعرض من source (reports أو archivedReports)
-      // - لكن جدول القيد يبقى على reports فقط
-      document.getElementById("totalReports").textContent = reports.length; // قيمة المربع كما هي (الحالي)
+      // مربعات الإحصائيات
+      document.getElementById("totalReports").textContent = reports.length;
       document.getElementById("archiveCount").textContent = archivedReports.length;
 
       const today=new Date().toISOString().substring(0,10);
@@ -1407,16 +1395,14 @@ tr:hover td{background:#fafbfd}
 
       document.getElementById("mostType").textContent= type?`${type.name} (${type.count})`:"-";
       document.getElementById("topLocations").textContent= location?`${location.name} — ${location.count} بلاغ`:"لا توجد بيانات حالياً";
-      document.getElementById("topReportType").textContent= type?`${type.name} — ${type.count} بلاغ`:"لا توجد بيانات حالياً";
 
-      // ✅ أكثر شخص = (name + phone) معاً
+      // ✅ أكثر شخص = اسم + هاتف
       const topRepList = getCounts(source, null, true);
-      const topRep = topRepList[0];
-      document.getElementById("topReporter").textContent = topRep ? topRep.name : "-";
+      document.getElementById("topReporter").textContent = topRepList[0] ? topRepList[0].name : "-";
 
       document.getElementById("uniqueReporters").textContent = uniqueReportersCountByNamePhone(source) || 0;
 
-      // ✅ جدول البلاغات الحالية:
+      // جدول القيد التنفيذ
       if(!reports.length){
           body.innerHTML=`
               <tr>
@@ -1694,12 +1680,11 @@ tr:hover td{background:#fafbfd}
   window.completeReport = window.completeReport;
 </script>
 
-<!-- ✅ Observer مضبوط: لا يؤثر على المودال ولا يخرب الأرشيف -->
+<!-- ✅ Observer -->
 <script>
 (function(){
   if(!('IntersectionObserver' in window)) return;
 
-  // ✅ استبعد عناصر المودال بالكامل
   const modalCard = document.getElementById('detailsModalCard');
   const modal = document.getElementById('detailsModal');
 
