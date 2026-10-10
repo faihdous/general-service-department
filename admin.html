@@ -375,7 +375,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = "https://sipumbqxcewdyttnurii.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_wr_BnVo-z-zF45zwLFXGtQ_usB7XEjf";
-
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const DEPARTMENTS_KEY="public_services_departments";
@@ -628,27 +627,25 @@ function renderCharts(){
       const clickedName = labels[idx];
       const filtered = sourceAll.filter(r => (r.location || "غير محدد") === clickedName);
 
-      openDetailsModalWithTitle(
-        "تفاصيل الموقع (من الأرشيف)",
-        `
-          <p style="color:#536477;line-height:1.8">
-            الموقع: <b>${escapeHtml(clickedName)}</b><br>
-            عدد البلاغات: <b>${filtered.length}</b>
-          </p>
-          ${
-            filtered.length
-            ? filtered.slice(0,50).map(r=>`
+      const html = [
+        `<p style="color:#536477;line-height:1.8">`,
+        `الموقع: <b>${escapeHtml(clickedName)}</b><br>`,
+        `عدد البلاغات: <b>${filtered.length}</b>`,
+        `</p>`,
+        (filtered.length
+          ? filtered.slice(0,50).map(r=>`
               <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
                 <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
                 <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
                 <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
               </div>
             `).join("")
-            : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
-          }
-          ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
-        `
-      );
+          : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+        ),
+        (filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : "")
+      ].join("");
+
+      openDetailsModalWithTitle("تفاصيل الموقع (من الأرشيف)", html);
     };
 
     window._charts[chartKey] = chart;
@@ -691,28 +688,26 @@ function renderCharts(){
         return `${n} — ${p}` === clickedLabel;
       });
 
-      openDetailsModalWithTitle(
-        "تفاصيل المبلغ (من الأرشيف)",
-        `
-          <p style="color:#536477;line-height:1.8">
-            المبلغ: <b>${escapeHtml(clickedName)}</b><br>
-            رقم الهاتف: <b>${escapeHtml(clickedPhone)}</b><br>
-            عدد البلاغات: <b>${filtered.length}</b>
-          </p>
-          ${
-            filtered.length
-            ? filtered.slice(0,50).map(r=>`
+      const html = [
+        `<p style="color:#536477;line-height:1.8">`,
+        `المبلغ: <b>${escapeHtml(clickedName)}</b><br>`,
+        `رقم الهاتف: <b>${escapeHtml(clickedPhone)}</b><br>`,
+        `عدد البلاغات: <b>${filtered.length}</b>`,
+        `</p>`,
+        (filtered.length
+          ? filtered.slice(0,50).map(r=>`
               <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
                 <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
                 <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
                 <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
               </div>
             `).join("")
-            : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
-          }
-          ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
-        `
-      );
+          : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+        ),
+        (filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : "")
+      ].join("");
+
+      openDetailsModalWithTitle("تفاصيل المبلغ (من الأرشيف)", html);
     };
 
     window._charts[chartKey] = chart;
@@ -751,27 +746,25 @@ function renderCharts(){
       const clickedType = labels[idx];
       const filtered = pendingOnly.filter(r => (r.type || "غير محدد") === clickedType);
 
-      openDetailsModalWithTitle(
-        "تفاصيل نوع البلاغ (من الأرشيف)",
-        `
-          <p style="color:#536477;line-height:1.8">
-            النوع: <b>${escapeHtml(clickedType)}</b><br>
-            عدد البلاغات في الأرشيف: <b>${filtered.length}</b>
-          </p>
-          ${
-            filtered.length
-            ? filtered.slice(0,50).map(r=>`
+      const html = [
+        `<p style="color:#536477;line-height:1.8">`,
+        `النوع: <b>${escapeHtml(clickedType)}</b><br>`,
+        `عدد البلاغات في الأرشيف: <b>${filtered.length}</b>`,
+        `</p>`,
+        (filtered.length
+          ? filtered.slice(0,50).map(r=>`
               <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
                 <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
                 <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
                 <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
               </div>
             `).join("")
-            : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
-          }
-          ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
-        `
-      );
+          : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+        ),
+        (filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : "")
+      ].join("");
+
+      openDetailsModalWithTitle("تفاصيل نوع البلاغ (من الأرشيف)", html);
     };
 
     window._charts[chartKey] = chart;
@@ -782,7 +775,7 @@ function renderCharts(){
   barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
 }
 
-// ✅ Printing
+// ✅ Printing (تم تبسيطها لتفادي أخطاء قوالب/اقواس)
 window.printChartCard = function(cardId){
   const card = document.getElementById(cardId);
   if(!card) return;
@@ -797,14 +790,11 @@ window.printChartCard = function(cardId){
   }
 
   const noteEls = card.querySelectorAll(".chart-note, .clickHint");
-  var notesHtml = "";
+  let notesHtml = "";
   noteEls.forEach((el)=>{
     const text = (el.innerText || "").trim();
     if(!text) return;
-    notesHtml +=
-      '<div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">' +
-        escapeHtml(text) +
-      '</div>';
+    notesHtml += '<div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">' + escapeHtml(text) + '</div>';
   });
 
   const imgData = canvas.toDataURL("image/png");
@@ -816,43 +806,40 @@ window.printChartCard = function(cardId){
     return;
   }
 
-  w.document.write(`<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <title>طباعة - ${safeTitle}</title>
-  <style>
-    body { font-family: Tahoma, Arial, sans-serif; margin: 20px; color:#0b1f3a; }
-    .header { text-align:center; margin-bottom: 14px; }
-    .header h2 { margin:0; font-size:20px; }
-    .sub { color:#5b6b7e; margin-top:6px; font-size:14px; }
-    .img-wrap { text-align:center; margin-top: 10px; }
-    img { width:100%; max-width:820px; border:1px solid #ddd; border-radius:10px; }
-    .notes { margin-top: 12px; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h2>${safeTitle}</h2>
-    <div class="sub">الرسم البياني + العنوان + النصوص أسفل الرسم</div>
-  </div>
+  w.document.write(
+    '<!DOCTYPE html>' +
+    '<html lang="ar" dir="rtl">' +
+    '<head>' +
+      '<meta charset="UTF-8" />' +
+      '<title>طباعة - ' + safeTitle + '</title>' +
+      '<style>' +
+        'body{font-family:Tahoma, Arial, sans-serif;margin:20px;color:#0b1f3a;}' +
+        '.header{text-align:center;margin-bottom:14px;}' +
+        '.header h2{margin:0;font-size:20px;}' +
+        '.sub{color:#5b6b7e;margin-top:6px;font-size:14px;}' +
+        '.img-wrap{text-align:center;margin-top:10px;}' +
+        'img{width:100%;max-width:820px;border:1px solid #ddd;border-radius:10px;}' +
+        '.notes{margin-top:12px;}' +
+      '</style>' +
+    '</head>' +
+    '<body>' +
+      '<div class="header">' +
+        '<h2>' + safeTitle + '</h2>' +
+        '<div class="sub">الرسم البياني + العنوان + النصوص أسفل الرسم</div>' +
+      '</div>' +
+      '<div class="img-wrap">' +
+        '<img src="' + imgData + '" alt="' + safeTitle + '">' +
+      '</div>' +
+      '<div class="notes">' +
+        notesHtml +
+      '</div>' +
+      '<script>' +
+        'window.onload=function(){window.focus();window.print();};' +
+      '</script>' +
+    '</body>' +
+    '</html>'
+  );
 
-  <div class="img-wrap">
-    <img src="${imgData}" alt="${safeTitle}">
-  </div>
-
-  <div class="notes">
-    ${notesHtml}
-  </div>
-
-  <script>
-    window.onload = function(){
-      window.focus();
-      window.print();
-    };
-  </script>
-</body>
-</html>`);
   w.document.close();
 };
 
