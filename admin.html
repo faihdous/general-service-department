@@ -659,7 +659,8 @@ tr:hover td{background:#fafbfd}
   }
 
   async function fetchReportsFromDB(){
-      // ✅ نفس الأسماء عندك: type موجود ونعتمده مباشرة
+      // ملاحظة: عشان "أكثر شي يتعطل" يكون نوع العطل (طابعة/كمبيوتر...) استخدمت r.type إن وجد
+      // fallback إلى reporter_id فقط لو ما عندك عمود type
       const { data: pending, error: err1 } = await supabase
         .from("reports")
         .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at,type")
@@ -680,7 +681,7 @@ tr:hover td{background:#fafbfd}
           id: r.id,
           reportNumber: r.report_number,
           location: r.title || "",
-          type: (r.type || "").toString(), // ✅ اعتماد type فقط
+          type: (r.type || r.reporter_id || "") + "",
           description: r.description || "",
           createdAt: r.created_at,
           technician: r.technician || "",
@@ -695,7 +696,7 @@ tr:hover td{background:#fafbfd}
           id: r.id,
           reportNumber: r.report_number,
           location: r.title || "",
-          type: (r.type || "").toString(), // ✅ اعتماد type فقط
+          type: (r.type || r.reporter_id || "") + "",
           description: r.description || "",
           createdAt: r.created_at,
           technician: r.technician || "",
@@ -753,8 +754,8 @@ tr:hover td{background:#fafbfd}
       const el3 = document.getElementById("chartTopPendingTypes");
       if(!el1 || !el2 || !el3) return;
 
-      const sourceAll = getStatsSource(); // للمواقع/المبلغين
-      const pendingOnly = reports;         // لقسم "أكثر شي يتعطل"
+      const sourceAll = getStatsSource(); // بيانات الموقع/الشخص (حسب منطقك)
+      const pendingOnly = reports;         // "أكثر شي يتعطل" = قيد التنفيذ
 
       // تدمير الرسوم القديمة
       if(window._charts){
@@ -772,8 +773,8 @@ tr:hover td{background:#fafbfd}
       const labelsRep = repCounts.map(x => x.name);
       const valuesRep = repCounts.map(x => x.count);
 
-      // ✅ "أكثر شي يتعطل" = نوع العطل من pendingOnly.type (وتجاهل غير محدد/فارغ)
-      const pendingTypeFiltered = pendingOnly.filter(r => {
+      // ✅ أكثر شي يتعطل = نوع العطل من pendingOnly.type (وتجاهل غير محدد)
+      const pendingTypeFiltered = pendingOnly.filter(r=>{
         const t = (r.type || "").trim();
         return t && t !== "غير محدد";
       });
@@ -811,7 +812,12 @@ tr:hover td{background:#fafbfd}
 
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(evt, "nearest", { intersect:true }, true);
+          const points = chart.getElementsAtEventForMode(
+            evt,
+            "nearest",
+            { intersect:true },
+            true
+          );
           if(!points || !points.length) return;
 
           const idx = points[0].index;
@@ -828,14 +834,14 @@ tr:hover td{background:#fafbfd}
               </p>
               ${
                 filtered.length
-                  ? filtered.slice(0,20).map(r=>`
-                      <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
-                        <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
-                        <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
-                        <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
-                      </div>
-                    `).join("")
-                  : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+                ? filtered.slice(0,20).map(r=>`
+                    <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                      <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                      <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                      <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+                    </div>
+                  `).join("")
+                : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
               }
               ${filtered.length>20 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 20 بلاغ فقط</p>` : ""}
             `
@@ -870,7 +876,11 @@ tr:hover td{background:#fafbfd}
           options:{
             responsive:true,
             plugins:{
-              legend:{ display:true, position:"bottom", labels:{ color:"#334155" } },
+              legend:{
+                display:true,
+                position:"bottom",
+                labels:{ color:"#334155" }
+              },
               tooltip:{ enabled:true }
             },
             cutout:"58%"
@@ -879,7 +889,12 @@ tr:hover td{background:#fafbfd}
 
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(evt,"nearest",{intersect:true},true);
+          const points = chart.getElementsAtEventForMode(
+            evt,
+            "nearest",
+            { intersect:true },
+            true
+          );
           if(!points || !points.length) return;
 
           const idx = points[0].index;
@@ -905,14 +920,14 @@ tr:hover td{background:#fafbfd}
               </p>
               ${
                 filtered.length
-                  ? filtered.slice(0,20).map(r=>`
-                      <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
-                        <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
-                        <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
-                        <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
-                      </div>
-                    `).join("")
-                  : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+                ? filtered.slice(0,20).map(r=>`
+                    <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                      <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                      <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                      <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+                    </div>
+                  `).join("")
+                : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
               }
               ${filtered.length>20 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 20 بلاغ فقط</p>` : ""}
             `
@@ -951,13 +966,18 @@ tr:hover td{background:#fafbfd}
 
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(evt,"nearest",{intersect:true},true);
+          const points = chart.getElementsAtEventForMode(
+            evt,
+            "nearest",
+            { intersect:true },
+            true
+          );
           if(!points || !points.length) return;
 
           const idx = points[0].index;
-          const clickedType = String(labels[idx]).trim();
+          const clickedType = labels[idx]; // هنا نوع العطل
 
-          const filtered = pendingOnly.filter(r => String((r.type || "").trim()) === clickedType);
+          const filtered = pendingOnly.filter(r => (r.type || "").trim() === String(clickedType).trim());
 
           openDetailsModalWithTitle(
             "تفاصيل نوع العطل (قيد التنفيذ)",
@@ -968,14 +988,14 @@ tr:hover td{background:#fafbfd}
               </p>
               ${
                 filtered.length
-                  ? filtered.slice(0,20).map(r=>`
-                      <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
-                        <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
-                        <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
-                        <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
-                      </div>
-                    `).join("")
-                  : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+                ? filtered.slice(0,20).map(r=>`
+                    <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                      <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                      <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                      <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+                    </div>
+                  `).join("")
+                : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
               }
               ${filtered.length>20 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 20 بلاغ فقط</p>` : ""}
             `
@@ -988,7 +1008,7 @@ tr:hover td{background:#fafbfd}
       barChart("topLocations", el1, labelsLoc, valuesLoc);
       doughnutChart("topReporter", el2, labelsRep, valuesRep);
       barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
-    }
+  }
 
   // ---------- Settings ----------
   function renderSettings(){
@@ -1047,7 +1067,6 @@ tr:hover td{background:#fafbfd}
       }
   }
 
-  // ---------- Admin render ----------
   function renderAdmin(){
       const body=document.getElementById("reportsTableBody");
 
