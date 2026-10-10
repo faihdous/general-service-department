@@ -55,6 +55,7 @@ button:hover{
     filter:brightness(1.05)
 }
 
+.page{display:none}
 #pagesWrap{flex:1; display:block}
 
 .site-footer{
@@ -355,42 +356,6 @@ tr:hover td{background:#fafbfd}
 }
 .delete-item:hover{transform:translateY(-1px) scale(1.04)}
 
-/* ✅ Modal */
-#detailsModal.show{display:flex;}
-#detailsModalHideArea{position:absolute; inset:0;}
-
-/* === هذا أهم تعديل لتمرير الكمبيوتر === */
-#detailsModalCard{
-  width:min(900px,94%);
-  padding:22px;
-  background:#fff;
-  border-radius:18px;
-  border:1px solid rgba(221,231,245,.9);
-
-  /* نخلي الكرت عمود ثابت وداخلنا عنصر يتمرر */
-  display:flex;
-  flex-direction:column;
-
-  max-height:84vh;
-  min-height:200px;
-
-  overflow:hidden; /* حتى ما يطلع Scroll خارجي */
-}
-
-#detailsBody{
-  margin-top:14px;
-  line-height:1.9;
-
-  /* يأخذ باقي المساحة من الكرت */
-  flex:1;
-  min-height:0;          /* مهم جدًا لعمل overflow على desktop */
-  overflow-y:auto;
-  overflow-x:hidden;
-
-  padding-left:6px;     /* تحسين بسيط */
-  -webkit-overflow-scrolling: touch;
-}
-
 /* ✅ Charts section */
 .charts-section{
   margin-top:26px;
@@ -432,7 +397,41 @@ tr:hover td{background:#fafbfd}
   margin-top:8px;
 }
 
+/* ✅ إلغاء مربعات الإحصائيات */
 .stats, .summary { display:none !important; }
+
+/* ✅ Modal */
+#detailsModal.show{display:flex;}
+#detailsModalHideArea{position:absolute; inset:0;}
+
+/* --- التعديل الأساسي لحل سكرول Edge --- */
+#detailsModalCard{
+  width:min(900px,94%);
+  padding:22px;
+  background:#fff;
+  border-radius:18px;
+  border:1px solid rgba(221,231,245,.9);
+
+  /* ثبات ارتفاع */
+  height:min(84vh, 820px);
+
+  overflow:hidden;   /* ممنوع Scroll خارجي */
+  display:block;      /* خليه بسيط ومضمون على Edge */
+}
+
+#detailsBody{
+  margin-top:14px;
+  line-height:1.9;
+
+  /* يأخذ باقي ارتفاع الكرت بعد عنوان/هيدر */
+  height:calc(100% - 72px);
+
+  overflow-y:auto;   /* السحب داخل التفاصيل */
+  overflow-x:hidden;
+
+  padding-left:6px;
+  -webkit-overflow-scrolling: touch;
+}
 
 @media(max-width:1100px){
   .charts-grid{ grid-template-columns:1fr; }
@@ -545,7 +544,6 @@ tr:hover td{background:#fafbfd}
                 </div>
             </div>
 
-            <!-- ✅ الرسوم البيانية -->
             <div class="charts-section">
               <h2 class="section-title">الرسوم البيانية (بيانات الأرشيف)</h2>
 
@@ -554,6 +552,7 @@ tr:hover td{background:#fafbfd}
                   <h3>المواقع الأكثر بلاغات</h3>
                   <canvas id="chartTopLocations" height="160"></canvas>
                   <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات من الأرشيف</div>
+                  <div class="clickHint">* التمرير موجود داخل نافذة التفاصيل</div>
                 </div>
 
                 <div class="chart-card">
@@ -589,6 +588,7 @@ tr:hover td{background:#fafbfd}
       <h2 class="section-title" style="margin:0; border-right:4px solid var(--gold);">تفاصيل</h2>
       <button class="btn-secondary" onclick="closeDetailsModal()">إغلاق</button>
     </div>
+
     <div id="detailsBody"></div>
   </div>
 </div>
@@ -769,13 +769,9 @@ tr:hover td{background:#fafbfd}
 
   function openDetailsModalWithTitle(title, html){
       document.querySelector("#detailsModal .section-title").textContent = title;
-
       const detailsBody = document.getElementById("detailsBody");
       detailsBody.innerHTML = html;
-
-      // إعادة لفوق عند فتح المودال
       detailsBody.scrollTop = 0;
-
       document.getElementById("detailsModal").style.display = "flex";
   }
 
@@ -789,7 +785,6 @@ tr:hover td{background:#fafbfd}
       const el3 = document.getElementById("chartTopPendingTypes");
       if(!el1 || !el2 || !el3) return;
 
-      // كل الرسوم من الأرشيف
       const sourceAll = archivedReports;
       const pendingOnly = archivedReports;
 
@@ -828,16 +823,23 @@ tr:hover td{background:#fafbfd}
       function barChart(chartKey, canvas, labels, data){
         const chart = new Chart(canvas.getContext("2d"),{
           type:"bar",
-          data:{ labels,
-            datasets:[{ label:"العدد", data,
+          data:{
+            labels,
+            datasets:[{
+              label:"العدد",
+              data,
               backgroundColor:"rgba(200,169,81,.55)",
               borderColor:"rgba(200,169,81,1)",
-              borderWidth:1, borderRadius:10
+              borderWidth:1,
+              borderRadius:10
             }]
           },
           options:{
             responsive:true,
-            plugins:{ legend:{ display:false }, tooltip:{ enabled:true } },
+            plugins:{
+              legend:{ display:false },
+              tooltip:{ enabled:true }
+            },
             scales:{
               x:{ ticks:{ color:"#3b4a5a" }, grid:{ display:false } },
               y:{ ticks:{ color:"#3b4a5a" }, grid:{ color:"rgba(7,26,51,.06)" } }
@@ -847,7 +849,12 @@ tr:hover td{background:#fafbfd}
 
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(evt,"nearest",{ intersect:true },true);
+          const points = chart.getElementsAtEventForMode(
+            evt,
+            "nearest",
+            { intersect:true },
+            true
+          );
           if(!points || !points.length) return;
 
           const idx = points[0].index;
@@ -888,12 +895,20 @@ tr:hover td{background:#fafbfd}
           type:"doughnut",
           data:{
             labels,
-            datasets:[{ label:"العدد", data, backgroundColor: colors }]
+            datasets:[{
+              label:"العدد",
+              data,
+              backgroundColor: colors
+            }]
           },
           options:{
             responsive:true,
             plugins:{
-              legend:{ display:true, position:"bottom", labels:{ color:"#334155" } },
+              legend:{
+                display:true,
+                position:"bottom",
+                labels:{ color:"#334155" }
+              },
               tooltip:{ enabled:true }
             },
             cutout:"58%"
@@ -902,7 +917,12 @@ tr:hover td{background:#fafbfd}
 
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(evt,"nearest",{ intersect:true },true);
+          const points = chart.getElementsAtEventForMode(
+            evt,
+            "nearest",
+            { intersect:true },
+            true
+          );
           if(!points || !points.length) return;
 
           const idx = points[0].index;
@@ -948,16 +968,23 @@ tr:hover td{background:#fafbfd}
       function barChartForPending(chartKey, canvas, labels, data){
         const chart = new Chart(canvas.getContext("2d"),{
           type:"bar",
-          data:{ labels,
-            datasets:[{ label:"العدد", data,
+          data:{
+            labels,
+            datasets:[{
+              label:"العدد",
+              data,
               backgroundColor:"rgba(47,101,165,.45)",
               borderColor:"rgba(47,101,165,1)",
-              borderWidth:1, borderRadius:10
+              borderWidth:1,
+              borderRadius:10
             }]
           },
           options:{
             responsive:true,
-            plugins:{ legend:{ display:false }, tooltip:{ enabled:true } },
+            plugins:{
+              legend:{ display:false },
+              tooltip:{ enabled:true }
+            },
             scales:{
               x:{ ticks:{ color:"#3b4a5a" }, grid:{ display:false } },
               y:{ ticks:{ color:"#3b4a5a" }, grid:{ color:"rgba(7,26,51,.06)" } }
@@ -967,7 +994,12 @@ tr:hover td{background:#fafbfd}
 
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(evt,"nearest",{ intersect:true },true);
+          const points = chart.getElementsAtEventForMode(
+            evt,
+            "nearest",
+            { intersect:true },
+            true
+          );
           if(!points || !points.length) return;
 
           const idx = points[0].index;
@@ -1063,6 +1095,7 @@ tr:hover td{background:#fafbfd}
       }
   }
 
+  // ---------- Admin render ----------
   function renderAdmin(){
       const body=document.getElementById("reportsTableBody");
 
