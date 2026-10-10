@@ -1050,77 +1050,77 @@ tr:hover td{background:#fafbfd}
       barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
   }
 
-  // ✅ الطباعة (داخل كل كرت رسم)
-  window.printChartCard = function(cardId){
-    const card = document.getElementById(cardId);
-    if(!card) return;
+  /* ✅ الطباعة (تم تعديلها للتخلص من SyntaxError) */
+ window.printChartCard = function(cardId){
+  const card = document.getElementById(cardId);
+  if(!card) return;
 
-    const titleEl = card.querySelector("h3");
-    const chartTitle = (titleEl && titleEl.textContent ? titleEl.textContent : "رسم بياني").trim();
+  const titleEl = card.querySelector("h3");
+  const chartTitle = (titleEl && titleEl.textContent ? titleEl.textContent : "رسم بياني").trim();
 
-    const canvas = card.querySelector("canvas");
-    if(!canvas || !canvas.toDataURL){
-      alert("لم يتم العثور على الرسم أو لا يدعم الطباعة.");
-      return;
-    }
+  const canvas = card.querySelector("canvas");
+  if(!canvas || typeof canvas.toDataURL !== "function"){
+    alert("لم يتم العثور على الرسم أو لا يدعم الطباعة.");
+    return;
+  }
 
-    const noteEls = card.querySelectorAll(".chart-note, .clickHint");
-    let notesHtml = "";
-    noteEls.forEach((el)=>{
-      const text = (el.innerText || "").trim();
-      if(!text) return;
-      notesHtml +=
-        '<div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">' +
-        escapeHtml(text) +
-        '</div>';
-    });
+  const noteEls = card.querySelectorAll(".chart-note, .clickHint");
+  let notesHtml = "";
+  noteEls.forEach((el)=>{
+    const text = (el.innerText || "").trim();
+    if(!text) return;
+    notesHtml += `
+      <div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">
+        ${escapeHtml(text)}
+      </div>
+    `;
+  });
 
-    const imgData = canvas.toDataURL("image/png");
-    const safeTitle = escapeHtml(chartTitle);
+  const imgData = canvas.toDataURL("image/png");
+  const safeTitle = escapeHtml(chartTitle);
 
-    const w = window.open("", "_blank", "width=950,height=900");
-    if(!w){
-      alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
-      return;
-    }
+  const w = window.open("", "_blank", "width=950,height=900");
+  if(!w){
+    alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
+    return;
+  }
 
-    const html =
-      "<!DOCTYPE html>" +
-      "<html lang='ar' dir='rtl'>" +
-      "<head>" +
-        "<meta charset='UTF-8' />" +
-        "<meta name='viewport' content='width=device-width, initial-scale=1.0' />" +
-        "<title>طباعة - " + safeTitle + "</title>" +
-        "<style>" +
-          "@page{ size:auto; margin:18mm; }" +
-          "body{font-family:Tahoma, Arial, sans-serif;margin:20px;color:#0b1f3a;direction:rtl;}" +
-          ".header{text-align:center;margin-bottom:14px;}" +
-          ".header h2{margin:0;font-size:20px;}" +
-          ".sub{color:#5b6b7e;margin-top:6px;font-size:14px;}" +
-          ".img-wrap{text-align:center;margin-top:10px;}" +
-          "img{width:100%;max-width:820px;border:1px solid #ddd;border-radius:10px;}" +
-          ".notes{margin-top:12px;}" +
-        "</style>" +
-      "</head>" +
-      "<body>" +
-        "<div class='header'>" +
-          "<h2>" + safeTitle + "</h2>" +
-          "<div class='sub'>الرسم البياني + العنوان + النصوص أسفل الرسم</div>" +
-        "</div>" +
-        "<div class='img-wrap'>" +
-          "<img src='" + imgData + "' alt='" + safeTitle + "' />" +
-        "</div>" +
-        "<div class='notes'>" + notesHtml + "</div>" +
-        "<script>" +
-          "window.onload=function(){try{window.focus();}catch(e){} window.print();};" +
-        "</script>" +
-      "</body>" +
-      "</html>";
+  const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>طباعة - ${safeTitle}</title>
+  <style>
+    @page{ size:auto; margin:18mm; }
+    body{font-family:Tahoma, Arial, sans-serif;margin:20px;color:#0b1f3a;direction:rtl;}
+    .header{text-align:center;margin-bottom:14px;}
+    .header h2{margin:0;font-size:20px;}
+    .sub{color:#5b6b7e;margin-top:6px;font-size:14px;}
+    .img-wrap{text-align:center;margin-top:10px;}
+    img{width:100%;max-width:820px;border:1px solid #ddd;border-radius:10px;}
+    .notes{margin-top:12px;}
+  </style>
+</head>
+<body onload="try{window.focus();}catch(e){} window.print();">
+  <div class="header">
+    <h2>${safeTitle}</h2>
+    <div class="sub">الرسم البياني + العنوان + النصوص أسفل الرسم</div>
+  </div>
 
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-  };
+  <div class="img-wrap">
+    <img src="${imgData}" alt="${safeTitle}" />
+  </div>
+
+  <div class="notes">${notesHtml}</div>
+</body>
+</html>`;
+
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+};
+
 
   // ---------- Settings ----------
   function renderSettings(){
