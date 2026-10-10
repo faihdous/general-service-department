@@ -55,11 +55,6 @@ button:hover{
     filter:brightness(1.05)
 }
 
-@keyframes fadeUp {
-  from{ opacity:0; transform:translateY(14px); }
-  to{ opacity:1; transform:translateY(0); }
-}
-
 .page{display:none}
 #pagesWrap{flex:1; display:block}
 
@@ -126,7 +121,7 @@ button:hover{
     border:1px solid rgba(221, 231, 245, .8);
 }
 
-.form-card,.login-card{border-top:4px solid var(--gold)}
+.login-card{border-top:4px solid var(--gold)}
 .login-card{max-width:460px;margin:65px auto}
 
 .section-title{
@@ -198,11 +193,6 @@ input:focus,select:focus,textarea:focus{
 }
 
 textarea{min-height:135px;resize:vertical}
-.submit-row{
-    margin-top:22px;
-    display:flex;
-    justify-content:flex-start;
-}
 
 /* Alert */
 .alert{
@@ -298,87 +288,6 @@ tr:hover td{background:#fafbfd}
     resize:vertical
 }
 
-/* ✅ Stats */
-.stats{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:18px;
-    margin:22px 0;
-}
-
-.stat{
-    padding:18px 20px 16px;
-    background:rgba(255,255,255,.97);
-    border:2px solid rgba(200,169,81,.95);
-    border-radius:18px;
-    box-shadow:0 10px 30px rgba(15,39,66,.08);
-    min-height:118px;
-
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:flex-start;
-
-    position:relative;
-    overflow:hidden;
-
-    opacity:1;
-    transform:none;
-}
-
-.stat small{
-    color:#5b6b7e;
-    font-weight:800;
-    font-size:13px;
-    margin-bottom:10px;
-}
-
-.stat strong{
-    display:block;
-    color:var(--navy);
-    font-size:44px;
-    line-height:1;
-    font-weight:900;
-}
-
-.clickable-card{cursor:pointer;}
-.stat.clickable-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 16px 40px rgba(15,39,66,.12);
-}
-
-/* ✅ Summary */
-.summary{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:15px;
-    margin:20px 0
-}
-
-.summary-card{
-    padding:20px;
-    background:#fff;
-    border-radius:14px;
-    box-shadow:0 8px 25px rgba(15,39,66,.06);
-    border:2px solid rgba(200,169,81,.95);
-}
-
-.summary-card h3{
-    margin-top:0;
-    color:var(--navy);
-    font-size:16px
-}
-
-.summary-card p{
-    color:#536477;
-    line-height:1.8
-}
-
-.summary-card.clickable-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 16px 40px rgba(15,39,66,.12);
-}
-
 /* Settings */
 .settings{
     padding:23px;
@@ -452,7 +361,7 @@ tr:hover td{background:#fafbfd}
 #detailsModalHideArea{position:absolute; inset:0;}
 #detailsModalCard{max-height:80vh; overflow:auto;}
 
-/* ✅ Charts section (جديد) */
+/* ✅ Charts section */
 .charts-section{
   margin-top:26px;
   padding-top:6px;
@@ -470,6 +379,8 @@ tr:hover td{background:#fafbfd}
   border-radius:16px;
   box-shadow:0 10px 30px rgba(15,39,66,.06);
   padding:16px 16px 12px;
+
+  user-select:none;
 }
 
 .chart-card h3{
@@ -485,7 +396,15 @@ tr:hover td{background:#fafbfd}
   line-height:1.6;
 }
 
-/* Responsive */
+.clickHint{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:8px;
+}
+
+/* ✅ إلغاء مربعات الإحصائيات اللي بالصورة */
+.stats, .summary { display:none !important; }
+
 @media(max-width:1100px){
   .charts-grid{ grid-template-columns:1fr; }
 }
@@ -495,8 +414,6 @@ tr:hover td{background:#fafbfd}
     .topbar-actions{width:100%}
     .content{width:94%;margin:20px auto}
     .card{padding:19px}
-    .stats{grid-template-columns:1fr}
-    .summary{grid-template-columns:1fr}
     .settings-grid{grid-template-columns:1fr}
     table{min-width:920px}
 }
@@ -602,66 +519,28 @@ tr:hover td{background:#fafbfd}
                 </div>
             </div>
 
-            <div class="stats">
-                <div class="stat clickable-card" onclick="openStatDetails('totalReports')">
-                    <small>إجمالي البلاغات الحالية</small>
-                    <strong id="totalReports">0</strong>
-                </div>
-                <div class="stat clickable-card" onclick="openStatDetails('todayReports')">
-                    <small>بلاغات اليوم</small>
-                    <strong id="todayReports">0</strong>
-                </div>
-                <div class="stat clickable-card" onclick="openStatDetails('mostType')">
-                    <small>أكثر نوع بلاغ</small>
-                    <strong id="mostType">-</strong>
-                </div>
-                <div class="stat clickable-card" onclick="openStatDetails('uniqueReporters')">
-                    <small>عدد المبلغين</small>
-                    <strong id="uniqueReporters">0</strong>
-                </div>
-            </div>
-
-            <div class="summary">
-                <div class="summary-card clickable-card" onclick="openSummaryDetails('topLocations')">
-                    <h3>أكثر المواقع طلباً للبلاغات</h3>
-                    <p id="topLocations">لا توجد بيانات حالياً</p>
-                </div>
-
-                <div class="summary-card clickable-card" onclick="openSummaryDetails('topReporter')">
-                    <h3>أكثر شخص يطلب إصلاحات</h3>
-                    <p id="topReporter">لا توجد بيانات حالياً</p>
-                </div>
-            </div>
-
-            <div class="summary-card clickable-card" style="max-width:420px;margin-top:18px;" onclick="openSummaryDetails('archiveCount')">
-                <h3 style="margin-top:0;color:var(--navy);font-size:16px">الأرشيف</h3>
-                <p style="color:#536477;line-height:1.8">
-                    عدد البلاغات المؤرشفة:
-                    <strong id="archiveCount">0</strong>
-                </p>
-            </div>
-
-            <!-- ✅ الرسوم البيانية (جديد) -->
+            <!-- ✅ الرسوم البيانية -->
             <div class="charts-section">
-              <h2 class="section-title">الرسوم البيانية (تفاصيل البلاغات)</h2>
+              <h2 class="section-title">الرسوم البيانية (اضغط لعرض التفاصيل)</h2>
 
               <div class="charts-grid">
                 <div class="chart-card">
                   <h3>المواقع الأكثر بلاغات</h3>
                   <canvas id="chartTopLocations" height="160"></canvas>
-                  <div class="chart-note">أعلى 10 مواقع (حسب القيد التنفيذ + الأرشيف في نفس الصفحة)</div>
+                  <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات</div>
+                  <div class="clickHint">* يعتمد على جميع البيانات المتوفرة في نفس الصفحة</div>
                 </div>
 
                 <div class="chart-card">
                   <h3>أكثر شخص يطلب إصلاحات</h3>
                   <canvas id="chartTopReporter" height="160"></canvas>
-                  <div class="chart-note">أعلى 8 مبلغين (اسم + رقم الهاتف)</div>
+                  <div class="chart-note">اضغط على القطعة لعرض البلاغات</div>
                 </div>
 
                 <div class="chart-card">
                   <h3>أكثر شي يتعطل</h3>
                   <canvas id="chartTopPendingTypes" height="160"></canvas>
-                  <div class="chart-note">أعلى 10 أنواع قيد التنفيذ</div>
+                  <div class="chart-note">اضغط على نوع البلاغ لعرض التفاصيل (قيد التنفيذ)</div>
                 </div>
               </div>
             </div>
@@ -845,16 +724,6 @@ tr:hover td{background:#fafbfd}
       return new Intl.DateTimeFormat("ar-KW",{dateStyle:"medium",timeStyle:"short"}).format(new Date(value));
   }
 
-  function mostFrequent(list,property){
-      const counts={};
-      list.forEach(item=>{
-          const value=item[property]||"غير محدد";
-          counts[value]=(counts[value]||0)+1;
-      });
-      const result=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
-      return result?{name:result[0],count:result[1]}:null;
-  }
-
   function getCounts(list, prop, byNamePhone=false){
       const counts = {};
 
@@ -876,41 +745,20 @@ tr:hover td{background:#fafbfd}
         .map(([name,count])=>({name,count}));
   }
 
-  function topListHtml(list, limit=10){
-      if(!list.length) return "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>";
-      return `
-        ${list.slice(0,limit).map(x=>`
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #edf0f4">
-            <span>${escapeHtml(x.name)}</span>
-            <b>${x.count}</b>
-          </div>
-        `).join("")}
-        ${list.length>limit ? `<p style="color:var(--muted);font-size:13px;margin-top:10px">عرض أول ${limit} فقط</p>` : ``}
-      `;
-  }
-
-  function uniqueReportersCountByNamePhone(list){
-      const set = new Set(
-        (list || []).map(r=>{
-          const name = (r.reporterName || "").trim();
-          const phone = (r.reporterPhone || "").trim();
-          if(!name && !phone) return "";
-          return `${name||"غير محدد"}__${phone||"غير محدد"}`;
-        }).filter(Boolean)
-      );
-      return set.size;
-  }
-
   function getStatsSource(){
+      // بنفس منطقك السابق: لو فيه reports نعرضها، وإلا أرشيف
       return reports.length ? reports : archivedReports;
   }
 
-  // ✅ Charts
-  let charts = {
-    topLocations: null,
-    topReporter: null,
-    topPendingTypes: null
-  };
+  function openDetailsModalWithTitle(title, html){
+      document.querySelector("#detailsModal .section-title").textContent = title;
+      document.getElementById("detailsBody").innerHTML = html;
+      document.getElementById("detailsModal").style.display = "flex";
+  }
+
+  function closeDetailsModal(){
+      document.getElementById("detailsModal").style.display="none";
+  }
 
   function renderCharts(){
       const el1 = document.getElementById("chartTopLocations");
@@ -918,81 +766,263 @@ tr:hover td{background:#fafbfd}
       const el3 = document.getElementById("chartTopPendingTypes");
       if(!el1 || !el2 || !el3) return;
 
-      const sourceAll = getStatsSource();   // حسب منطقك الحالي (قيد التنفيذ إن وجد)
-      const pendingOnly = reports;          // "أكثر شي يتعطل" = قيد التنفيذ فقط
+      const sourceAll = getStatsSource(); // حسب منطقك
+      const pendingOnly = reports;        // "أكثر شي يتعطل" = قيد التنفيذ فقط
 
-      // 1) Top Locations
-      const locCounts = getCounts(sourceAll, "location");
-      const topLoc = locCounts.slice(0,10);
-      const labelsLoc = topLoc.map(x => x.name);
-      const valuesLoc = topLoc.map(x => x.count);
+      // destroy old charts if exist
+      if(window._charts){
+        for(const k of Object.keys(window._charts)){
+          try{ window._charts[k].destroy(); }catch(e){}
+        }
+      }
+      window._charts = {};
 
-      // 2) Top Reporter (name + phone)
-      const repCounts = getCounts(sourceAll, null, true);
-      const topRep = repCounts.slice(0,8);
-      const labelsRep = topRep.map(x => x.name);
-      const valuesRep = topRep.map(x => x.count);
+      // data
+      const locCounts = getCounts(sourceAll, "location").slice(0,10);
+      const labelsLoc = locCounts.map(x => x.name);
+      const valuesLoc = locCounts.map(x => x.count);
 
-      // 3) Top Pending Types (قيد التنفيذ)
-      const pendingTypeCounts = getCounts(pendingOnly, "type");
-      const topPending = pendingTypeCounts.slice(0,10);
-      const labelsPending = topPending.map(x => x.name);
-      const valuesPending = topPending.map(x => x.count);
+      const repCounts = getCounts(sourceAll, null, true).slice(0,8);
+      const labelsRep = repCounts.map(x => x.name);
+      const valuesRep = repCounts.map(x => x.count);
 
-      function buildChart(chartKey, ctx, type, labels, data, legendDisplay){
-          if(charts[chartKey]) charts[chartKey].destroy();
+      const pendingTypeCounts = getCounts(pendingOnly, "type").slice(0,10);
+      const labelsPending = pendingTypeCounts.map(x => x.name);
+      const valuesPending = pendingTypeCounts.map(x => x.count);
 
-          const palette = [
-            "rgba(200,169,81,.70)",
-            "rgba(47,101,165,.55)",
-            "rgba(20,122,75,.50)",
-            "rgba(180,35,24,.45)",
-            "rgba(13,43,80,.45)",
-            "rgba(111,125,138,.45)",
-            "rgba(200,120,70,.45)",
-            "rgba(94,179,255,.45)",
-            "rgba(16,185,129,.45)",
-            "rgba(239,68,68,.40)"
-          ];
+      const palette = [
+        "rgba(200,169,81,.70)",
+        "rgba(47,101,165,.55)",
+        "rgba(20,122,75,.50)",
+        "rgba(180,35,24,.45)",
+        "rgba(13,43,80,.45)",
+        "rgba(111,125,138,.45)",
+        "rgba(200,120,70,.45)",
+        "rgba(94,179,255,.45)",
+        "rgba(16,185,129,.45)",
+        "rgba(239,68,68,.40)"
+      ];
 
-          charts[chartKey] = new Chart(ctx, {
-              type,
-              data: {
-                  labels,
-                  datasets: [{
-                      label: "البيانات",
-                      data,
-                      backgroundColor:
-                          type === "bar"
-                          ? "rgba(200,169,81,.55)"
-                          : palette.slice(0, Math.max(1, labels.length)),
-                      borderColor:
-                          type === "bar"
-                          ? "rgba(200,169,81,1)"
-                          : "rgba(255,255,255,.12)",
-                      borderWidth: type === "bar" ? 1 : 0,
-                      borderRadius: type === "bar" ? 10 : 0
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  plugins: {
-                      legend: { display: legendDisplay !== false && type !== "bar" ? true : false },
-                      tooltip: { enabled: true }
-                  },
-                  scales: type === "bar" ? {
-                      x: { ticks: { color: "#3b4a5a" }, grid: { display:false } },
-                      y: { ticks: { color: "#3b4a5a" }, grid: { color: "rgba(7,26,51,.06)" } }
-                  } : {}
+      function barChart(chartKey, canvas, labels, data){
+        const chart = new Chart(canvas.getContext("2d"),{
+          type:"bar",
+          data:{
+            labels,
+            datasets:[{
+              label:"العدد",
+              data,
+              backgroundColor:"rgba(200,169,81,.55)",
+              borderColor:"rgba(200,169,81,1)",
+              borderWidth:1,
+              borderRadius:10
+            }]
+          },
+          options:{
+            responsive:true,
+            plugins:{
+              legend:{ display:false },
+              tooltip:{ enabled:true }
+            },
+            scales:{
+              x:{ ticks:{ color:"#3b4a5a" }, grid:{ display:false } },
+              y:{ ticks:{ color:"#3b4a5a" }, grid:{ color:"rgba(7,26,51,.06)" } }
+            }
+          }
+        });
+
+        canvas.style.cursor = "pointer";
+        canvas.onclick = (evt)=>{
+          const points = chart.getElementsAtEventForMode(
+            evt,
+            "nearest",
+            { intersect:true },
+            true
+          );
+          if(!points || !points.length) return;
+          const idx = points[0].index;
+          const clickedName = labels[idx];
+          const count = data[idx];
+
+          // filter & show details (for location)
+          const filtered = sourceAll.filter(r => (r.location || "غير محدد") === clickedName);
+
+          openDetailsModalWithTitle(
+            "تفاصيل الموقع",
+            `
+              <p style="color:#536477;line-height:1.8">
+                الموقع: <b>${escapeHtml(clickedName)}</b><br>
+                عدد البلاغات: <b>${filtered.length}</b>
+              </p>
+              ${
+                filtered.length
+                ? filtered.slice(0,20).map(r=>`
+                    <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                      <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                      <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                      <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+                    </div>
+                  `).join("")
+                : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
               }
-          });
+              ${filtered.length>20 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 20 بلاغ فقط</p>` : ""}
+            `
+          );
+        };
+
+        window._charts[chartKey] = chart;
       }
 
-      buildChart("topLocations", el1.getContext("2d"), "bar", labelsLoc, valuesLoc, false);
-      buildChart("topReporter", el2.getContext("2d"), "doughnut", labelsRep, valuesRep, true);
-      buildChart("topPendingTypes", el3.getContext("2d"), "bar", labelsPending, valuesPending, false);
-  }
+      function doughnutChart(chartKey, canvas, labels, data){
+        const colors = palette.slice(0, Math.max(labels.length,1));
 
+        const chart = new Chart(canvas.getContext("2d"),{
+          type:"doughnut",
+          data:{
+            labels,
+            datasets:[{
+              label:"العدد",
+              data,
+              backgroundColor: colors
+            }]
+          },
+          options:{
+            responsive:true,
+            plugins:{
+              legend:{
+                display:true,
+                position:"bottom",
+                labels:{ color:"#334155" }
+              },
+              tooltip:{ enabled:true }
+            },
+            cutout:"58%"
+          }
+        });
+
+        canvas.style.cursor = "pointer";
+        canvas.onclick = (evt)=>{
+          const points = chart.getElementsAtEventForMode(
+            evt,
+            "nearest",
+            { intersect:true },
+            true
+          );
+          if(!points || !points.length) return;
+          const idx = points[0].index;
+          const clickedLabel = labels[idx];
+
+          // clickedLabel format: "اسم — هاتف"
+          const parts = String(clickedLabel).split(" — ");
+          const clickedName = parts[0] || "";
+          const clickedPhone = parts[1] || "";
+
+          const filtered = sourceAll.filter(r=>{
+            const n = (r.reporterName || "").trim() || "غير محدد";
+            const p = (r.reporterPhone || "").trim() || "غير محدد";
+            return `${n} — ${p}` === clickedLabel;
+          });
+
+          openDetailsModalWithTitle(
+            "تفاصيل المبلغ",
+            `
+              <p style="color:#536477;line-height:1.8">
+                المبلغ: <b>${escapeHtml(clickedName)}</b><br>
+                رقم الهاتف: <b>${escapeHtml(clickedPhone)}</b><br>
+                عدد البلاغات: <b>${filtered.length}</b>
+              </p>
+              ${
+                filtered.length
+                ? filtered.slice(0,20).map(r=>`
+                    <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                      <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                      <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                      <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+                    </div>
+                  `).join("")
+                : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+              }
+              ${filtered.length>20 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 20 بلاغ فقط</p>` : ""}
+            `
+          );
+        };
+
+        window._charts[chartKey] = chart;
+      }
+
+      function barChartForPending(chartKey, canvas, labels, data){
+        const chart = new Chart(canvas.getContext("2d"),{
+          type:"bar",
+          data:{
+            labels,
+            datasets:[{
+              label:"العدد",
+              data,
+              backgroundColor:"rgba(47,101,165,.45)",
+              borderColor:"rgba(47,101,165,1)",
+              borderWidth:1,
+              borderRadius:10
+            }]
+          },
+          options:{
+            responsive:true,
+            plugins:{
+              legend:{ display:false },
+              tooltip:{ enabled:true }
+            },
+            scales:{
+              x:{ ticks:{ color:"#3b4a5a" }, grid:{ display:false } },
+              y:{ ticks:{ color:"#3b4a5a" }, grid:{ color:"rgba(7,26,51,.06)" } }
+            }
+          }
+        });
+
+        canvas.style.cursor = "pointer";
+        canvas.onclick = (evt)=>{
+          const points = chart.getElementsAtEventForMode(
+            evt,
+            "nearest",
+            { intersect:true },
+            true
+          );
+          if(!points || !points.length) return;
+          const idx = points[0].index;
+          const clickedType = labels[idx];
+
+          const filtered = pendingOnly.filter(r => (r.type || "غير محدد") === clickedType);
+
+          openDetailsModalWithTitle(
+            "تفاصيل نوع البلاغ (قيد التنفيذ)",
+            `
+              <p style="color:#536477;line-height:1.8">
+                النوع: <b>${escapeHtml(clickedType)}</b><br>
+                عدد البلاغات قيد التنفيذ: <b>${filtered.length}</b>
+              </p>
+              ${
+                filtered.length
+                ? filtered.slice(0,20).map(r=>`
+                    <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                      <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                      <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                      <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+                    </div>
+                  `).join("")
+                : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+              }
+              ${filtered.length>20 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 20 بلاغ فقط</p>` : ""}
+            `
+          );
+        };
+
+        window._charts[chartKey] = chart;
+      }
+
+      // build charts
+      barChart("topLocations", el1, labelsLoc, valuesLoc);
+      doughnutChart("topReporter", el2, labelsRep, valuesRep);
+      barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
+    }
+
+  // ---------- Settings ----------
   function renderSettings(){
       document.getElementById("departmentsList").innerHTML=
           departments.map((item,index)=>`
@@ -1033,9 +1063,6 @@ tr:hover td{background:#fafbfd}
       renderSettings();
   }
 
-  // Dummy (بقيت من نسختك كما هي)
-  function loadFormOptions(){}
-
   function deleteDepartment(index){
       if(confirm("هل تريد حذف هذه الإدارة؟")){
           departments.splice(index,1);
@@ -1052,211 +1079,56 @@ tr:hover td{background:#fafbfd}
       }
   }
 
-  function closeDetailsModal(){
-      document.getElementById("detailsModal").style.display="none";
-  }
-
-  function openDetailsModalWithTitle(title, html){
-      document.querySelector("#detailsModal .section-title").textContent = title;
-      document.getElementById("detailsBody").innerHTML = html;
-      document.getElementById("detailsModal").style.display = "flex";
-  }
-
-  function openSummaryDetails(which){
-      const source = getStatsSource();
-
-      if(source.length===0 && (which!=="archiveCount" || archivedReports.length===0)){
-          openDetailsModalWithTitle("تفاصيل", "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>");
-          return;
-      }
-
-      if(which==="topLocations"){
-          openDetailsModalWithTitle(
-            "أكثر المواقع طلباً للبلاغات",
-            topListHtml(getCounts(source, "location"), 12)
-          );
-          return;
-      }
-
-      if(which==="topReporter"){
-          openDetailsModalWithTitle(
-            "أكثر شخص يطلب إصلاحات",
-            topListHtml(getCounts(source, null, true), 12)
-          );
-          return;
-      }
-
-      if(which==="archiveCount"){
-          const rows = archivedReports.map(r=>({
-              id:r.id,
-              reportNumber:r.reportNumber,
-              type:r.type,
-              status:r.status||"مكتمل",
-              completedAt:r.completedAt
-          }));
-
-          openDetailsModalWithTitle("الأرشيف", `
-              <p style="color:#536477;line-height:1.8">
-                عدد البلاغات المؤرشفة: <b>${archivedReports.length}</b>
-              </p>
-              ${rows.length ? `
-                <div class="table-wrapper" style="margin-top:14px; box-shadow:none;">
-                  <table style="min-width:auto;width:100%;border-collapse:collapse;">
-                    <thead>
-                      <tr>
-                        <th style="position:sticky;top:0">رقم البلاغ</th>
-                        <th style="position:sticky;top:0">نوع البلاغ</th>
-                        <th style="position:sticky;top:0">الحالة</th>
-                        <th style="position:sticky;top:0">تاريخ الإنجاز</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${rows.slice(0,15).map(r=>`
-                        <tr>
-                          <td>${escapeHtml(formatBGNumber(r.reportNumber))}</td>
-                          <td>${escapeHtml(r.type)}</td>
-                          <td>${escapeHtml(r.status)}</td>
-                          <td>${escapeHtml(formatDate(r.completedAt))}</td>
-                        </tr>
-                      `).join("")}
-                    </tbody>
-                  </table>
-                </div>
-                <p style="color:var(--muted);font-size:13px;margin-top:10px">عرض آخر 15 بلاغ فقط</p>
-              ` : "<p style='color:var(--muted)'>لا توجد بلاغات مؤرشفة حالياً</p>"}
-          `);
-          return;
-      }
-  }
-
-  function openStatDetails(which){
-      const source = getStatsSource();
-
-      if(which==="totalReports"){
-          const counts = getCounts(source, "location");
-          openDetailsModalWithTitle("إجمالي البلاغات الحالية", `
-              <p style="color:#536477;line-height:1.8">
-                الإجمالي: <b>${source.length}</b>
-              </p>
-              ${topListHtml(counts, 10)}
-          `);
-          return;
-      }
-
-      if(which==="todayReports"){
-          const today = new Date().toISOString().substring(0,10);
-          const list = source.filter(r => r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today);
-
-          openDetailsModalWithTitle("بلاغات اليوم", `
-              <p style="color:#536477;line-height:1.8">
-                تاريخ اليوم: <b>${today}</b><br>
-                عدد بلاغات اليوم: <b>${list.length}</b>
-              </p>
-              ${list.length ? `
-                <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أحدث بلاغات اليوم</h3>
-                ${list.slice(0,12).map(r=>`
-                  <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
-                    <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
-                    <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
-                    <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
-                  </div>
-                `).join("")}
-              ` : "<p style='color:var(--muted)'>لا توجد بلاغات اليوم حالياً</p>"}
-          `);
-          return;
-      }
-
-      if(which==="mostType"){
-          const t = mostFrequent(source,"type");
-          openDetailsModalWithTitle("أكثر نوع بلاغ", `
-              <p style="color:#536477;line-height:1.8">
-                ${t ? `النوع: <b>${escapeHtml(t.name)}</b> — العدد: <b>${t.count}</b>` : "لا توجد بيانات حالياً"}
-              </p>
-              ${topListHtml(getCounts(source,"type"), 10)}
-          `);
-          return;
-      }
-
-      if(which==="uniqueReporters"){
-          openDetailsModalWithTitle("عدد المبلغين", `
-              <p style="color:#536477;line-height:1.8">
-                عدد المبلغين: <b>${uniqueReportersCountByNamePhone(source)}</b>
-              </p>
-              <p style="color:var(--muted);margin-top:8px">
-                حسب (اسم المبلغ + رقم الهاتف) معاً.
-              </p>
-          `);
-          return;
-      }
-  }
-
+  // ---------- Admin render ----------
   function renderAdmin(){
       const body=document.getElementById("reportsTableBody");
-      const source = getStatsSource();
 
-      document.getElementById("totalReports").textContent = reports.length;
-      document.getElementById("archiveCount").textContent = archivedReports.length;
+      const sourceAll = getStatsSource();
 
-      const today=new Date().toISOString().substring(0,10);
-      document.getElementById("todayReports").textContent =
-          source.filter(report =>
-              report.createdAt &&
-              new Date(report.createdAt).toISOString().substring(0,10)===today
-          ).length;
-
-      const type=mostFrequent(source,"type");
-      const location=mostFrequent(source,"location");
-
-      document.getElementById("mostType").textContent= type?`${type.name} (${type.count})`:"-";
-      document.getElementById("topLocations").textContent= location?`${location.name} — ${location.count} بلاغ`:"لا توجد بيانات حالياً";
-
-      const topRepList = getCounts(source, null, true);
-      document.getElementById("topReporter").textContent = topRepList[0] ? topRepList[0].name : "-";
-
-      document.getElementById("uniqueReporters").textContent = uniqueReportersCountByNamePhone(source) || 0;
-
+      // table current reports only (قيد التنفيذ)
       if(!reports.length){
           body.innerHTML=`
               <tr>
-                  <td colspan="10" class="empty">لا توجد بلاغات قيد التنفيذ حالياً. يوجد أرشيف: ${archivedReports.length}</td>
+                  <td colspan="10" class="empty">
+                    لا توجد بلاغات قيد التنفيذ حالياً. يوجد أرشيف: ${archivedReports.length}
+                  </td>
               </tr>
           `;
-          renderCharts();
-          return;
+      }else{
+          body.innerHTML=reports.map(report=>`
+              <tr>
+                  <td><span class="badge">${escapeHtml(formatBGNumber(report.reportNumber))}</span></td>
+                  <td>${formatDate(report.createdAt)}</td>
+                  <td>${escapeHtml(report.location)}</td>
+                  <td>${escapeHtml(report.type)}</td>
+                  <td>${escapeHtml(report.description)}</td>
+
+                  <td>${escapeHtml(report.reporterName || "")}</td>
+                  <td>${escapeHtml(report.reporterPhone || "")}</td>
+
+                  <td>
+                      <input class="admin-input" id="technician-${report.id}" type="text"
+                             placeholder="اسم الفني" value="${escapeHtml(report.technician || '')}">
+                  </td>
+
+                  <td>
+                      <textarea class="admin-input notes-input" id="notes-${report.id}" placeholder="الملاحظات">
+                        ${escapeHtml(report.notes || '')}
+                      </textarea>
+                  </td>
+
+                  <td>
+                      <button class="btn-success" onclick="completeReport('${report.id}')">تم الإنجاز</button>
+                  </td>
+              </tr>
+          `).join("");
       }
 
-      body.innerHTML=reports.map(report=>`
-          <tr>
-              <td><span class="badge">${escapeHtml(formatBGNumber(report.reportNumber))}</span></td>
-              <td>${formatDate(report.createdAt)}</td>
-              <td>${escapeHtml(report.location)}</td>
-              <td>${escapeHtml(report.type)}</td>
-              <td>${escapeHtml(report.description)}</td>
-
-              <td>${escapeHtml(report.reporterName || "")}</td>
-              <td>${escapeHtml(report.reporterPhone || "")}</td>
-
-              <td>
-                  <input class="admin-input" id="technician-${report.id}" type="text"
-                         placeholder="اسم الفني" value="${escapeHtml(report.technician || '')}">
-              </td>
-
-              <td>
-                  <textarea class="admin-input notes-input" id="notes-${report.id}" placeholder="الملاحظات">
-                    ${escapeHtml(report.notes || '')}
-                  </textarea>
-              </td>
-
-              <td>
-                  <button class="btn-success" onclick="completeReport('${report.id}')">تم الإنجاز</button>
-              </td>
-          </tr>
-      `).join("");
-
-      // ✅ تحديث الرسوم
+      // update charts
       renderCharts();
   }
 
+  // ---------- Auth ----------
   async function loginAdmin(){
       const email = document.getElementById("adminEmail").value.trim();
       const password = document.getElementById("adminPassword").value;
@@ -1302,6 +1174,7 @@ tr:hover td{background:#fafbfd}
       document.getElementById("adminEmail").value="";
   }
 
+  // ---------- Actions ----------
   window.completeReport = async function(id){
       const technician=document.getElementById("technician-"+id).value.trim();
       const notes=document.getElementById("notes-"+id).value.trim();
@@ -1425,8 +1298,6 @@ tr:hover td{background:#fafbfd}
   window.addReportType = addReportType;
   window.deleteDepartment = deleteDepartment;
   window.deleteReportType = deleteReportType;
-  window.openSummaryDetails = openSummaryDetails;
-  window.openStatDetails = openStatDetails;
   window.closeDetailsModal = closeDetailsModal;
 
   // init
