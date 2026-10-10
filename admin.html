@@ -412,21 +412,19 @@ tr:hover td{background:#fafbfd}
   border-radius:18px;
   border:1px solid rgba(221,231,245,.9);
 
-  /* ثبات ارتفاع */
   height:min(84vh, 820px);
 
-  overflow:hidden;   /* ممنوع Scroll خارجي */
-  display:block;      /* خليه بسيط ومضمون على Edge */
+  overflow:hidden;
+  display:block;
 }
 
 #detailsBody{
   margin-top:14px;
   line-height:1.9;
 
-  /* يأخذ باقي ارتفاع الكرت بعد عنوان/هيدر */
   height:calc(100% - 72px);
 
-  overflow-y:auto;   /* السحب داخل التفاصيل */
+  overflow-y:auto;
   overflow-x:hidden;
 
   padding-left:6px;
@@ -548,21 +546,51 @@ tr:hover td{background:#fafbfd}
               <h2 class="section-title">الرسوم البيانية (بيانات الأرشيف)</h2>
 
               <div class="charts-grid">
-                <div class="chart-card">
-                  <h3>المواقع الأكثر بلاغات</h3>
+                <!-- ✅ Card 1 -->
+                <div class="chart-card" id="chartCardTopLocations">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+                    <h3 style="margin:0;">المواقع الأكثر بلاغات</h3>
+                    <button class="btn-secondary"
+                            style="padding:10px 14px;border-radius:12px;"
+                            onclick="printChartCard('chartCardTopLocations')"
+                            type="button">
+                      طباعة
+                    </button>
+                  </div>
+
                   <canvas id="chartTopLocations" height="160"></canvas>
                   <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات من الأرشيف</div>
                   <div class="clickHint">* التمرير موجود داخل نافذة التفاصيل</div>
                 </div>
 
-                <div class="chart-card">
-                  <h3>أكثر شخص يطلب إصلاحات</h3>
+                <!-- ✅ Card 2 -->
+                <div class="chart-card" id="chartCardTopReporter">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+                    <h3 style="margin:0;">أكثر شخص يطلب إصلاحات</h3>
+                    <button class="btn-secondary"
+                            style="padding:10px 14px;border-radius:12px;"
+                            onclick="printChartCard('chartCardTopReporter')"
+                            type="button">
+                      طباعة
+                    </button>
+                  </div>
+
                   <canvas id="chartTopReporter" height="160"></canvas>
                   <div class="chart-note">اضغط على القطعة لعرض البلاغات من الأرشيف</div>
                 </div>
 
-                <div class="chart-card">
-                  <h3>الأعطال الأكثر تكرارا</h3>
+                <!-- ✅ Card 3 -->
+                <div class="chart-card" id="chartCardTopPendingTypes">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+                    <h3 style="margin:0;">الأعطال الأكثر تكرارا</h3>
+                    <button class="btn-secondary"
+                            style="padding:10px 14px;border-radius:12px;"
+                            onclick="printChartCard('chartCardTopPendingTypes')"
+                            type="button">
+                      طباعة
+                    </button>
+                  </div>
+
                   <canvas id="chartTopPendingTypes" height="160"></canvas>
                   <div class="chart-note">اضغط على نوع البلاغ لعرض التفاصيل (من الأرشيف)</div>
                 </div>
@@ -680,7 +708,7 @@ tr:hover td{background:#fafbfd}
   }
 
   function escapeHtml(value){
-      return String(value??"")
+      return String(value ?? "")
           .replaceAll("&","&amp;")
           .replaceAll("<","&lt;")
           .replaceAll(">","&gt;")
@@ -849,17 +877,11 @@ tr:hover td{background:#fafbfd}
 
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(
-            evt,
-            "nearest",
-            { intersect:true },
-            true
-          );
+          const points = chart.getElementsAtEventForMode(evt,"nearest",{intersect:true},true);
           if(!points || !points.length) return;
 
           const idx = points[0].index;
           const clickedName = labels[idx];
-
           const filtered = sourceAll.filter(r => (r.location || "غير محدد") === clickedName);
 
           openDetailsModalWithTitle(
@@ -917,12 +939,7 @@ tr:hover td{background:#fafbfd}
 
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(
-            evt,
-            "nearest",
-            { intersect:true },
-            true
-          );
+          const points = chart.getElementsAtEventForMode(evt,"nearest",{intersect:true},true);
           if(!points || !points.length) return;
 
           const idx = points[0].index;
@@ -994,12 +1011,7 @@ tr:hover td{background:#fafbfd}
 
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(
-            evt,
-            "nearest",
-            { intersect:true },
-            true
-          );
+          const points = chart.getElementsAtEventForMode(evt,"nearest",{intersect:true},true);
           if(!points || !points.length) return;
 
           const idx = points[0].index;
@@ -1038,23 +1050,99 @@ tr:hover td{background:#fafbfd}
       barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
   }
 
+  // ✅ الطباعة (داخل كل كرت رسم)
+  window.printChartCard = function(cardId){
+    const card = document.getElementById(cardId);
+    if(!card) return;
+
+    const titleEl = card.querySelector("h3");
+    const chartTitle = (titleEl && titleEl.textContent ? titleEl.textContent : "رسم بياني").trim();
+
+    const canvas = card.querySelector("canvas");
+    if(!canvas || !canvas.toDataURL){
+      alert("لم يتم العثور على الرسم أو لا يدعم الطباعة.");
+      return;
+    }
+
+    const noteEls = card.querySelectorAll(".chart-note, .clickHint");
+    let notesHtml = "";
+    noteEls.forEach((el)=>{
+      const text = (el.innerText || "").trim();
+      if(!text) return;
+      notesHtml +=
+        '<div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">' +
+        escapeHtml(text) +
+        '</div>';
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const safeTitle = escapeHtml(chartTitle);
+
+    const w = window.open("", "_blank", "width=950,height=900");
+    if(!w){
+      alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
+      return;
+    }
+
+    const html =
+      "<!DOCTYPE html>" +
+      "<html lang='ar' dir='rtl'>" +
+      "<head>" +
+        "<meta charset='UTF-8' />" +
+        "<meta name='viewport' content='width=device-width, initial-scale=1.0' />" +
+        "<title>طباعة - " + safeTitle + "</title>" +
+        "<style>" +
+          "@page{ size:auto; margin:18mm; }" +
+          "body{font-family:Tahoma, Arial, sans-serif;margin:20px;color:#0b1f3a;direction:rtl;}" +
+          ".header{text-align:center;margin-bottom:14px;}" +
+          ".header h2{margin:0;font-size:20px;}" +
+          ".sub{color:#5b6b7e;margin-top:6px;font-size:14px;}" +
+          ".img-wrap{text-align:center;margin-top:10px;}" +
+          "img{width:100%;max-width:820px;border:1px solid #ddd;border-radius:10px;}" +
+          ".notes{margin-top:12px;}" +
+        "</style>" +
+      "</head>" +
+      "<body>" +
+        "<div class='header'>" +
+          "<h2>" + safeTitle + "</h2>" +
+          "<div class='sub'>الرسم البياني + العنوان + النصوص أسفل الرسم</div>" +
+        "</div>" +
+        "<div class='img-wrap'>" +
+          "<img src='" + imgData + "' alt='" + safeTitle + "' />" +
+        "</div>" +
+        "<div class='notes'>" + notesHtml + "</div>" +
+        "<script>" +
+          "window.onload=function(){try{window.focus();}catch(e){} window.print();};" +
+        "</script>" +
+      "</body>" +
+      "</html>";
+
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  };
+
   // ---------- Settings ----------
   function renderSettings(){
       document.getElementById("departmentsList").innerHTML=
-          departments.map((item,index)=>`
+          departments.map((item,index)=>
+              `
               <div class="setting-item">
                   <span>${escapeHtml(item)}</span>
                   <button class="delete-item" onclick="deleteDepartment(${index})">×</button>
               </div>
-          `).join("");
+              `
+          ).join("");
 
       document.getElementById("reportTypesList").innerHTML=
-          reportTypes.map((item,index)=>`
+          reportTypes.map((item,index)=>
+              `
               <div class="setting-item">
                   <span>${escapeHtml(item)}</span>
                   <button class="delete-item" onclick="deleteReportType(${index})">×</button>
               </div>
-          `).join("");
+              `
+          ).join("");
   }
 
   function addDepartment(){
@@ -1225,7 +1313,7 @@ tr:hover td{background:#fafbfd}
           return;
       }
 
-      const rows=archivedReports.map(report=>(({
+      const rows=archivedReports.map(report=>({
           "رقم البلاغ": report.reportNumber ?? "",
           "تاريخ الوصول":formatDate(report.createdAt),
           "تاريخ الإنجاز":formatDate(report.completedAt),
@@ -1237,7 +1325,7 @@ tr:hover td{background:#fafbfd}
           "القائم بالإنجاز":report.technician || "",
           "الملاحظات":report.notes || "",
           "الحالة":report.status || "مكتمل"
-      })));
+      }));
 
       const sheet=XLSX.utils.json_to_sheet(rows);
       const book=XLSX.utils.book_new();
