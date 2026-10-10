@@ -165,7 +165,7 @@ button:hover{
 .btn-danger{color:#fff;background:var(--danger)}
 .btn-success{color:#fff;background:var(--success)}
 
-/* Fields */
+/* ✅ Fields */
 .field{
     display:flex;
     flex-direction:column;
@@ -397,10 +397,24 @@ tr:hover td{background:#fafbfd}
 
 .print-btn{
   position:relative;
-  z-index:10; /* فوق canvas */
+  z-index:10;
   flex:0 0 auto;
 }
 
+/* ✅ التعديل الأساسي الذي يجعل الزر ظاهر داخل الكروت البيضاء */
+.chart-card .btn-secondary.print-btn{
+  color:#0b1f3a !important;
+  background: rgba(200,169,81,.22) !important;
+  border: 1px solid rgba(200,169,81,.55) !important;
+  box-shadow: 0 6px 14px rgba(200,169,81,.20);
+  font-weight:800;
+}
+
+.chart-card .btn-secondary.print-btn:hover{
+  background: rgba(200,169,81,.32) !important;
+}
+
+/* باقي الستايلات */
 .chart-card h3{
   margin:0 0 10px;
   color:var(--navy);
@@ -582,7 +596,6 @@ tr:hover td{background:#fafbfd}
                   </div>
 
                   <canvas id="chartTopLocations" height="160"></canvas>
-                  
                 </div>
 
                 <!-- ✅ Card 2 -->
@@ -598,7 +611,6 @@ tr:hover td{background:#fafbfd}
                   </div>
 
                   <canvas id="chartTopReporter" height="160"></canvas>
-
                 </div>
 
                 <!-- ✅ Card 3 -->
@@ -614,7 +626,6 @@ tr:hover td{background:#fafbfd}
                   </div>
 
                   <canvas id="chartTopPendingTypes" height="160"></canvas>
-                  
                 </div>
               </div>
             </div>
