@@ -396,6 +396,12 @@ tr:hover td{background:#fafbfd}
   line-height:1.6;
 }
 
+.clickHint{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:8px;
+}
+
 /* ✅ إلغاء مربعات الإحصائيات اللي بالصورة */
 .stats, .summary { display:none !important; }
 
@@ -430,6 +436,9 @@ tr:hover td{background:#fafbfd}
         <div class="topbar-actions">
             <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
                 تسجيل الخروج
+            </button>
+            <button class="btn-secondary" onclick="window.location.href='index.html'">
+                الرئيسية
             </button>
         </div>
     </div>
@@ -510,6 +519,7 @@ tr:hover td{background:#fafbfd}
                 </div>
             </div>
 
+            <!-- ✅ الرسوم البيانية -->
             <div class="charts-section">
               <h2 class="section-title">الرسوم البيانية (اضغط لعرض التفاصيل)</h2>
 
@@ -517,19 +527,20 @@ tr:hover td{background:#fafbfd}
                 <div class="chart-card">
                   <h3>المواقع الأكثر بلاغات</h3>
                   <canvas id="chartTopLocations" height="160"></canvas>
-                  <div class="chart-note">* يعتمد على جميع البيانات المتوفرة في نفس الصفحة (الحالي + الأرشيف)</div>
+                  <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات</div>
+                  <div class="clickHint">* يعتمد على جميع البيانات المتوفرة في نفس الصفحة</div>
                 </div>
 
                 <div class="chart-card">
                   <h3>أكثر شخص يطلب إصلاحات</h3>
                   <canvas id="chartTopReporter" height="160"></canvas>
-                  <div class="chart-note">* يعتمد على جميع البيانات المتوفرة في نفس الصفحة (الحالي + الأرشيف)</div>
+                  <div class="chart-note">اضغط على القطعة لعرض البلاغات</div>
                 </div>
 
                 <div class="chart-card">
                   <h3>أكثر شي يتعطل</h3>
                   <canvas id="chartTopPendingTypes" height="160"></canvas>
-                  <div class="chart-note">يعرض نوع العطل الأكثر قيد التنفيذ (قائمة الحالية)</div>
+                  <div class="chart-note">اضغط على نوع البلاغ لعرض التفاصيل (قيد التنفيذ)</div>
                 </div>
               </div>
             </div>
@@ -663,7 +674,7 @@ tr:hover td{background:#fafbfd}
   async function fetchReportsFromDB(){
       const { data: pending, error: err1 } = await supabase
         .from("reports")
-        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at,type")
+        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
         .eq("status","قيد التنفيذ")
         .order("created_at",{ascending:false});
 
@@ -671,7 +682,7 @@ tr:hover td{background:#fafbfd}
 
       const { data: done, error: err2 } = await supabase
         .from("reports")
-        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at,type")
+        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
         .eq("status","مكتمل")
         .order("completed_at",{ascending:false});
 
@@ -681,7 +692,7 @@ tr:hover td{background:#fafbfd}
           id: r.id,
           reportNumber: r.report_number,
           location: r.title || "",
-          type: (r.type || "").toString(),
+          type: r.reporter_id || "",
           description: r.description || "",
           createdAt: r.created_at,
           technician: r.technician || "",
@@ -696,7 +707,7 @@ tr:hover td{background:#fafbfd}
           id: r.id,
           reportNumber: r.report_number,
           location: r.title || "",
-          type: (r.type || "").toString(),
+          type: r.reporter_id || "",
           description: r.description || "",
           createdAt: r.created_at,
           technician: r.technician || "",
@@ -734,9 +745,9 @@ tr:hover td{background:#fafbfd}
         .map(([name,count])=>({name,count}));
   }
 
-  // ✅ التعديل المطلوب: الرسوم تعتمد على (الحالي + الأرشيف)
   function getStatsSource(){
-      return [...reports, ...archivedReports];
+      // بنفس منطقك السابق: لو فيه reports نعرضها، وإلا أرشيف
+      return reports.length ? reports : archivedReports;
   }
 
   function openDetailsModalWithTitle(title, html){
@@ -755,9 +766,10 @@ tr:hover td{background:#fafbfd}
       const el3 = document.getElementById("chartTopPendingTypes");
       if(!el1 || !el2 || !el3) return;
 
-      const sourceAll = getStatsSource(); // ✅ الآن إجمالي (الحالي + الأرشيف)
-      const pendingOnly = reports;        // يبقى قيد التنفيذ للحقل الثالث
+      const sourceAll = getStatsSource(); // حسب منطقك
+      const pendingOnly = reports;        // "أكثر شي يتعطل" = قيد التنفيذ فقط
 
+      // destroy old charts if exist
       if(window._charts){
         for(const k of Object.keys(window._charts)){
           try{ window._charts[k].destroy(); }catch(e){}
@@ -765,6 +777,7 @@ tr:hover td{background:#fafbfd}
       }
       window._charts = {};
 
+      // data
       const locCounts = getCounts(sourceAll, "location").slice(0,10);
       const labelsLoc = locCounts.map(x => x.name);
       const valuesLoc = locCounts.map(x => x.count);
@@ -773,12 +786,7 @@ tr:hover td{background:#fafbfd}
       const labelsRep = repCounts.map(x => x.name);
       const valuesRep = repCounts.map(x => x.count);
 
-      const filteredPendingTypes = pendingOnly.filter(r=>{
-        const t = (r.type || "").trim();
-        return t && t !== "غير محدد";
-      });
-
-      const pendingTypeCounts = getCounts(filteredPendingTypes, "type").slice(0,10);
+      const pendingTypeCounts = getCounts(pendingOnly, "type").slice(0,10);
       const labelsPending = pendingTypeCounts.map(x => x.name);
       const valuesPending = pendingTypeCounts.map(x => x.count);
 
@@ -825,13 +833,17 @@ tr:hover td{background:#fafbfd}
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
           const points = chart.getElementsAtEventForMode(
-            evt,"nearest",{intersect:true},true
+            evt,
+            "nearest",
+            { intersect:true },
+            true
           );
           if(!points || !points.length) return;
-
           const idx = points[0].index;
           const clickedName = labels[idx];
+          const count = data[idx];
 
+          // filter & show details (for location)
           const filtered = sourceAll.filter(r => (r.location || "غير محدد") === clickedName);
 
           openDetailsModalWithTitle(
@@ -890,13 +902,16 @@ tr:hover td{background:#fafbfd}
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
           const points = chart.getElementsAtEventForMode(
-            evt,"nearest",{intersect:true},true
+            evt,
+            "nearest",
+            { intersect:true },
+            true
           );
           if(!points || !points.length) return;
-
           const idx = points[0].index;
           const clickedLabel = labels[idx];
 
+          // clickedLabel format: "اسم — هاتف"
           const parts = String(clickedLabel).split(" — ");
           const clickedName = parts[0] || "";
           const clickedPhone = parts[1] || "";
@@ -964,20 +979,22 @@ tr:hover td{background:#fafbfd}
         canvas.style.cursor = "pointer";
         canvas.onclick = (evt)=>{
           const points = chart.getElementsAtEventForMode(
-            evt,"nearest",{intersect:true},true
+            evt,
+            "nearest",
+            { intersect:true },
+            true
           );
           if(!points || !points.length) return;
-
           const idx = points[0].index;
           const clickedType = labels[idx];
 
-          const filtered = pendingOnly.filter(r => String((r.type || "").trim()) === String(clickedType).trim());
+          const filtered = pendingOnly.filter(r => (r.type || "غير محدد") === clickedType);
 
           openDetailsModalWithTitle(
-            "تفاصيل نوع العطل (قيد التنفيذ)",
+            "تفاصيل نوع البلاغ (قيد التنفيذ)",
             `
               <p style="color:#536477;line-height:1.8">
-                نوع العطل: <b>${escapeHtml(clickedType)}</b><br>
+                النوع: <b>${escapeHtml(clickedType)}</b><br>
                 عدد البلاغات قيد التنفيذ: <b>${filtered.length}</b>
               </p>
               ${
@@ -1003,7 +1020,7 @@ tr:hover td{background:#fafbfd}
       barChart("topLocations", el1, labelsLoc, valuesLoc);
       doughnutChart("topReporter", el2, labelsRep, valuesRep);
       barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
-  }
+    }
 
   // ---------- Settings ----------
   function renderSettings(){
@@ -1066,6 +1083,9 @@ tr:hover td{background:#fafbfd}
   function renderAdmin(){
       const body=document.getElementById("reportsTableBody");
 
+      const sourceAll = getStatsSource();
+
+      // table current reports only (قيد التنفيذ)
       if(!reports.length){
           body.innerHTML=`
               <tr>
@@ -1104,6 +1124,7 @@ tr:hover td{background:#fafbfd}
           `).join("");
       }
 
+      // update charts
       renderCharts();
   }
 
