@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الإدارة - بلاغ قسم الخدمات العامة</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+:root{
+    --navy:#071a33;
+    --navy-light:#0d2b50;
+    --gold:#c8a951;
+    --gold-light:#eadb9b;
+    --bg:#f4f6f9;
+    --text:#17283d;
+    --muted:#718096;
+    --danger:#b42318;
+    --success:#147a4b;
+    --border:#d9e0e9;
+
+    --radius:16px;
+    --shadow:0 14px 40px rgba(8, 20, 40, .12);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+
+body{
+    margin:0;
+    color:var(--text);
+    font-family:Tahoma,Arial,sans-serif;
+
+    background-color: var(--navy);
+
+    background:
+    radial-gradient(circle at 10% 10%,rgba(47,101,165,.08),transparent 28%),
+    radial-gradient(circle at 90% 80%,rgba(200,169,81,.09),transparent 28%),
+    var(--bg);
+
+    display:flex;
+    flex-direction:column;
+}
+
+button,input,select,textarea{font-family:inherit}
+button{
+    border:0;
+    cursor:pointer;
+    transition:.25s ease;
+}
+button:hover{
+    transform:translateY(-2px);
+    filter:brightness(1.05)
+}
+
+@keyframes fadeUp {
+  from{ opacity:0; transform:translateY(14px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+.page{display:none}
+#pagesWrap{flex:1; display:block}
+
+.site-footer{
+    width:100%;
+    text-align:center;
+    padding:18px 12px;
+    color:#6b7a90;
+    margin-top:auto;
+    font-size:14px;
+    background: transparent !important;
+}
+
+/* TOPBAR */
+.topbar{
+    min-height:86px;
+    padding:16px 5%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    color:#fff;
+    background:linear-gradient(135deg,var(--navy),var(--navy-light));
+    border-bottom:3px solid var(--gold);
+    backdrop-filter: blur(10px);
+}
+
+.topbar-brand{
+    display:flex;
+    align-items:center;
+    gap:12px
+}
+
+.topbar-logo{
+    width:52px;
+    height:52px;
+    padding:3px;
+    object-fit:contain;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 10px 25px rgba(0,0,0,.18);
+}
+
+.topbar h2{margin:0;font-size:19px}
+.topbar small{color:#bfccda}
+
+.topbar-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap
+}
+
+.content{
+    width:min(1400px,94%);
+    margin:30px auto
+}
+
+.card{
+    padding:30px;
+    background:rgba(255,255,255,.95);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    border:1px solid rgba(221, 231, 245, .8);
+}
+
+.form-card,.login-card{border-top:4px solid var(--gold)}
+.login-card{max-width:460px;margin:65px auto}
+
+.section-title{
+    margin:0 0 12px;
+    padding-right:13px;
+    color:var(--navy);
+    border-right:4px solid var(--gold)
+}
+
+.description{
+    margin:0 0 25px;
+    color:var(--muted)
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-success{
+    padding:13px 24px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:bold;
+    position:relative;
+    overflow:hidden;
+}
+
+.btn-primary{
+    color:#17202b;
+    background:linear-gradient(135deg,var(--gold-light),var(--gold));
+    box-shadow:0 10px 24px rgba(200,169,81,.25);
+}
+
+.btn-secondary{
+    color:#fff;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.28);
+    border-radius:12px;
+}
+
+.btn-danger{color:#fff;background:var(--danger)}
+.btn-success{color:#fff;background:var(--success)}
+
+/* Fields */
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:7px
+}
+
+label{color:#263b53;font-weight:bold}
+label span{color:var(--danger)}
+
+input,select,textarea{
+    width:100%;
+    padding:13px;
+    color:var(--text);
+    font-size:14px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:12px;
+    outline:none;
+    transition:.2s ease;
+}
+
+input:focus,select:focus,textarea:focus{
+    border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(200,169,81,.18)
+}
+
+textarea{min-height:135px;resize:vertical}
+.submit-row{
+    margin-top:22px;
+    display:flex;
+    justify-content:flex-start;
+}
+
+/* Alert */
+.alert{
+    display:none;
+    padding:13px;
+    margin-bottom:18px;
+    border-radius:12px;
+    font-weight:bold;
+    border:1px solid transparent;
+}
+
+.alert.success{
+    display:block;
+    color:var(--success);
+    background:#e9f7ef;
+    border-color:#a4d9bb
+}
+
+.alert.error{
+    display:block;
+    color:var(--danger);
+    background:#fff0ef;
+    border-color:#e5aaa5
+}
+
+/* Admin panel show/hide */
+.admin-panel{display:none}
+.admin-panel.active{display:block}
+
+/* Table */
+.table-wrapper{
+    overflow-x:auto;
+    margin:20px 0;
+    background:#fff;
+    border-radius:13px;
+    box-shadow:0 10px 30px rgba(15,39,66,.08);
+    border:1px solid rgba(221, 231, 245, .9);
+}
+
+table{
+    width:100%;
+    min-width:1550px;
+    border-collapse:collapse
+}
+
+th{
+    padding:14px 10px;
+    color:#fff;
+    text-align:right;
+    white-space:nowrap;
+    background:linear-gradient(135deg,var(--navy),var(--navy-light));
+    position:sticky; top:0;
+    z-index:2;
+}
+
+td{
+    padding:11px 10px;
+    line-height:1.6;
+    vertical-align:top;
+    border-bottom:1px solid #edf0f4
+}
+
+tbody tr{ transition:.18s ease; }
+tr:hover td{background:#fafbfd}
+
+.empty{
+    padding:40px;
+    color:var(--muted);
+    text-align:center
+}
+
+.badge{
+    display:inline-block;
+    padding:6px 10px;
+    color:var(--navy);
+    font-size:12px;
+    font-weight:bold;
+    background:#edf2f8;
+    border-radius:999px;
+    border:1px solid rgba(7,26,51,.08);
+}
+
+.admin-input{
+    min-width:150px;
+    padding:9px 10px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:#fff;
+}
+
+.notes-input{
+    min-height:70px;
+    resize:vertical
+}
+
+/* ✅ Stats */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin:22px 0;
+}
+
+.stat{
+    padding:18px 20px 16px;
+    background:rgba(255,255,255,.97);
+    border:2px solid rgba(200,169,81,.95);
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(15,39,66,.08);
+    min-height:118px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-start;
+
+    position:relative;
+    overflow:hidden;
+
+    opacity:1;
+    transform:none;
+}
+
+.stat small{
+    color:#5b6b7e;
+    font-weight:800;
+    font-size:13px;
+    margin-bottom:10px;
+}
+
+.stat strong{
+    display:block;
+    color:var(--navy);
+    font-size:44px;
+    line-height:1;
+    font-weight:900;
+}
+
+.clickable-card{cursor:pointer;}
+.stat.clickable-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 16px 40px rgba(15,39,66,.12);
+}
+
+/* ✅ Summary */
+.summary{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+    margin:20px 0
+}
+
+.summary-card{
+    padding:20px;
+    background:#fff;
+    border-radius:14px;
+    box-shadow:0 8px 25px rgba(15,39,66,.06);
+    border:2px solid rgba(200,169,81,.95);
+}
+
+.summary-card h3{
+    margin-top:0;
+    color:var(--navy);
+    font-size:16px
+}
+
+.summary-card p{
+    color:#536477;
+    line-height:1.8
+}
+
+.summary-card.clickable-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 16px 40px rgba(15,39,66,.12);
+}
+
+/* Settings */
+.settings{
+    padding:23px;
+    margin-top:24px;
+    background:#fff;
+    border-top:4px solid var(--gold);
+    border-radius:13px
+}
+
+.settings h2{
+    margin-top:0;
+    color:var(--navy)
+}
+
+.settings-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px
+}
+
+.settings-box{
+    padding:16px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background:linear-gradient(#fff, rgba(245,247,250,.6));
+}
+
+.settings-box h3{
+    margin-top:0;
+    color:var(--navy)
+}
+
+.add-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:13px
+}
+
+.add-row input{flex:1}
+
+.items-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px
+}
+
+.setting-item{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:8px 12px;
+    color:var(--navy);
+    font-size:13px;
+    background:#edf2f8;
+    border-radius:999px;
+    border:1px solid rgba(7,26,51,.06);
+}
+
+.delete-item{
+    padding:2px 9px;
+    color:#fff;
+    background:var(--danger);
+    border-radius:999px;
+    box-shadow:0 10px 18px rgba(180,35,24,.2);
+    transition:.2s ease;
+}
+.delete-item:hover{transform:translateY(-1px) scale(1.04)}
+
+/* Modal */
+#detailsModal.show{display:flex;}
+#detailsModalHideArea{position:absolute; inset:0;}
+#detailsModalCard{max-height:80vh; overflow:auto;}
+
+/* Responsive (تقريباً نفس كودك) */
+@media(max-width:800px){
+    .topbar{align-items:flex-start;flex-direction:column}
+    .topbar-actions{width:100%}
+    .content{width:94%;margin:20px auto}
+    .card{padding:19px}
+    .stats{grid-template-columns:1fr}
+    .summary{grid-template-columns:1fr}
+    .settings-grid{grid-template-columns:1fr}
+    table{min-width:920px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="pagesWrap">
+
+    <div class="topbar">
+        <div class="topbar-brand">
+            <img class="topbar-logo" src="logo.png" alt="الشعار">
+            <div>
+                <h2>الصفحة الإدارية</h2>
+                <small>إدارة ومتابعة البلاغات</small>
+            </div>
+        </div>
+
+        <div class="topbar-actions">
+            <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
+                تسجيل الخروج
+            </button>
+            <button class="btn-secondary" onclick="window.location.href='index.html'">
+                الرئيسية
+            </button>
+        </div>
+    </div>
+
+    <main class="content">
+        <div id="loginBox" class="card login-card">
+            <h2 class="section-title">تسجيل الدخول</h2>
+            <p class="description">أدخل بيانات تسجيل الدخول للوصول إلى لوحة البلاغات.</p>
+            <div id="loginAlert" class="alert"></div>
+
+            <div class="field">
+                <label for="adminEmail">الإيميل</label>
+                <input id="adminEmail" type="email" placeholder="name@example.com"
+                       autocomplete="email" onkeydown="if(event.key==='Enter') loginAdmin()">
+            </div>
+            <br>
+            <div class="field">
+                <label for="adminPassword">كلمة المرور</label>
+                <input id="adminPassword" type="password" placeholder="أدخل كلمة المرور"
+                       autocomplete="current-password" onkeydown="if(event.key==='Enter') loginAdmin()">
+            </div>
+            <br>
+            <button class="btn-primary" onclick="loginAdmin()">دخول</button>
+        </div>
+
+        <div id="adminPanel" class="admin-panel">
+            <h2 class="section-title">قائمة البلاغات الحالية</h2>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>رقم البلاغ</th>
+                            <th>تاريخ ووقت الوصول</th>
+                            <th>الإدارة أو الموقع</th>
+                            <th>نوع البلاغ</th>
+                            <th>وصف المشكلة</th>
+                            <th>اسم المبلغ</th>
+                            <th>رقم المبلغ</th>
+                            <th>القائم بالإنجاز</th>
+                            <th>الملاحظات</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="toolbar" style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn-success" onclick="exportArchiveExcel()">تنزيل الأرشيف</button>
+                <button class="btn-primary" onclick="refreshAdminPage()">تحديث الصفحة</button>
+                <button class="btn-danger" onclick="clearAllReports()">حذف البلاغات الحالية</button>
+                <button class="btn-danger" onclick="clearArchiveReports()">حذف الأرشيف</button>
+            </div>
+
+            <div class="settings">
+                <h2>إعدادات البلاغات</h2>
+                <p class="description">أضف الإدارات وأنواع البلاغات التي ستظهر في نموذج البلاغ.</p>
+
+                <div class="settings-grid">
+                    <div class="settings-box">
+                        <h3>الإدارات والمواقع</h3>
+                        <div class="add-row">
+                            <input id="newDepartment" type="text" placeholder="اسم الإدارة أو الموقع">
+                            <button class="btn-primary" onclick="addDepartment()">إضافة</button>
+                        </div>
+                        <div id="departmentsList" class="items-list"></div>
+                    </div>
+
+                    <div class="settings-box">
+                        <h3>أنواع البلاغات</h3>
+                        <div class="add-row">
+                            <input id="newReportType" type="text" placeholder="نوع البلاغ">
+                            <button class="btn-primary" onclick="addReportType()">إضافة</button>
+                        </div>
+                        <div id="reportTypesList" class="items-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat clickable-card" onclick="openStatDetails('totalReports')">
+                    <small>إجمالي البلاغات الحالية</small>
+                    <strong id="totalReports">0</strong>
+                </div>
+                <div class="stat clickable-card" onclick="openStatDetails('todayReports')">
+                    <small>بلاغات اليوم</small>
+                    <strong id="todayReports">0</strong>
+                </div>
+                <div class="stat clickable-card" onclick="openStatDetails('mostType')">
+                    <small>أكثر نوع بلاغ</small>
+                    <strong id="mostType">-</strong>
+                </div>
+                <div class="stat clickable-card" onclick="openStatDetails('uniqueReporters')">
+                    <small>عدد المبلغين</small>
+                    <strong id="uniqueReporters">0</strong>
+                </div>
+            </div>
+
+            <div class="summary">
+                <div class="summary-card clickable-card" onclick="openSummaryDetails('topLocations')">
+                    <h3>أكثر المواقع طلباً للبلاغات</h3>
+                    <p id="topLocations">لا توجد بيانات حالياً</p>
+                </div>
+
+                <div class="summary-card clickable-card" onclick="openSummaryDetails('topReporter')">
+                    <h3>أكثر شخص يطلب إصلاحات</h3>
+                    <p id="topReporter">لا توجد بيانات حالياً</p>
+                </div>
+            </div>
+
+            <div class="summary-card clickable-card" style="max-width:420px;margin-top:18px;" onclick="openSummaryDetails('archiveCount')">
+                <h3 style="margin-top:0;color:var(--navy);font-size:16px">الأرشيف</h3>
+                <p style="color:#536477;line-height:1.8">
+                    عدد البلاغات المؤرشفة:
+                    <strong id="archiveCount">0</strong>
+                </p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer class="site-footer">
+  جميع الحقوق محفوظة © قسم الخدمات العامة
+</footer>
+
+<div id="detailsModal" style="
+  position:fixed; inset:0; background:rgba(0,0,0,.55);
+  display:none; align-items:center; justify-content:center; z-index:99999;
+">
+  <div id="detailsModalHideArea" onclick="closeDetailsModal()"></div>
+
+  <div class="card" id="detailsModalCard" style="
+    width:min(900px,94%); padding:22px; background:#fff; border-radius:18px;
+    border:1px solid rgba(221,231,245,.9);
+  ">
+    <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+      <h2 class="section-title" style="margin:0; border-right:4px solid var(--gold);">تفاصيل</h2>
+      <button class="btn-secondary" onclick="closeDetailsModal()">إغلاق</button>
+    </div>
+    <div id="detailsBody" style="margin-top:14px; line-height:1.9;"></div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const SUPABASE_URL = "https://sipumbqxcewdyttnurii.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_wr_BnVo-z-zF45zwLFXGtQ_usB7XEjf";
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const DEPARTMENTS_KEY="public_services_departments";
+  const TYPES_KEY="public_services_types";
+
+  let reports = [];
+  let archivedReports = [];
+
+  // Realtime
+  let realtimeChannel = null;
+  let realtimeBusy = false;
+
+  function startRealtime(){
+    if (realtimeChannel) return;
+
+    realtimeChannel = supabase
+      .channel("reports-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "reports" },
+        async () => {
+          if (realtimeBusy) return;
+          realtimeBusy = true;
+          try{
+            await fetchReportsFromDB();
+            renderAdmin();
+          }catch(e){
+            console.error("Realtime refresh error:", e);
+          }finally{
+            realtimeBusy = false;
+          }
+        }
+      )
+      .subscribe();
+  }
+
+  function stopRealtime(){
+    if (realtimeChannel){
+      supabase.removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+  }
+
+  // LocalStorage lists
+  let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
+      "إدارة الخدمات المالية و الادارية و الصيانة",
+      "إدارة الجنسية",
+      "إدارة البحث و المتابعة",
+      "إدارة المكتب الفني",
+      "إدارة وثائق السفر",
+      "مكتب مساعد المدير العام",
+      "مكتب المدير العام",
+      "إدارة الهوية الوطنية"
+  ];
+
+  let reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||[
+      "كهربائي",
+      "مستلزمات مكتبية",
+      "صحي",
+      "طابعة",
+      "كمبيوتر",
+      "نظافة",
+      "مرافق المبنى"
+  ];
+
+  function saveAll(){
+      localStorage.setItem(DEPARTMENTS_KEY,JSON.stringify(departments));
+      localStorage.setItem(TYPES_KEY,JSON.stringify(reportTypes));
+  }
+
+  function showAlert(id,message,type){
+      const box=document.getElementById(id);
+      box.textContent=message;
+      box.className="alert "+type;
+      setTimeout(()=>{
+          box.textContent="";
+          box.className="alert";
+      },5000);
+  }
+
+  function escapeHtml(value){
+      return String(value??"")
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
+  }
+
+  function formatBGNumber(reportNumber){
+      if(reportNumber === null || reportNumber === undefined || reportNumber === "") return "-";
+      return reportNumber;
+  }
+
+  async function fetchReportsFromDB(){
+      const { data: pending, error: err1 } = await supabase
+        .from("reports")
+        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
+        .eq("status","قيد التنفيذ")
+        .order("created_at",{ascending:false});
+
+      if(err1) throw err1;
+
+      const { data: done, error: err2 } = await supabase
+        .from("reports")
+        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
+        .eq("status","مكتمل")
+        .order("completed_at",{ascending:false});
+
+      if(err2) throw err2;
+
+      reports = (pending || []).map(r => ({
+          id: r.id,
+          reportNumber: r.report_number,
+          location: r.title || "",
+          type: r.reporter_id || "",
+          description: r.description || "",
+          createdAt: r.created_at,
+          technician: r.technician || "",
+          notes: r.notes || "",
+          status: r.status || "قيد التنفيذ",
+          completedAt: r.completed_at || null,
+          reporterName: r.reporter_name || "",
+          reporterPhone: r.reporter_phone || ""
+      }));
+
+      archivedReports = (done || []).map(r => ({
+          id: r.id,
+          reportNumber: r.report_number,
+          location: r.title || "",
+          type: r.reporter_id || "",
+          description: r.description || "",
+          createdAt: r.created_at,
+          technician: r.technician || "",
+          notes: r.notes || "",
+          status: r.status || "مكتمل",
+          completedAt: r.completed_at || null,
+          reporterName: r.reporter_name || "",
+          reporterPhone: r.reporter_phone || ""
+      }));
+  }
+
+  function formatDate(value){
+      if(!value)return "-";
+      return new Intl.DateTimeFormat("ar-KW",{dateStyle:"medium",timeStyle:"short"}).format(new Date(value));
+  }
+
+  function mostFrequent(list,property){
+      const counts={};
+      list.forEach(item=>{
+          const value=item[property]||"غير محدد";
+          counts[value]=(counts[value]||0)+1;
+      });
+      const result=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+      return result?{name:result[0],count:result[1]}:null;
+  }
+
+  function getCounts(list, prop, byNamePhone=false){
+      const counts = {};
+
+      list.forEach(r=>{
+          if(byNamePhone){
+              const name = (r.reporterName || "").trim() || "غير محدد";
+              const phone = (r.reporterPhone || "").trim() || "غير محدد";
+              const key = `${name} — ${phone}`;
+              counts[key] = (counts[key] || 0) + 1;
+              return;
+          }
+
+          const key = (prop && r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
+          counts[key] = (counts[key] || 0) + 1;
+      });
+
+      return Object.entries(counts)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([name,count])=>({name,count}));
+  }
+
+  function topListHtml(list, limit=10){
+      if(!list.length) return "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>";
+      return `
+        ${list.slice(0,limit).map(x=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #edf0f4">
+            <span>${escapeHtml(x.name)}</span>
+            <b>${x.count}</b>
+          </div>
+        `).join("")}
+        ${list.length>limit ? `<p style="color:var(--muted);font-size:13px;margin-top:10px">عرض أول ${limit} فقط</p>` : ``}
+      `;
+  }
+
+  function uniqueReportersCountByNamePhone(list){
+      const set = new Set(
+        (list || []).map(r=>{
+          const name = (r.reporterName || "").trim();
+          const phone = (r.reporterPhone || "").trim();
+          if(!name && !phone) return "";
+          return `${name||"غير محدد"}__${phone||"غير محدد"}`;
+        }).filter(Boolean)
+      );
+      return set.size;
+  }
+
+  function getStatsSource(){
+      return reports.length ? reports : archivedReports;
+  }
+
+  function renderSettings(){
+      document.getElementById("departmentsList").innerHTML=
+          departments.map((item,index)=>`
+              <div class="setting-item">
+                  <span>${escapeHtml(item)}</span>
+                  <button class="delete-item" onclick="deleteDepartment(${index})">×</button>
+              </div>
+          `).join("");
+
+      document.getElementById("reportTypesList").innerHTML=
+          reportTypes.map((item,index)=>`
+              <div class="setting-item">
+                  <span>${escapeHtml(item)}</span>
+                  <button class="delete-item" onclick="deleteReportType(${index})">×</button>
+              </div>
+          `).join("");
+  }
+
+  function addDepartment(){
+      const input=document.getElementById("newDepartment");
+      const value=input.value.trim();
+      if(!value)return alert("اكتب اسم الإدارة أولاً.");
+      if(departments.includes(value))return alert("هذه الإدارة موجودة مسبقاً.");
+      departments.push(value);
+      input.value="";
+      saveAll();
+      loadFormOptions(); // (لا توجد هنا عندي، لكن وظائف admin لا تعتمد عليها. نتركها بدون تأثير)
+      renderSettings();
+  }
+
+  function addReportType(){
+      const input=document.getElementById("newReportType");
+      const value=input.value.trim();
+      if(!value)return alert("اكتب نوع البلاغ أولاً.");
+      if(reportTypes.includes(value))return alert("هذا النوع موجود مسبقاً.");
+      reportTypes.push(value);
+      input.value="";
+      saveAll();
+      loadFormOptions(); // نفس ملاحظة addDepartment
+      renderSettings();
+  }
+
+  // Dummy لتجنب أي خطأ إن كان استدعاؤها سابقاً في نسخة أخرى
+  function loadFormOptions(){}
+
+  function deleteDepartment(index){
+      if(confirm("هل تريد حذف هذه الإدارة؟")){
+          departments.splice(index,1);
+          saveAll();
+          renderSettings();
+      }
+  }
+
+  function deleteReportType(index){
+      if(confirm("هل تريد حذف نوع البلاغ هذا؟")){
+          reportTypes.splice(index,1);
+          saveAll();
+          renderSettings();
+      }
+  }
+
+  function closeDetailsModal(){
+      document.getElementById("detailsModal").style.display="none";
+  }
+
+  function openDetailsModalWithTitle(title, html){
+      document.querySelector("#detailsModal .section-title").textContent = title;
+      document.getElementById("detailsBody").innerHTML = html;
+      document.getElementById("detailsModal").style.display = "flex";
+  }
+
+  function openSummaryDetails(which){
+      const source = getStatsSource();
+
+      if(source.length===0 && (which!=="archiveCount" || archivedReports.length===0)){
+          openDetailsModalWithTitle("تفاصيل", "<p style='color:var(--muted)'>لا توجد بيانات حالياً</p>");
+          return;
+      }
+
+      if(which==="topLocations"){
+          openDetailsModalWithTitle(
+            "أكثر المواقع طلباً للبلاغات",
+            topListHtml(getCounts(source, "location"), 12)
+          );
+          return;
+      }
+
+      if(which==="topReporter"){
+          openDetailsModalWithTitle(
+            "أكثر شخص يطلب إصلاحات",
+            topListHtml(getCounts(source, null, true), 12)
+          );
+          return;
+      }
+
+      if(which==="archiveCount"){
+          const rows = archivedReports.map(r=>({
+              id:r.id,
+              reportNumber:r.reportNumber,
+              type:r.type,
+              status:r.status||"مكتمل",
+              completedAt:r.completedAt
+          }));
+
+          openDetailsModalWithTitle("الأرشيف", `
+              <p style="color:#536477;line-height:1.8">
+                عدد البلاغات المؤرشفة: <b>${archivedReports.length}</b>
+              </p>
+              ${rows.length ? `
+                <div class="table-wrapper" style="margin-top:14px; box-shadow:none;">
+                  <table style="min-width:auto;width:100%;border-collapse:collapse;">
+                    <thead>
+                      <tr>
+                        <th style="position:sticky;top:0">رقم البلاغ</th>
+                        <th style="position:sticky;top:0">نوع البلاغ</th>
+                        <th style="position:sticky;top:0">الحالة</th>
+                        <th style="position:sticky;top:0">تاريخ الإنجاز</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows.slice(0,15).map(r=>`
+                        <tr>
+                          <td>${escapeHtml(formatBGNumber(r.reportNumber))}</td>
+                          <td>${escapeHtml(r.type)}</td>
+                          <td>${escapeHtml(r.status)}</td>
+                          <td>${escapeHtml(formatDate(r.completedAt))}</td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+                <p style="color:var(--muted);font-size:13px;margin-top:10px">عرض آخر 15 بلاغ فقط</p>
+              ` : "<p style='color:var(--muted)'>لا توجد بلاغات مؤرشفة حالياً</p>"}
+          `);
+          return;
+      }
+  }
+
+  function openStatDetails(which){
+      const source = getStatsSource();
+
+      if(which==="totalReports"){
+          const counts = getCounts(source, "location");
+          openDetailsModalWithTitle("إجمالي البلاغات الحالية", `
+              <p style="color:#536477;line-height:1.8">
+                الإجمالي: <b>${source.length}</b>
+              </p>
+              ${topListHtml(counts, 10)}
+          `);
+          return;
+      }
+
+      if(which==="todayReports"){
+          const today = new Date().toISOString().substring(0,10);
+          const list = source.filter(r => r.createdAt && new Date(r.createdAt).toISOString().substring(0,10)===today);
+
+          openDetailsModalWithTitle("بلاغات اليوم", `
+              <p style="color:#536477;line-height:1.8">
+                تاريخ اليوم: <b>${today}</b><br>
+                عدد بلاغات اليوم: <b>${list.length}</b>
+              </p>
+              ${list.length ? `
+                <h3 style="margin:14px 0 10px;color:var(--navy);font-size:16px">أحدث بلاغات اليوم</h3>
+                ${list.slice(0,12).map(r=>`
+                  <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                    <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                    <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                    <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+                  </div>
+                `).join("")}
+              ` : "<p style='color:var(--muted)'>لا توجد بلاغات اليوم حالياً</p>"}
+          `);
+          return;
+      }
+
+      if(which==="mostType"){
+          const t = mostFrequent(source,"type");
+          openDetailsModalWithTitle("أكثر نوع بلاغ", `
+              <p style="color:#536477;line-height:1.8">
+                ${t ? `النوع: <b>${escapeHtml(t.name)}</b> — العدد: <b>${t.count}</b>` : "لا توجد بيانات حالياً"}
+              </p>
+              ${topListHtml(getCounts(source,"type"), 10)}
+          `);
+          return;
+      }
+
+      if(which==="uniqueReporters"){
+          openDetailsModalWithTitle("عدد المبلغين", `
+              <p style="color:#536477;line-height:1.8">
+                عدد المبلغين: <b>${uniqueReportersCountByNamePhone(source)}</b>
+              </p>
+              <p style="color:var(--muted);margin-top:8px">
+                حسب (اسم المبلغ + رقم الهاتف) معاً.
+              </p>
+          `);
+          return;
+      }
+  }
+
+  function renderAdmin(){
+      const body=document.getElementById("reportsTableBody");
+      const source = getStatsSource();
+
+      document.getElementById("totalReports").textContent = reports.length;
+      document.getElementById("archiveCount").textContent = archivedReports.length;
+
+      const today=new Date().toISOString().substring(0,10);
+      document.getElementById("todayReports").textContent =
+          source.filter(report =>
+              report.createdAt &&
+              new Date(report.createdAt).toISOString().substring(0,10)===today
+          ).length;
+
+      const type=mostFrequent(source,"type");
+      const location=mostFrequent(source,"location");
+
+      document.getElementById("mostType").textContent= type?`${type.name} (${type.count})`:"-";
+      document.getElementById("topLocations").textContent= location?`${location.name} — ${location.count} بلاغ`:"لا توجد بيانات حالياً";
+
+      const topRepList = getCounts(source, null, true);
+      document.getElementById("topReporter").textContent = topRepList[0] ? topRepList[0].name : "-";
+
+      document.getElementById("uniqueReporters").textContent = uniqueReportersCountByNamePhone(source) || 0;
+
+      if(!reports.length){
+          body.innerHTML=`
+              <tr>
+                  <td colspan="10" class="empty">لا توجد بلاغات قيد التنفيذ حالياً. يوجد أرشيف: ${archivedReports.length}</td>
+              </tr>
+          `;
+          return;
+      }
+
+      body.innerHTML=reports.map(report=>`
+          <tr>
+              <td><span class="badge">${escapeHtml(formatBGNumber(report.reportNumber))}</span></td>
+              <td>${formatDate(report.createdAt)}</td>
+              <td>${escapeHtml(report.location)}</td>
+              <td>${escapeHtml(report.type)}</td>
+              <td>${escapeHtml(report.description)}</td>
+
+              <td>${escapeHtml(report.reporterName || "")}</td>
+              <td>${escapeHtml(report.reporterPhone || "")}</td>
+
+              <td>
+                  <input class="admin-input" id="technician-${report.id}" type="text"
+                         placeholder="اسم الفني" value="${escapeHtml(report.technician || '')}">
+              </td>
+
+              <td>
+                  <textarea class="admin-input notes-input" id="notes-${report.id}" placeholder="الملاحظات">
+                    ${escapeHtml(report.notes || '')}
+                  </textarea>
+              </td>
+
+              <td>
+                  <button class="btn-success" onclick="completeReport('${report.id}')">تم الإنجاز</button>
+              </td>
+          </tr>
+      `).join("");
+  }
+
+  async function loginAdmin(){
+      const email = document.getElementById("adminEmail").value.trim();
+      const password = document.getElementById("adminPassword").value;
+
+      if(!email || !password){
+          showAlert("loginAlert","الرجاء إدخال الإيميل وكلمة المرور.","error");
+          return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if(error){
+          showAlert("loginAlert", error.message, "error");
+          return;
+      }
+
+      document.getElementById("loginBox").style.display="none";
+      document.getElementById("adminPanel").classList.add("active");
+      document.getElementById("logoutButton").style.display="block";
+
+      renderSettings();
+
+      try{
+          await fetchReportsFromDB();
+          renderAdmin();
+          startRealtime();
+          showAlert("loginAlert","تم تسجيل الدخول بنجاح.","success");
+      }catch(e){
+          console.error(e);
+          showAlert("loginAlert",(e && e.message)?e.message:String(e),"error");
+      }
+  }
+
+  async function logoutAdmin(){
+      stopRealtime();
+
+      try{ await supabase.auth.signOut(); }catch(e){ console.warn(e); }
+
+      document.getElementById("adminPanel").classList.remove("active");
+      document.getElementById("loginBox").style.display="block";
+      document.getElementById("logoutButton").style.display="none";
+      document.getElementById("adminPassword").value="";
+      document.getElementById("adminEmail").value="";
+  }
+
+  window.completeReport = async function(id){
+      const technician=document.getElementById("technician-"+id).value.trim();
+      const notes=document.getElementById("notes-"+id).value.trim();
+
+      if(!technician){
+          alert("يرجى كتابة اسم القائم بالإنجاز.");
+          return;
+      }
+      if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟"))return;
+
+      try{
+          const { error } = await supabase
+            .from("reports")
+            .update({
+              status: "مكتمل",
+              technician,
+              notes,
+              completed_at: new Date().toISOString()
+            })
+            .eq("id", id);
+
+          if(error) throw error;
+
+          await fetchReportsFromDB();
+          renderAdmin();
+          alert("تم إنهاء البلاغ وأرشفته بنجاح.");
+      }catch(e){
+          console.error(e);
+          alert("حدث خطأ أثناء تحديث البلاغ.");
+      }
+  };
+
+  window.exportArchiveExcel = function(){
+      if(!archivedReports.length){
+          alert("لا توجد بلاغات مؤرشفة.");
+          return;
+      }
+
+      const rows=archivedReports.map(report=>(({
+          "رقم البلاغ": report.reportNumber ?? "",
+          "تاريخ الوصول":formatDate(report.createdAt),
+          "تاريخ الإنجاز":formatDate(report.completedAt),
+          "الإدارة أو الموقع":report.location,
+          "نوع البلاغ":report.type,
+          "وصف المشكلة":report.description,
+          "اسم المبلغ":report.reporterName || "",
+          "رقم المبلغ":report.reporterPhone || "",
+          "القائم بالإنجاز":report.technician || "",
+          "الملاحظات":report.notes || "",
+          "الحالة":report.status || "مكتمل"
+      })));
+
+      const sheet=XLSX.utils.json_to_sheet(rows);
+      const book=XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(book,sheet,"الأرشيف");
+      XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
+  };
+
+  window.refreshAdminPage = async function(){
+      try{
+          await fetchReportsFromDB();
+          renderAdmin();
+      }catch(e){
+          console.error(e);
+          alert("فشل تحديث الصفحة. تأكد من الاتصال وصلاحيات RLS.");
+      }
+  };
+
+  window.clearAllReports = async function(){
+      if(!reports.length){
+          alert("لا توجد بلاغات حالية.");
+          return;
+      }
+      if(!confirm("هل أنت متأكد من حذف جميع البلاغات الحالية؟")) return;
+
+      try{
+          const { error } = await supabase
+            .from("reports")
+            .delete()
+            .eq("status","قيد التنفيذ");
+
+          if(error) throw error;
+
+          await fetchReportsFromDB();
+          renderAdmin();
+      }catch(e){
+          console.error(e);
+          alert("حدث خطأ أثناء حذف البلاغات الحالية. تأكد من RLS/Policies.");
+      }
+  };
+
+  window.clearArchiveReports = async function(){
+      if(!archivedReports.length){
+          alert("لا توجد بلاغات مؤرشفة.");
+          return;
+      }
+      if(!confirm("هل أنت متأكد من حذف جميع البلاغات المؤرشفة؟")) return;
+
+      try{
+          const { error } = await supabase
+            .from("reports")
+            .delete()
+            .eq("status","مكتمل");
+
+          if(error) throw error;
+
+          await fetchReportsFromDB();
+          renderAdmin();
+          alert("تم حذف الأرشيف بنجاح ✅");
+      }catch(e){
+          console.error(e);
+          alert("حدث خطأ أثناء حذف الأرشيف. تأكد من RLS/Policies.");
+      }
+  };
+
+  // bind windows
+  window.showAlert = showAlert;
+  window.loginAdmin = loginAdmin;
+  window.logoutAdmin = logoutAdmin;
+  window.addDepartment = addDepartment;
+  window.addReportType = addReportType;
+  window.deleteDepartment = deleteDepartment;
+  window.deleteReportType = deleteReportType;
+  window.openSummaryDetails = openSummaryDetails;
+  window.openStatDetails = openStatDetails;
+  window.closeDetailsModal = closeDetailsModal;
+
+  // init
+  renderSettings();
+</script>
+
+</body>
+</html>
