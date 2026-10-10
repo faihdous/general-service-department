@@ -359,7 +359,33 @@ tr:hover td{background:#fafbfd}
 /* Modal */
 #detailsModal.show{display:flex;}
 #detailsModalHideArea{position:absolute; inset:0;}
-#detailsModalCard{max-height:80vh; overflow:auto;}
+
+/* ✅ تعديل مهم جدًا: خلّي الكرت يحدد ارتفاع والـ overflow شغال */
+#detailsModalCard{
+  width:min(900px,94%);
+  padding:22px;
+  background:#fff;
+  border-radius:18px;
+  border:1px solid rgba(221,231,245,.9);
+
+  max-height:84vh;          /* بدل ما يطلع خارج الشاشة */
+  overflow-y:auto;          /* التمرير داخل الكرت */
+  overflow-x:hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ✅ أهم نقطة للتأكد: خلي منطقة المحتوى نفسها هي اللي تتمرر */
+#detailsBody{
+  margin-top:14px;
+  line-height:1.9;
+
+  max-height:68vh;         /* مساحة تمرير المحتوى */
+  overflow-y:auto;
+  overflow-x:hidden;
+
+  padding-left:6px;        /* بس بسيط عشان ما يخرب توازن السهم/السكرول */
+  -webkit-overflow-scrolling: touch;
+}
 
 /* ✅ Charts section */
 .charts-section{
@@ -526,7 +552,7 @@ tr:hover td{background:#fafbfd}
                   <h3>المواقع الأكثر بلاغات</h3>
                   <canvas id="chartTopLocations" height="160"></canvas>
                   <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات من الأرشيف</div>
-                  <div class="clickHint">* يعتمد على جميع بيانات الأرشيف المتوفرة في نفس الصفحة</div>
+                  <div class="clickHint">* التمرير موجود داخل نافذة التفاصيل</div>
                 </div>
 
                 <div class="chart-card">
@@ -557,15 +583,13 @@ tr:hover td{background:#fafbfd}
 ">
   <div id="detailsModalHideArea" onclick="closeDetailsModal()"></div>
 
-  <div class="card" id="detailsModalCard" style="
-    width:min(900px,94%); padding:22px; background:#fff; border-radius:18px;
-    border:1px solid rgba(221,231,245,.9);
-  ">
+  <div class="card" id="detailsModalCard">
     <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
       <h2 class="section-title" style="margin:0; border-right:4px solid var(--gold);">تفاصيل</h2>
       <button class="btn-secondary" onclick="closeDetailsModal()">إغلاق</button>
     </div>
-    <div id="detailsBody" style="margin-top:14px; line-height:1.9;"></div>
+
+    <div id="detailsBody"></div>
   </div>
 </div>
 
@@ -743,14 +767,14 @@ tr:hover td{background:#fafbfd}
         .map(([name,count])=>({name,count}));
   }
 
-  function getStatsSource(){
-      // لم يعد مستخدم في هذا التعديل، لكن تركته لتوافق الكود
-      return archivedReports;
-  }
-
   function openDetailsModalWithTitle(title, html){
       document.querySelector("#detailsModal .section-title").textContent = title;
-      document.getElementById("detailsBody").innerHTML = html;
+      const detailsBody = document.getElementById("detailsBody");
+      detailsBody.innerHTML = html;
+
+      // ✅ نرجّع التمرير للبداية عند فتح المودال
+      detailsBody.scrollTop = 0;
+
       document.getElementById("detailsModal").style.display = "flex";
   }
 
@@ -764,7 +788,6 @@ tr:hover td{background:#fafbfd}
       const el3 = document.getElementById("chartTopPendingTypes");
       if(!el1 || !el2 || !el3) return;
 
-      // ✅ التعديل المطلوب: كل الرسوم من الأرشيف فقط
       const sourceAll = archivedReports;
       const pendingOnly = archivedReports;
 
@@ -838,7 +861,6 @@ tr:hover td{background:#fafbfd}
           if(!points || !points.length) return;
           const idx = points[0].index;
           const clickedName = labels[idx];
-          const count = data[idx];
 
           const filtered = sourceAll.filter(r => (r.location || "غير محدد") === clickedName);
 
@@ -851,7 +873,7 @@ tr:hover td{background:#fafbfd}
               </p>
               ${
                 filtered.length
-                ? filtered.slice(0,20).map(r=>`
+                ? filtered.slice(0,50).map(r=>`
                     <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
                       <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
                       <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
@@ -860,7 +882,7 @@ tr:hover td{background:#fafbfd}
                   `).join("")
                 : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
               }
-              ${filtered.length>20 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 20 بلاغ فقط</p>` : ""}
+              ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
             `
           );
         };
@@ -904,6 +926,7 @@ tr:hover td{background:#fafbfd}
             true
           );
           if(!points || !points.length) return;
+
           const idx = points[0].index;
           const clickedLabel = labels[idx];
 
@@ -927,7 +950,7 @@ tr:hover td{background:#fafbfd}
               </p>
               ${
                 filtered.length
-                ? filtered.slice(0,20).map(r=>`
+                ? filtered.slice(0,50).map(r=>`
                     <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
                       <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
                       <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
@@ -936,7 +959,7 @@ tr:hover td{background:#fafbfd}
                   `).join("")
                 : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
               }
-              ${filtered.length>20 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 20 بلاغ فقط</p>` : ""}
+              ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
             `
           );
         };
@@ -980,6 +1003,7 @@ tr:hover td{background:#fafbfd}
             true
           );
           if(!points || !points.length) return;
+
           const idx = points[0].index;
           const clickedType = labels[idx];
 
@@ -994,7 +1018,7 @@ tr:hover td{background:#fafbfd}
               </p>
               ${
                 filtered.length
-                ? filtered.slice(0,20).map(r=>`
+                ? filtered.slice(0,50).map(r=>`
                     <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
                       <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
                       <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
@@ -1003,7 +1027,7 @@ tr:hover td{background:#fafbfd}
                   `).join("")
                 : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
               }
-              ${filtered.length>20 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 20 بلاغ فقط</p>` : ""}
+              ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
             `
           );
         };
@@ -1014,7 +1038,7 @@ tr:hover td{background:#fafbfd}
       barChart("topLocations", el1, labelsLoc, valuesLoc);
       doughnutChart("topReporter", el2, labelsRep, valuesRep);
       barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
-    }
+  }
 
   // ---------- Settings ----------
   function renderSettings(){
