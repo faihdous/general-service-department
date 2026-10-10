@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>لوحة الإدارة - بلاغ قسم الخدمات العامة</title>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -10,212 +10,121 @@
 
 <style>
 :root{
-    --navy:#071a33;
-    --navy-light:#0d2b50;
-    --gold:#c8a951;
-    --gold-light:#eadb9b;
-    --bg:#f4f6f9;
-    --text:#17283d;
-    --muted:#718096;
-    --danger:#b42318;
-    --success:#147a4b;
-    --border:#d9e0e9;
-
-    --radius:16px;
-    --shadow:0 14px 40px rgba(8, 20, 40, .12);
+  --navy:#071a33;
+  --navy-light:#0d2b50;
+  --gold:#c8a951;
+  --gold-light:#eadb9b;
+  --bg:#f4f6f9;
+  --text:#17283d;
+  --muted:#718096;
+  --danger:#b42318;
+  --success:#147a4b;
+  --border:#d9e0e9;
+  --radius:16px;
+  --shadow:0 14px 40px rgba(8, 20, 40, .12);
 }
-
 *{box-sizing:border-box}
 html,body{height:100%}
-
 body{
-    margin:0;
-    color:var(--text);
-    font-family:Tahoma,Arial,sans-serif;
-
-    background-color: var(--navy);
-
-    background:
+  margin:0;
+  color:var(--text);
+  font-family:Tahoma,Arial,sans-serif;
+  background-color: var(--navy);
+  background:
     radial-gradient(circle at 10% 10%,rgba(47,101,165,.08),transparent 28%),
     radial-gradient(circle at 90% 80%,rgba(200,169,81,.09),transparent 28%),
     var(--bg);
-
-    display:flex;
-    flex-direction:column;
+  display:flex;
+  flex-direction:column;
 }
-
 button,input,select,textarea{font-family:inherit}
-button{
-    border:0;
-    cursor:pointer;
-    transition:.25s ease;
-}
-button:hover{
-    transform:translateY(-2px);
-    filter:brightness(1.05)
-}
-
+button{border:0;cursor:pointer;transition:.25s ease;}
+button:hover{transform:translateY(-2px);filter:brightness(1.05)}
 #pagesWrap{flex:1; display:block}
-
 .site-footer{
-    width:100%;
-    text-align:center;
-    padding:18px 12px;
-    color:#6b7a90;
-    margin-top:auto;
-    font-size:14px;
-    background: transparent !important;
+  width:100%;
+  text-align:center;
+  padding:18px 12px;
+  color:#6b7a90;
+  margin-top:auto;
+  font-size:14px;
+  background: transparent !important;
 }
 
 /* TOPBAR */
 .topbar{
-    min-height:86px;
-    padding:16px 5%;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:15px;
-    color:#fff;
-    background:linear-gradient(135deg,var(--navy),var(--navy-light));
-    border-bottom:3px solid var(--gold);
-    backdrop-filter: blur(10px);
+  min-height:86px;
+  padding:16px 5%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  color:#fff;
+  background:linear-gradient(135deg,var(--navy),var(--navy-light));
+  border-bottom:3px solid var(--gold);
+  backdrop-filter: blur(10px);
 }
-
-.topbar-brand{
-    display:flex;
-    align-items:center;
-    gap:12px
-}
-
+.topbar-brand{display:flex;align-items:center;gap:12px}
 .topbar-logo{
-    width:52px;
-    height:52px;
-    padding:3px;
-    object-fit:contain;
-    border-radius:50%;
-    background:#fff;
-    box-shadow:0 10px 25px rgba(0,0,0,.18);
+  width:52px;height:52px;padding:3px;object-fit:contain;border-radius:50%;
+  background:#fff;box-shadow:0 10px 25px rgba(0,0,0,.18);
 }
-
 .topbar h2{margin:0;font-size:19px}
 .topbar small{color:#bfccda}
+.topbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
-.topbar-actions{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap
-}
-
-.content{
-    width:min(1400px,94%);
-    margin:30px auto
-}
-
+.content{width:min(1400px,94%);margin:30px auto}
 .card{
-    padding:30px;
-    background:rgba(255,255,255,.95);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    border:1px solid rgba(221, 231, 245, .8);
+  padding:30px;
+  background:rgba(255,255,255,.95);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  border:1px solid rgba(221, 231, 245, .8);
 }
-
-.login-card{border-top:4px solid var(--gold)}
-.login-card{max-width:460px;margin:65px auto}
-
+.login-card{border-top:4px solid var(--gold);max-width:460px;margin:65px auto}
 .section-title{
-    margin:0 0 12px;
-    padding-right:13px;
-    color:var(--navy);
-    border-right:4px solid var(--gold)
+  margin:0 0 12px;
+  padding-right:13px;
+  color:var(--navy);
+  border-right:4px solid var(--gold)
 }
-
-.description{
-    margin:0 0 25px;
-    color:var(--muted)
-}
+.description{margin:0 0 25px;color:var(--muted)}
 
 /* Buttons */
-.btn-primary,
-.btn-secondary,
-.btn-danger,
-.btn-success{
-    padding:13px 24px;
-    border-radius:12px;
-    font-size:14px;
-    font-weight:bold;
-    position:relative;
-    overflow:hidden;
+.btn-primary,.btn-secondary,.btn-danger,.btn-success{
+  padding:13px 24px;border-radius:12px;font-size:14px;font-weight:bold;
 }
-
 .btn-primary{
-    color:#17202b;
-    background:linear-gradient(135deg,var(--gold-light),var(--gold));
-    box-shadow:0 10px 24px rgba(200,169,81,.25);
+  color:#17202b;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  box-shadow:0 10px 24px rgba(200,169,81,.25);
 }
-
 .btn-secondary{
-    color:#fff;
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.28);
-    border-radius:12px;
+  color:#fff;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:12px;
 }
-
 .btn-danger{color:#fff;background:var(--danger)}
 .btn-success{color:#fff;background:var(--success)}
 
 /* Fields */
-.field{
-    display:flex;
-    flex-direction:column;
-    gap:7px
-}
-
+.field{display:flex;flex-direction:column;gap:7px}
 label{color:#263b53;font-weight:bold}
-label span{color:var(--danger)}
-
 input,select,textarea{
-    width:100%;
-    padding:13px;
-    color:var(--text);
-    font-size:14px;
-    background:#fff;
-    border:1px solid var(--border);
-    border-radius:12px;
-    outline:none;
-    transition:.2s ease;
+  width:100%;padding:13px;color:var(--text);font-size:14px;background:#fff;
+  border:1px solid var(--border);border-radius:12px;outline:none;transition:.2s ease;
 }
-
 input:focus,select:focus,textarea:focus{
-    border-color:var(--gold);
-    box-shadow:0 0 0 4px rgba(200,169,81,.18)
+  border-color:var(--gold);
+  box-shadow:0 0 0 4px rgba(200,169,81,.18)
 }
-
 textarea{min-height:135px;resize:vertical}
 
 /* Alert */
-.alert{
-    display:none;
-    padding:13px;
-    margin-bottom:18px;
-    border-radius:12px;
-    font-weight:bold;
-    border:1px solid transparent;
-}
-
-.alert.success{
-    display:block;
-    color:var(--success);
-    background:#e9f7ef;
-    border-color:#a4d9bb
-}
-
-.alert.error{
-    display:block;
-    color:var(--danger);
-    background:#fff0ef;
-    border-color:#e5aaa5
-}
+.alert{display:none;padding:13px;margin-bottom:18px;border-radius:12px;font-weight:bold;border:1px solid transparent;}
+.alert.success{display:block;color:var(--success);background:#e9f7ef;border-color:#a4d9bb}
+.alert.error{display:block;color:var(--danger);background:#fff0ef;border-color:#e5aaa5}
 
 /* Admin panel show/hide */
 .admin-panel{display:none}
@@ -223,170 +132,73 @@ textarea{min-height:135px;resize:vertical}
 
 /* Table */
 .table-wrapper{
-    overflow-x:auto;
-    margin:20px 0;
-    background:#fff;
-    border-radius:13px;
-    box-shadow:0 10px 30px rgba(15,39,66,.08);
-    border:1px solid rgba(221, 231, 245, .9);
+  overflow-x:auto;margin:20px 0;background:#fff;border-radius:13px;
+  box-shadow:0 10px 30px rgba(15,39,66,.08);
+  border:1px solid rgba(221, 231, 245, .9);
 }
-
-table{
-    width:100%;
-    min-width:1550px;
-    border-collapse:collapse
-}
-
+table{width:100%;min-width:1550px;border-collapse:collapse}
 th{
-    padding:14px 10px;
-    color:#fff;
-    text-align:right;
-    white-space:nowrap;
-    background:linear-gradient(135deg,var(--navy),var(--navy-light));
-    position:sticky; top:0;
-    z-index:2;
+  padding:14px 10px;color:#fff;text-align:right;white-space:nowrap;
+  background:linear-gradient(135deg,var(--navy),var(--navy-light));
+  position:sticky;top:0;z-index:2;
 }
-
-td{
-    padding:11px 10px;
-    line-height:1.6;
-    vertical-align:top;
-    border-bottom:1px solid #edf0f4
-}
-
-tbody tr{ transition:.18s ease; }
+td{padding:11px 10px;line-height:1.6;vertical-align:top;border-bottom:1px solid #edf0f4}
+tbody tr{transition:.18s ease;}
 tr:hover td{background:#fafbfd}
-
-.empty{
-    padding:40px;
-    color:var(--muted);
-    text-align:center
-}
-
+.empty{padding:40px;color:var(--muted);text-align:center}
 .badge{
-    display:inline-block;
-    padding:6px 10px;
-    color:var(--navy);
-    font-size:12px;
-    font-weight:bold;
-    background:#edf2f8;
-    border-radius:999px;
-    border:1px solid rgba(7,26,51,.08);
+  display:inline-block;padding:6px 10px;color:var(--navy);
+  font-size:12px;font-weight:bold;background:#edf2f8;border-radius:999px;
+  border:1px solid rgba(7,26,51,.08);
 }
-
-.admin-input{
-    min-width:150px;
-    padding:9px 10px;
-    border:1px solid var(--border);
-    border-radius:10px;
-    background:#fff;
-}
-
-.notes-input{
-    min-height:70px;
-    resize:vertical
-}
+.admin-input{min-width:150px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:#fff;}
+.notes-input{min-height:70px;resize:vertical}
 
 /* ✅ Charts section */
-.charts-section{
-  margin-top:26px;
-  padding-top:6px;
-}
-
-.charts-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
-}
-
+.charts-section{margin-top:26px;padding-top:6px;}
+.charts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
 .chart-card{
   background:rgba(255,255,255,.97);
   border:1px solid rgba(221,231,245,.9);
   border-radius:16px;
   box-shadow:0 10px 30px rgba(15,39,66,.06);
   padding:16px 16px 12px;
-
   user-select:none;
 }
-
-.chart-card h3{
-  margin:0 0 10px;
-  color:var(--navy);
-  font-size:16px;
-}
-
-.chart-card-top{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:10px;
-}
-
+.chart-card h3{margin:0 0 10px;color:var(--navy);font-size:16px}
+.chart-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
 .print-mini-btn{
-  padding:10px 14px;
-  border-radius:12px;
-  font-size:13px;
-  font-weight:bold;
+  padding:10px 14px;border-radius:12px;font-size:13px;font-weight:bold;
   background:rgba(255,255,255,.08);
   border:1px solid rgba(7,26,51,.12);
-  color:var(--navy);
-  white-space:nowrap;
+  color:var(--navy);white-space:nowrap;
   box-shadow:0 10px 24px rgba(200,169,81,.10);
 }
-
-.chart-note{
-  margin-top:10px;
-  color:#5b6b7e;
-  font-size:12.5px;
-  line-height:1.6;
-}
-
-.clickHint{
-  color:var(--muted);
-  font-size:12px;
-  margin-top:8px;
-}
+.chart-note{margin-top:10px;color:#5b6b7e;font-size:12.5px;line-height:1.6;}
+.clickHint{color:var(--muted);font-size:12px;margin-top:8px;}
 
 /* ✅ Modal */
-#detailsModal.show{display:flex;}
-#detailsModalHideArea{position:absolute; inset:0;}
-
+#detailsModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:99999;}
+#detailsModalHideArea{position:absolute;inset:0;}
 #detailsModalCard{
   width:min(900px,94%);
-  padding:22px;
-  background:#fff;
-  border-radius:18px;
+  padding:22px;background:#fff;border-radius:18px;
   border:1px solid rgba(221,231,245,.9);
-
-  height:min(84vh, 820px);
-
-  overflow:hidden;
-  display:block;
+  height:min(84vh,820px);
+  overflow:hidden;display:block;
 }
-
 #detailsBody{
-  margin-top:14px;
-  line-height:1.9;
-  height:calc(100% - 72px);
-  overflow-y:auto;
-  overflow-x:hidden;
-
-  padding-left:6px;
-  -webkit-overflow-scrolling: touch;
+  margin-top:14px;line-height:1.9;height:calc(100% - 72px);
+  overflow-y:auto;overflow-x:hidden;padding-left:6px;-webkit-overflow-scrolling:touch;
 }
 
-@media(max-width:1100px){
-  .charts-grid{ grid-template-columns:1fr; }
-}
-
+@media(max-width:1100px){ .charts-grid{ grid-template-columns:1fr; } }
 @media(max-width:800px){
-    .topbar{align-items:flex-start;flex-direction:column}
-    .topbar-actions{width:100%}
-    .content{width:94%;margin:20px auto}
-    .card{padding:19px}
-    .settings-grid{grid-template-columns:1fr}
-    table{min-width:920px}
+  .topbar{align-items:flex-start;flex-direction:column}
+  .topbar-actions{width:100%}
+  .content{width:94%;margin:20px auto}
+  .card{padding:19px}
+  table{min-width:920px}
 }
 </style>
 </head>
@@ -394,976 +206,912 @@ tr:hover td{background:#fafbfd}
 <body>
 
 <div id="pagesWrap">
-
-    <div class="topbar">
-        <div class="topbar-brand">
-            <img class="topbar-logo" src="logo.png" alt="الشعار">
-            <div>
-                <h2>الصفحة الإدارية</h2>
-                <small>إدارة ومتابعة البلاغات</small>
-            </div>
-        </div>
-
-        <div class="topbar-actions">
-            <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
-                تسجيل الخروج
-            </button>
-        </div>
+  <div class="topbar">
+    <div class="topbar-brand">
+      <img class="topbar-logo" src="logo.png" alt="الشعار">
+      <div>
+        <h2>الصفحة الإدارية</h2>
+        <small>إدارة ومتابعة البلاغات</small>
+      </div>
     </div>
 
-    <main class="content">
-        <div id="loginBox" class="card login-card">
-            <h2 class="section-title">تسجيل الدخول</h2>
-            <p class="description">أدخل بيانات تسجيل الدخول للوصول إلى لوحة البلاغات.</p>
-            <div id="loginAlert" class="alert"></div>
+    <div class="topbar-actions">
+      <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
+        تسجيل الخروج
+      </button>
+    </div>
+  </div>
 
-            <div class="field">
-                <label for="adminEmail">الإيميل</label>
-                <input id="adminEmail" type="email" placeholder="name@example.com"
-                       autocomplete="email" onkeydown="if(event.key==='Enter') loginAdmin()">
+  <main class="content">
+    <div id="loginBox" class="card login-card">
+      <h2 class="section-title">تسجيل الدخول</h2>
+      <p class="description">أدخل بيانات تسجيل الدخول للوصول إلى لوحة البلاغات.</p>
+      <div id="loginAlert" class="alert"></div>
+
+      <div class="field">
+        <label for="adminEmail">الإيميل</label>
+        <input id="adminEmail" type="email" placeholder="name@example.com"
+               autocomplete="email" onkeydown="if(event.key==='Enter') loginAdmin()">
+      </div>
+      <br>
+      <div class="field">
+        <label for="adminPassword">كلمة المرور</label>
+        <input id="adminPassword" type="password" placeholder="أدخل كلمة المرور"
+               autocomplete="current-password" onkeydown="if(event.key==='Enter') loginAdmin()">
+      </div>
+      <br>
+      <button class="btn-primary" onclick="loginAdmin()">دخول</button>
+    </div>
+
+    <div id="adminPanel" class="admin-panel">
+      <h2 class="section-title">قائمة البلاغات الحالية</h2>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>رقم البلاغ</th>
+              <th>تاريخ ووقت الوصول</th>
+              <th>الإدارة أو الموقع</th>
+              <th>نوع البلاغ</th>
+              <th>وصف المشكلة</th>
+              <th>اسم المبلغ</th>
+              <th>رقم المبلغ</th>
+              <th>القائم بالإنجاز</th>
+              <th>الملاحظات</th>
+              <th>الإجراء</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="toolbar" style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-success" onclick="exportArchiveExcel()">تنزيل الأرشيف</button>
+        <button class="btn-primary" onclick="refreshAdminPage()">تحديث الصفحة</button>
+        <button class="btn-danger" onclick="clearAllReports()">حذف البلاغات الحالية</button>
+        <button class="btn-danger" onclick="clearArchiveReports()">حذف الأرشيف</button>
+      </div>
+
+      <div class="settings">
+        <h2>إعدادات البلاغات</h2>
+        <p class="description">أضف الإدارات وأنواع البلاغات التي ستظهر في نموذج البلاغ.</p>
+
+        <div class="settings-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+          <div class="settings-box">
+            <h3>الإدارات والمواقع</h3>
+            <div class="add-row" style="display:flex;gap:10px;">
+              <input id="newDepartment" type="text" placeholder="اسم الإدارة أو الموقع">
+              <button class="btn-primary" onclick="addDepartment()">إضافة</button>
             </div>
-            <br>
-            <div class="field">
-                <label for="adminPassword">كلمة المرور</label>
-                <input id="adminPassword" type="password" placeholder="أدخل كلمة المرور"
-                       autocomplete="current-password" onkeydown="if(event.key==='Enter') loginAdmin()">
+            <div id="departmentsList"></div>
+          </div>
+
+          <div class="settings-box">
+            <h3>أنواع البلاغات</h3>
+            <div class="add-row" style="display:flex;gap:10px;">
+              <input id="newReportType" type="text" placeholder="نوع البلاغ">
+              <button class="btn-primary" onclick="addReportType()">إضافة</button>
             </div>
-            <br>
-            <button class="btn-primary" onclick="loginAdmin()">دخول</button>
+            <div id="reportTypesList"></div>
+          </div>
         </div>
+      </div>
 
-        <div id="adminPanel" class="admin-panel">
-            <h2 class="section-title">قائمة البلاغات الحالية</h2>
+      <div class="charts-section">
+        <h2 class="section-title">الرسوم البيانية (بيانات الأرشيف)</h2>
 
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>رقم البلاغ</th>
-                            <th>تاريخ ووقت الوصول</th>
-                            <th>الإدارة أو الموقع</th>
-                            <th>نوع البلاغ</th>
-                            <th>وصف المشكلة</th>
-                            <th>اسم المبلغ</th>
-                            <th>رقم المبلغ</th>
-                            <th>القائم بالإنجاز</th>
-                            <th>الملاحظات</th>
-                            <th>الإجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reportsTableBody"></tbody>
-                </table>
+        <div class="charts-grid">
+          <!-- 1 -->
+          <div class="chart-card" id="chartCardTopLocations">
+            <div class="chart-card-top">
+              <h3 style="margin:0;">المواقع الأكثر بلاغات</h3>
+              <button class="print-mini-btn" onclick="printChartCard('chartCardTopLocations')">طباعة</button>
             </div>
+            <canvas id="chartTopLocations" height="160"></canvas>
+            <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات من الأرشيف</div>
+            <div class="clickHint">* التمرير موجود داخل نافذة التفاصيل</div>
+          </div>
 
-            <div class="toolbar" style="display:flex;gap:10px;flex-wrap:wrap;">
-                <button class="btn-success" onclick="exportArchiveExcel()">تنزيل الأرشيف</button>
-                <button class="btn-primary" onclick="refreshAdminPage()">تحديث الصفحة</button>
-                <button class="btn-danger" onclick="clearAllReports()">حذف البلاغات الحالية</button>
-                <button class="btn-danger" onclick="clearArchiveReports()">حذف الأرشيف</button>
+          <!-- 2 -->
+          <div class="chart-card" id="chartCardTopReporter">
+            <div class="chart-card-top">
+              <h3 style="margin:0;">أكثر شخص يطلب إصلاحات</h3>
+              <button class="print-mini-btn" onclick="printChartCard('chartCardTopReporter')">طباعة</button>
             </div>
+            <canvas id="chartTopReporter" height="160"></canvas>
+            <div class="chart-note">اضغط على القطعة لعرض البلاغات من الأرشيف</div>
+          </div>
 
-            <div class="settings">
-                <h2>إعدادات البلاغات</h2>
-                <p class="description">أضف الإدارات وأنواع البلاغات التي ستظهر في نموذج البلاغ.</p>
-
-                <div class="settings-grid">
-                    <div class="settings-box">
-                        <h3>الإدارات والمواقع</h3>
-                        <div class="add-row">
-                            <input id="newDepartment" type="text" placeholder="اسم الإدارة أو الموقع">
-                            <button class="btn-primary" onclick="addDepartment()">إضافة</button>
-                        </div>
-                        <div id="departmentsList" class="items-list"></div>
-                    </div>
-
-                    <div class="settings-box">
-                        <h3>أنواع البلاغات</h3>
-                        <div class="add-row">
-                            <input id="newReportType" type="text" placeholder="نوع البلاغ">
-                            <button class="btn-primary" onclick="addReportType()">إضافة</button>
-                        </div>
-                        <div id="reportTypesList" class="items-list"></div>
-                    </div>
-                </div>
+          <!-- 3 -->
+          <div class="chart-card" id="chartCardTopPendingTypes">
+            <div class="chart-card-top">
+              <h3 style="margin:0;">الأعطال الأكثر تكرارا</h3>
+              <button class="print-mini-btn" onclick="printChartCard('chartCardTopPendingTypes')">طباعة</button>
             </div>
-
-            <div class="charts-section">
-              <h2 class="section-title">الرسوم البيانية (بيانات الأرشيف)</h2>
-
-              <div class="charts-grid">
-                <!-- 1) المواقع -->
-                <div class="chart-card" id="chartCardTopLocations">
-                  <div class="chart-card-top">
-                    <h3 style="margin:0;">المواقع الأكثر بلاغات</h3>
-                    <button class="print-mini-btn" onclick="printChartCard('chartCardTopLocations')">
-                      طباعة
-                    </button>
-                  </div>
-
-                  <canvas id="chartTopLocations" height="160"></canvas>
-
-                  <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات من الأرشيف</div>
-                  <div class="clickHint">* التمرير موجود داخل نافذة التفاصيل</div>
-                </div>
-
-                <!-- 2) أكثر شخص يطلب إصلاحات -->
-                <div class="chart-card" id="chartCardTopReporter">
-                  <div class="chart-card-top">
-                    <h3 style="margin:0;">أكثر شخص يطلب إصلاحات</h3>
-                    <button class="print-mini-btn" onclick="printChartCard('chartCardTopReporter')">
-                      طباعة
-                    </button>
-                  </div>
-
-                  <canvas id="chartTopReporter" height="160"></canvas>
-
-                  <div class="chart-note">اضغط على القطعة لعرض البلاغات من الأرشيف</div>
-                </div>
-
-                <!-- 3) الأعطال -->
-                <div class="chart-card" id="chartCardTopPendingTypes">
-                  <div class="chart-card-top">
-                    <h3 style="margin:0;">الأعطال الأكثر تكرارا</h3>
-                    <button class="print-mini-btn" onclick="printChartCard('chartCardTopPendingTypes')">
-                      طباعة
-                    </button>
-                  </div>
-
-                  <canvas id="chartTopPendingTypes" height="160"></canvas>
-
-                  <div class="chart-note">اضغط على نوع البلاغ لعرض التفاصيل (من الأرشيف)</div>
-                </div>
-              </div>
-            </div>
-
+            <canvas id="chartTopPendingTypes" height="160"></canvas>
+            <div class="chart-note">اضغط على نوع البلاغ لعرض التفاصيل (من الأرشيف)</div>
+          </div>
         </div>
-    </main>
+      </div>
+
+    </div>
+  </main>
 </div>
 
 <footer class="site-footer">
   جميع الحقوق محفوظة © قسم الخدمات العامة
 </footer>
 
-<div id="detailsModal" style="
-  position:fixed; inset:0; background:rgba(0,0,0,.55);
-  display:none; align-items:center; justify-content:center; z-index:99999;
-">
+<div id="detailsModal">
   <div id="detailsModalHideArea" onclick="closeDetailsModal()"></div>
-
-  <div class="card" id="detailsModalCard">
+  <div id="detailsModalCard">
     <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
       <h2 class="section-title" style="margin:0; border-right:4px solid var(--gold);">تفاصيل</h2>
       <button class="btn-secondary" onclick="closeDetailsModal()">إغلاق</button>
     </div>
-
     <div id="detailsBody"></div>
   </div>
 </div>
 
 <script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  const SUPABASE_URL = "https://sipumbqxcewdyttnurii.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_wr_BnVo-z-zF45zwLFXGtQ_usB7XEjf";
+const SUPABASE_URL = "https://sipumbqxcewdyttnurii.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_wr_BnVo-z-zF45zwLFXGtQ_usB7XEjf";
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const DEPARTMENTS_KEY="public_services_departments";
+const TYPES_KEY="public_services_types";
 
-  const DEPARTMENTS_KEY="public_services_departments";
-  const TYPES_KEY="public_services_types";
+let reports = [];
+let archivedReports = [];
 
-  let reports = [];
-  let archivedReports = [];
+// Realtime
+let realtimeChannel = null;
+let realtimeBusy = false;
 
-  // Realtime
-  let realtimeChannel = null;
-  let realtimeBusy = false;
+function startRealtime(){
+  if (realtimeChannel) return;
 
-  function startRealtime(){
-    if (realtimeChannel) return;
-
-    realtimeChannel = supabase
-      .channel("reports-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "reports" },
-        async () => {
-          if (realtimeBusy) return;
-          realtimeBusy = true;
-          try{
-            await fetchReportsFromDB();
-            renderAdmin();
-          }catch(e){
-            console.error("Realtime refresh error:", e);
-          }finally{
-            realtimeBusy = false;
-          }
+  realtimeChannel = supabase
+    .channel("reports-realtime")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "reports" },
+      async () => {
+        if (realtimeBusy) return;
+        realtimeBusy = true;
+        try{
+          await fetchReportsFromDB();
+          renderAdmin();
+        }catch(e){
+          console.error("Realtime refresh error:", e);
+        }finally{
+          realtimeBusy = false;
         }
-      )
-      .subscribe();
-  }
+      }
+    )
+    .subscribe();
+}
 
-  function stopRealtime(){
-    if (realtimeChannel){
-      supabase.removeChannel(realtimeChannel);
-      realtimeChannel = null;
+function stopRealtime(){
+  if (realtimeChannel){
+    supabase.removeChannel(realtimeChannel);
+    realtimeChannel = null;
+  }
+}
+
+// LocalStorage lists
+let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
+  "إدارة الخدمات المالية و الادارية و الصيانة",
+  "إدارة الجنسية",
+  "إدارة البحث و المتابعة",
+  "إدارة المكتب الفني",
+  "إدارة وثائق السفر",
+  "مكتب مساعد المدير العام",
+  "مكتب المدير العام",
+  "إدارة الهوية الوطنية"
+];
+
+let reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||[
+  "كهربائي",
+  "مستلزمات مكتبية",
+  "صحي",
+  "طابعة",
+  "كمبيوتر",
+  "نظافة",
+  "مرافق المبنى"
+];
+
+function saveAll(){
+  localStorage.setItem(DEPARTMENTS_KEY,JSON.stringify(departments));
+  localStorage.setItem(TYPES_KEY,JSON.stringify(reportTypes));
+}
+
+function showAlert(id,message,type){
+  const box=document.getElementById(id);
+  box.textContent=message;
+  box.className="alert "+type;
+  setTimeout(()=>{
+    box.textContent="";
+    box.className="alert";
+  },5000);
+}
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function formatBGNumber(reportNumber){
+  if(reportNumber === null || reportNumber === undefined || reportNumber === "") return "-";
+  return reportNumber;
+}
+
+async function fetchReportsFromDB(){
+  const { data: pending, error: err1 } = await supabase
+    .from("reports")
+    .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
+    .eq("status","قيد التنفيذ")
+    .order("created_at",{ascending:false});
+  if(err1) throw err1;
+
+  const { data: done, error: err2 } = await supabase
+    .from("reports")
+    .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
+    .eq("status","مكتمل")
+    .order("completed_at",{ascending:false});
+  if(err2) throw err2;
+
+  reports = (pending || []).map(r => ({
+    id: r.id,
+    reportNumber: r.report_number,
+    location: r.title || "",
+    type: r.reporter_id || "",
+    description: r.description || "",
+    createdAt: r.created_at,
+    technician: r.technician || "",
+    notes: r.notes || "",
+    status: r.status || "قيد التنفيذ",
+    completedAt: r.completed_at || null,
+    reporterName: r.reporter_name || "",
+    reporterPhone: r.reporter_phone || ""
+  }));
+
+  archivedReports = (done || []).map(r => ({
+    id: r.id,
+    reportNumber: r.report_number,
+    location: r.title || "",
+    type: r.reporter_id || "",
+    description: r.description || "",
+    createdAt: r.created_at,
+    technician: r.technician || "",
+    notes: r.notes || "",
+    status: r.status || "مكتمل",
+    completedAt: r.completed_at || null,
+    reporterName: r.reporter_name || "",
+    reporterPhone: r.reporter_phone || ""
+  }));
+}
+
+function formatDate(value){
+  if(!value) return "-";
+  return new Intl.DateTimeFormat("ar-KW",{dateStyle:"medium",timeStyle:"short"}).format(new Date(value));
+}
+
+function getCounts(list, prop, byNamePhone=false){
+  const counts = {};
+  list.forEach(r=>{
+    if(byNamePhone){
+      const name = (r.reporterName || "").trim() || "غير محدد";
+      const phone = (r.reporterPhone || "").trim() || "غير محدد";
+      const key = `${name} — ${phone}`;
+      counts[key] = (counts[key] || 0) + 1;
+      return;
+    }
+    const key = (prop && r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
+    counts[key] = (counts[key] || 0) + 1;
+  });
+
+  return Object.entries(counts)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([name,count])=>({name,count}));
+}
+
+function openDetailsModalWithTitle(title, html){
+  document.querySelector("#detailsModal .section-title").textContent = title;
+  const detailsBody = document.getElementById("detailsBody");
+  detailsBody.innerHTML = html;
+  detailsBody.scrollTop = 0;
+  document.getElementById("detailsModal").style.display = "flex";
+}
+
+function closeDetailsModal(){
+  document.getElementById("detailsModal").style.display="none";
+}
+
+function renderCharts(){
+  const el1 = document.getElementById("chartTopLocations");
+  const el2 = document.getElementById("chartTopReporter");
+  const el3 = document.getElementById("chartTopPendingTypes");
+  if(!el1 || !el2 || !el3) return;
+
+  const sourceAll = archivedReports;
+  const pendingOnly = archivedReports;
+
+  if(window._charts){
+    for(const k of Object.keys(window._charts)){
+      try{ window._charts[k].destroy(); }catch(e){}
     }
   }
+  window._charts = {};
 
-  // LocalStorage lists
-  let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
-      "إدارة الخدمات المالية و الادارية و الصيانة",
-      "إدارة الجنسية",
-      "إدارة البحث و المتابعة",
-      "إدارة المكتب الفني",
-      "إدارة وثائق السفر",
-      "مكتب مساعد المدير العام",
-      "مكتب المدير العام",
-      "إدارة الهوية الوطنية"
+  const locCounts = getCounts(sourceAll, "location").slice(0,10);
+  const labelsLoc = locCounts.map(x => x.name);
+  const valuesLoc = locCounts.map(x => x.count);
+
+  const repCounts = getCounts(sourceAll, null, true).slice(0,8);
+  const labelsRep = repCounts.map(x => x.name);
+  const valuesRep = repCounts.map(x => x.count);
+
+  const pendingTypeCounts = getCounts(pendingOnly, "type").slice(0,10);
+  const labelsPending = pendingTypeCounts.map(x => x.name);
+  const valuesPending = pendingTypeCounts.map(x => x.count);
+
+  const palette = [
+    "rgba(200,169,81,.70)",
+    "rgba(47,101,165,.55)",
+    "rgba(20,122,75,.50)",
+    "rgba(180,35,24,.45)",
+    "rgba(13,43,80,.45)",
+    "rgba(111,125,138,.45)",
+    "rgba(200,120,70,.45)",
+    "rgba(94,179,255,.45)",
+    "rgba(16,185,129,.45)",
+    "rgba(239,68,68,.40)"
   ];
 
-  let reportTypes=JSON.parse(localStorage.getItem(TYPES_KEY))||[
-      "كهربائي",
-      "مستلزمات مكتبية",
-      "صحي",
-      "طابعة",
-      "كمبيوتر",
-      "نظافة",
-      "مرافق المبنى"
-  ];
+  function barChart(chartKey, canvas, labels, data){
+    const chart = new Chart(canvas.getContext("2d"),{
+      type:"bar",
+      data:{
+        labels,
+        datasets:[{
+          label:"العدد",
+          data,
+          backgroundColor:"rgba(200,169,81,.55)",
+          borderColor:"rgba(200,169,81,1)",
+          borderWidth:1,
+          borderRadius:10
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{ legend:{ display:false }, tooltip:{ enabled:true } },
+        scales:{
+          x:{ ticks:{ color:"#3b4a5a" }, grid:{ display:false } },
+          y:{ ticks:{ color:"#3b4a5a" }, grid:{ color:"rgba(7,26,51,.06)" } }
+        }
+      }
+    });
 
-  function saveAll(){
-      localStorage.setItem(DEPARTMENTS_KEY,JSON.stringify(departments));
-      localStorage.setItem(TYPES_KEY,JSON.stringify(reportTypes));
-  }
+    canvas.style.cursor = "pointer";
+    canvas.onclick = (evt)=>{
+      const points = chart.getElementsAtEventForMode(evt,"nearest",{intersect:true},true);
+      if(!points || !points.length) return;
 
-  function showAlert(id,message,type){
-      const box=document.getElementById(id);
-      box.textContent=message;
-      box.className="alert "+type;
-      setTimeout(()=>{
-          box.textContent="";
-          box.className="alert";
-      },5000);
-  }
+      const idx = points[0].index;
+      const clickedName = labels[idx];
+      const filtered = sourceAll.filter(r => (r.location || "غير محدد") === clickedName);
 
-  function escapeHtml(value){
-      return String(value??"")
-          .replaceAll("&","&amp;")
-          .replaceAll("<","&lt;")
-          .replaceAll(">","&gt;")
-          .replaceAll('"',"&quot;")
-          .replaceAll("'","&#039;");
-  }
-
-  function formatBGNumber(reportNumber){
-      if(reportNumber === null || reportNumber === undefined || reportNumber === "") return "-";
-      return reportNumber;
-  }
-
-  async function fetchReportsFromDB(){
-      const { data: pending, error: err1 } = await supabase
-        .from("reports")
-        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
-        .eq("status","قيد التنفيذ")
-        .order("created_at",{ascending:false});
-
-      if(err1) throw err1;
-
-      const { data: done, error: err2 } = await supabase
-        .from("reports")
-        .select("id,report_number,title,description,status,created_at,technician,notes,completed_at,reporter_id,reporter_name,reporter_phone,updated_at")
-        .eq("status","مكتمل")
-        .order("completed_at",{ascending:false});
-
-      if(err2) throw err2;
-
-      reports = (pending || []).map(r => ({
-          id: r.id,
-          reportNumber: r.report_number,
-          location: r.title || "",
-          type: r.reporter_id || "",
-          description: r.description || "",
-          createdAt: r.created_at,
-          technician: r.technician || "",
-          notes: r.notes || "",
-          status: r.status || "قيد التنفيذ",
-          completedAt: r.completed_at || null,
-          reporterName: r.reporter_name || "",
-          reporterPhone: r.reporter_phone || ""
-      }));
-
-      archivedReports = (done || []).map(r => ({
-          id: r.id,
-          reportNumber: r.report_number,
-          location: r.title || "",
-          type: r.reporter_id || "",
-          description: r.description || "",
-          createdAt: r.created_at,
-          technician: r.technician || "",
-          notes: r.notes || "",
-          status: r.status || "مكتمل",
-          completedAt: r.completed_at || null,
-          reporterName: r.reporter_name || "",
-          reporterPhone: r.reporter_phone || ""
-      }));
-  }
-
-  function formatDate(value){
-      if(!value)return "-";
-      return new Intl.DateTimeFormat("ar-KW",{dateStyle:"medium",timeStyle:"short"}).format(new Date(value));
-  }
-
-  function getCounts(list, prop, byNamePhone=false){
-      const counts = {};
-
-      list.forEach(r=>{
-          if(byNamePhone){
-              const name = (r.reporterName || "").trim() || "غير محدد";
-              const phone = (r.reporterPhone || "").trim() || "غير محدد";
-              const key = `${name} — ${phone}`;
-              counts[key] = (counts[key] || 0) + 1;
-              return;
+      openDetailsModalWithTitle(
+        "تفاصيل الموقع (من الأرشيف)",
+        `
+          <p style="color:#536477;line-height:1.8">
+            الموقع: <b>${escapeHtml(clickedName)}</b><br>
+            عدد البلاغات: <b>${filtered.length}</b>
+          </p>
+          ${
+            filtered.length
+            ? filtered.slice(0,50).map(r=>`
+              <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+              </div>
+            `).join("")
+            : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
           }
+          ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
+        `
+      );
+    };
 
-          const key = (prop && r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
-          counts[key] = (counts[key] || 0) + 1;
+    window._charts[chartKey] = chart;
+  }
+
+  function doughnutChart(chartKey, canvas, labels, data){
+    const colors = palette.slice(0, Math.max(labels.length,1));
+
+    const chart = new Chart(canvas.getContext("2d"),{
+      type:"doughnut",
+      data:{
+        labels,
+        datasets:[{ label:"العدد", data, backgroundColor: colors }]
+      },
+      options:{
+        responsive:true,
+        plugins:{
+          legend:{ display:true, position:"bottom", labels:{ color:"#334155" } },
+          tooltip:{ enabled:true }
+        },
+        cutout:"58%"
+      }
+    });
+
+    canvas.style.cursor = "pointer";
+    canvas.onclick = (evt)=>{
+      const points = chart.getElementsAtEventForMode(evt,"nearest",{intersect:true},true);
+      if(!points || !points.length) return;
+
+      const idx = points[0].index;
+      const clickedLabel = labels[idx];
+
+      const parts = String(clickedLabel).split(" — ");
+      const clickedName = parts[0] || "";
+      const clickedPhone = parts[1] || "";
+
+      const filtered = sourceAll.filter(r=>{
+        const n = (r.reporterName || "").trim() || "غير محدد";
+        const p = (r.reporterPhone || "").trim() || "غير محدد";
+        return `${n} — ${p}` === clickedLabel;
       });
 
-      return Object.entries(counts)
-        .sort((a,b)=>b[1]-a[1])
-        .map(([name,count])=>({name,count}));
+      openDetailsModalWithTitle(
+        "تفاصيل المبلغ (من الأرشيف)",
+        `
+          <p style="color:#536477;line-height:1.8">
+            المبلغ: <b>${escapeHtml(clickedName)}</b><br>
+            رقم الهاتف: <b>${escapeHtml(clickedPhone)}</b><br>
+            عدد البلاغات: <b>${filtered.length}</b>
+          </p>
+          ${
+            filtered.length
+            ? filtered.slice(0,50).map(r=>`
+              <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
+              </div>
+            `).join("")
+            : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+          }
+          ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
+        `
+      );
+    };
+
+    window._charts[chartKey] = chart;
   }
 
-  function openDetailsModalWithTitle(title, html){
-      document.querySelector("#detailsModal .section-title").textContent = title;
-      const detailsBody = document.getElementById("detailsBody");
-      detailsBody.innerHTML = html;
-      detailsBody.scrollTop = 0;
-      document.getElementById("detailsModal").style.display = "flex";
-  }
-
-  function closeDetailsModal(){
-      document.getElementById("detailsModal").style.display="none";
-  }
-
-  function renderCharts(){
-      const el1 = document.getElementById("chartTopLocations");
-      const el2 = document.getElementById("chartTopReporter");
-      const el3 = document.getElementById("chartTopPendingTypes");
-      if(!el1 || !el2 || !el3) return;
-
-      const sourceAll = archivedReports;
-      const pendingOnly = archivedReports;
-
-      if(window._charts){
-        for(const k of Object.keys(window._charts)){
-          try{ window._charts[k].destroy(); }catch(e){}
+  function barChartForPending(chartKey, canvas, labels, data){
+    const chart = new Chart(canvas.getContext("2d"),{
+      type:"bar",
+      data:{
+        labels,
+        datasets:[{
+          label:"العدد",
+          data,
+          backgroundColor:"rgba(47,101,165,.45)",
+          borderColor:"rgba(47,101,165,1)",
+          borderWidth:1,
+          borderRadius:10
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{ legend:{ display:false }, tooltip:{ enabled:true } },
+        scales:{
+          x:{ ticks:{ color:"#3b4a5a" }, grid:{ display:false } },
+          y:{ ticks:{ color:"#3b4a5a" }, grid:{ color:"rgba(7,26,51,.06)" } }
         }
       }
-      window._charts = {};
+    });
 
-      const locCounts = getCounts(sourceAll, "location").slice(0,10);
-      const labelsLoc = locCounts.map(x => x.name);
-      const valuesLoc = locCounts.map(x => x.count);
+    canvas.style.cursor = "pointer";
+    canvas.onclick = (evt)=>{
+      const points = chart.getElementsAtEventForMode(evt,"nearest",{intersect:true},true);
+      if(!points || !points.length) return;
 
-      const repCounts = getCounts(sourceAll, null, true).slice(0,8);
-      const labelsRep = repCounts.map(x => x.name);
-      const valuesRep = repCounts.map(x => x.count);
+      const idx = points[0].index;
+      const clickedType = labels[idx];
+      const filtered = pendingOnly.filter(r => (r.type || "غير محدد") === clickedType);
 
-      const pendingTypeCounts = getCounts(pendingOnly, "type").slice(0,10);
-      const labelsPending = pendingTypeCounts.map(x => x.name);
-      const valuesPending = pendingTypeCounts.map(x => x.count);
-
-      const palette = [
-        "rgba(200,169,81,.70)",
-        "rgba(47,101,165,.55)",
-        "rgba(20,122,75,.50)",
-        "rgba(180,35,24,.45)",
-        "rgba(13,43,80,.45)",
-        "rgba(111,125,138,.45)",
-        "rgba(200,120,70,.45)",
-        "rgba(94,179,255,.45)",
-        "rgba(16,185,129,.45)",
-        "rgba(239,68,68,.40)"
-      ];
-
-      function barChart(chartKey, canvas, labels, data){
-        const chart = new Chart(canvas.getContext("2d"),{
-          type:"bar",
-          data:{
-            labels,
-            datasets:[{
-              label:"العدد",
-              data,
-              backgroundColor:"rgba(200,169,81,.55)",
-              borderColor:"rgba(200,169,81,1)",
-              borderWidth:1,
-              borderRadius:10
-            }]
-          },
-          options:{
-            responsive:true,
-            plugins:{
-              legend:{ display:false },
-              tooltip:{ enabled:true }
-            },
-            scales:{
-              x:{ ticks:{ color:"#3b4a5a" }, grid:{ display:false } },
-              y:{ ticks:{ color:"#3b4a5a" }, grid:{ color:"rgba(7,26,51,.06)" } }
-            }
-          }
-        });
-
-        canvas.style.cursor = "pointer";
-        canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(
-            evt,
-            "nearest",
-            { intersect:true },
-            true
-          );
-          if(!points || !points.length) return;
-
-          const idx = points[0].index;
-          const clickedName = labels[idx];
-
-          const filtered = sourceAll.filter(r => (r.location || "غير محدد") === clickedName);
-
-          openDetailsModalWithTitle(
-            "تفاصيل الموقع (من الأرشيف)",
-            `
-              <p style="color:#536477;line-height:1.8">
-                الموقع: <b>${escapeHtml(clickedName)}</b><br>
-                عدد البلاغات: <b>${filtered.length}</b>
-              </p>
-              ${
-                filtered.length
-                ? filtered.slice(0,50).map(r=>`
-                    <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
-                      <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
-                      <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
-                      <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
-                    </div>
-                  `).join("")
-                : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
-              }
-              ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
-            `
-          );
-        };
-
-        window._charts[chartKey] = chart;
-      }
-
-      function doughnutChart(chartKey, canvas, labels, data){
-        const colors = palette.slice(0, Math.max(labels.length,1));
-
-        const chart = new Chart(canvas.getContext("2d"),{
-          type:"doughnut",
-          data:{
-            labels,
-            datasets:[{
-              label:"العدد",
-              data,
-              backgroundColor: colors
-            }]
-          },
-          options:{
-            responsive:true,
-            plugins:{
-              legend:{
-                display:true,
-                position:"bottom",
-                labels:{ color:"#334155" }
-              },
-              tooltip:{ enabled:true }
-            },
-            cutout:"58%"
-          }
-        });
-
-        canvas.style.cursor = "pointer";
-        canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(
-            evt,
-            "nearest",
-            { intersect:true },
-            true
-          );
-          if(!points || !points.length) return;
-
-          const idx = points[0].index;
-          const clickedLabel = labels[idx];
-
-          const parts = String(clickedLabel).split(" — ");
-          const clickedName = parts[0] || "";
-          const clickedPhone = parts[1] || "";
-
-          const filtered = sourceAll.filter(r=>{
-            const n = (r.reporterName || "").trim() || "غير محدد";
-            const p = (r.reporterPhone || "").trim() || "غير محدد";
-            return `${n} — ${p}` === clickedLabel;
-          });
-
-          openDetailsModalWithTitle(
-            "تفاصيل المبلغ (من الأرشيف)",
-            `
-              <p style="color:#536477;line-height:1.8">
-                المبلغ: <b>${escapeHtml(clickedName)}</b><br>
-                رقم الهاتف: <b>${escapeHtml(clickedPhone)}</b><br>
-                عدد البلاغات: <b>${filtered.length}</b>
-              </p>
-              ${
-                filtered.length
-                ? filtered.slice(0,50).map(r=>`
-                    <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
-                      <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
-                      <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
-                      <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
-                    </div>
-                  `).join("")
-                : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
-              }
-              ${
-                filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""
-              }
-            `
-          );
-        };
-
-        window._charts[chartKey] = chart;
-      }
-
-      function barChartForPending(chartKey, canvas, labels, data){
-        const chart = new Chart(canvas.getContext("2d"),{
-          type:"bar",
-          data:{
-            labels,
-            datasets:[{
-              label:"العدد",
-              data,
-              backgroundColor:"rgba(47,101,165,.45)",
-              borderColor:"rgba(47,101,165,1)",
-              borderWidth:1,
-              borderRadius:10
-            }]
-          },
-          options:{
-            responsive:true,
-            plugins:{
-              legend:{ display:false },
-              tooltip:{ enabled:true }
-            },
-            scales:{
-              x:{ ticks:{ color:"#3b4a5a" }, grid:{ display:false } },
-              y:{ ticks:{ color:"#3b4a5a" }, grid:{ color:"rgba(7,26,51,.06)" } }
-            }
-          }
-        });
-
-        canvas.style.cursor = "pointer";
-        canvas.onclick = (evt)=>{
-          const points = chart.getElementsAtEventForMode(
-            evt,
-            "nearest",
-            { intersect:true },
-            true
-          );
-          if(!points || !points.length) return;
-
-          const idx = points[0].index;
-          const clickedType = labels[idx];
-
-          const filtered = pendingOnly.filter(r => (r.type || "غير محدد") === clickedType);
-
-          openDetailsModalWithTitle(
-            "تفاصيل نوع البلاغ (من الأرشيف)",
-            `
-              <p style="color:#536477;line-height:1.8">
-                النوع: <b>${escapeHtml(clickedType)}</b><br>
-                عدد البلاغات في الأرشيف: <b>${filtered.length}</b>
-              </p>
-              ${
-                filtered.length
-                ? filtered.slice(0,50).map(r=>`
-                    <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
-                      <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
-                      <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
-                      <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
-                    </div>
-                  `).join("")
-                : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
-              }
-              ${
-                filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""
-              }
-            `
-          );
-        };
-
-        window._charts[chartKey] = chart;
-      }
-
-      barChart("topLocations", el1, labelsLoc, valuesLoc);
-      doughnutChart("topReporter", el2, labelsRep, valuesRep);
-      barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
-  }
-
-  // ✅ طباعة كرت رسم واحد: العنوان + الرسم + البيانات/النصوص أسفل الرسم داخل نفس الكرت
-  window.printChartCard = function(cardId){
-    const card = document.getElementById(cardId);
-    if(!card) return;
-
-    const titleEl = card.querySelector("h3");
-    const chartTitle = (titleEl?.textContent || "رسم بياني").trim();
-
-    const canvas = card.querySelector("canvas");
-    if(!canvas || !canvas.toDataURL){
-      alert("لم يتم العثور على الرسم أو لا يدعم الطباعة.");
-      return;
-    }
-
-    // عناصر “البيانات/النصوص تحت الرسم” داخل نفس الكرت
-    const noteEls = card.querySelectorAll(".chart-note, .clickHint");
-    const notesHtml = Array.from(noteEls).map(el => {
-      const text = (el.innerText || "").trim();
-      if(!text) return "";
-      return `
-        <div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">
-          ${escapeHtml(text)}
-        </div>
-      `;
-    }).join("");
-
-    const imgData = canvas.toDataURL("image/png");
-
-    const w = window.open("", "_blank", "width=950,height=900");
-    if(!w){
-      alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
-      return;
-    }
-
-    w.document.write(`
-      <html lang="ar" dir="rtl">
-        <head>
-          <meta charset="UTF-8" />
-          <title>طباعة - ${escapeHtml(chartTitle)}</title>
-          <style>
-            body { font-family: Tahoma, Arial, sans-serif; margin: 20px; color:#0b1f3a; }
-            .header { text-align:center; margin-bottom: 14px; }
-            .header h2 { margin:0; font-size:20px; }
-            .sub { color:#5b6b7e; margin-top:6px; font-size:14px; }
-            .img-wrap { text-align:center; margin-top:10px; }
-            img { width:100%; max-width:820px; border:1px solid #ddd; border-radius:10px; }
-            .notes { margin-top:12px; }
-            @media print { 
-              .sub { color:#5b6b7e; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h2>${escapeHtml(chartTitle)}</h2>
-            <div class="sub">الرسم البياني + العنوان + النصوص أسفل الرسم</div>
-          </div>
-
-          <div class="img-wrap">
-            <img src="${imgData}" alt="${escapeHtml(chartTitle)}" />
-          </div>
-
-          <div class="notes">
-            ${notesHtml}
-          </div>
-
-          <script>
-            window.onload = function(){
-              window.focus();
-              window.print();
-            }
-          </script>
-        </body>
-      </html>
-    `);
-
-    w.document.close();
-  };
-
-  // ---------- Settings (كما هي) ----------
-  function renderSettings(){
-      document.getElementById("departmentsList").innerHTML=
-          departments.map((item,index)=>`
-              <div class="setting-item">
-                  <span>${escapeHtml(item)}</span>
-                  <button class="delete-item" onclick="deleteDepartment(${index})">×</button>
+      openDetailsModalWithTitle(
+        "تفاصيل نوع البلاغ (من الأرشيف)",
+        `
+          <p style="color:#536477;line-height:1.8">
+            النوع: <b>${escapeHtml(clickedType)}</b><br>
+            عدد البلاغات في الأرشيف: <b>${filtered.length}</b>
+          </p>
+          ${
+            filtered.length
+            ? filtered.slice(0,50).map(r=>`
+              <div style="padding:10px;border:1px solid rgba(221,231,245,.9);border-radius:12px;margin-bottom:10px;">
+                <b>${escapeHtml(formatBGNumber(r.reportNumber))}</b><br>
+                <span style="color:#536477">${escapeHtml(r.location)} — ${escapeHtml(r.type)}</span><br>
+                <span style="color:var(--muted);font-size:13px">${escapeHtml(formatDate(r.createdAt))}</span>
               </div>
-          `).join("");
+            `).join("")
+            : "<p style='color:var(--muted)'>لا توجد بيانات</p>"
+          }
+          ${filtered.length>50 ? `<p style="color:var(--muted);font-size:13px;margin-top:6px">عرض أول 50 بلاغ فقط</p>` : ""}
+        `
+      );
+    };
 
-      document.getElementById("reportTypesList").innerHTML=
-          reportTypes.map((item,index)=>`
-              <div class="setting-item">
-                  <span>${escapeHtml(item)}</span>
-                  <button class="delete-item" onclick="deleteReportType(${index})">×</button>
-              </div>
-          `).join("");
+    window._charts[chartKey] = chart;
   }
 
-  function addDepartment(){
-      const input=document.getElementById("newDepartment");
-      const value=input.value.trim();
-      if(!value) return alert("اكتب اسم الإدارة أولاً.");
-      if(departments.includes(value)) return alert("هذه الإدارة موجودة مسبقاً.");
-      departments.push(value);
-      input.value="";
-      saveAll();
-      renderSettings();
+  barChart("topLocations", el1, labelsLoc, valuesLoc);
+  doughnutChart("topReporter", el2, labelsRep, valuesRep);
+  barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
+}
+
+// ✅ دالة الطباعة الصحيحة (بدون باكتيك/قوس ناقص)
+window.printChartCard = function(cardId){
+  const card = document.getElementById(cardId);
+  if(!card) return;
+
+  const titleEl = card.querySelector("h3");
+  const chartTitle = (titleEl && titleEl.textContent ? titleEl.textContent : "رسم بياني").trim();
+
+  const canvas = card.querySelector("canvas");
+  if(!canvas || !canvas.toDataURL){
+    alert("لم يتم العثور على الرسم أو لا يدعم الطباعة.");
+    return;
   }
 
-  function addReportType(){
-      const input=document.getElementById("newReportType");
-      const value=input.value.trim();
-      if(!value) return alert("اكتب نوع البلاغ أولاً.");
-      if(reportTypes.includes(value)) return alert("هذا النوع موجود مسبقاً.");
-      reportTypes.push(value);
-      input.value="";
-      saveAll();
-      renderSettings();
+  // النصوص تحت الرسم داخل الكرت
+  const noteEls = card.querySelectorAll(".chart-note, .clickHint");
+  let notesHtml = "";
+
+  noteEls.forEach(el=>{
+    const text = (el.innerText || "").trim();
+    if(!text) return;
+    notesHtml += `
+      <div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">
+        ${escapeHtml(text)}
+      </div>
+    `;
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const w = window.open("", "_blank", "width=950,height=900");
+  if(!w){
+    alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
+    return;
   }
 
-  function deleteDepartment(index){
-      if(confirm("هل تريد حذف هذه الإدارة؟")){
-          departments.splice(index,1);
-          saveAll();
-          renderSettings();
-      }
-  }
+  const safeTitle = escapeHtml(chartTitle);
 
-  function deleteReportType(index){
-      if(confirm("هل تريد حذف نوع البلاغ هذا؟")){
-          reportTypes.splice(index,1);
-          saveAll();
-          renderSettings();
-      }
-  }
+  w.document.write(
+    "<!DOCTYPE html>" +
+    "<html lang='ar' dir='rtl'>" +
+    "<head>" +
+      "<meta charset='UTF-8' />" +
+      "<title>طباعة - "+ safeTitle +"</title>" +
+      "<style>" +
+        "body{font-family:Tahoma,Arial,sans-serif;margin:20px;color:#0b1f3a;}" +
+        ".header{text-align:center;margin-bottom:14px;}" +
+        ".header h2{margin:0;font-size:20px;}" +
+        ".sub{color:#5b6b7e;margin-top:6px;font-size:14px;}" +
+        ".img-wrap{text-align:center;margin-top:10px;}" +
+        "img{width:100%;max-width:820px;border:1px solid #ddd;border-radius:10px;}" +
+        ".notes{margin-top:12px;}" +
+      "</style>" +
+    "</head>" +
+    "<body>" +
+      "<div class='header'>" +
+        "<h2>"+ safeTitle +"</h2>" +
+        "<div class='sub'>الرسم البياني + العنوان + النصوص أسفل الرسم</div>" +
+      "</div>" +
+      "<div class='img-wrap'>" +
+        "<img src='"+imgData+"' alt='"+safeTitle+"' />" +
+      "</div>" +
+      "<div class='notes'>" +
+        notesHtml +
+      "</div>" +
+      "<script>" +
+        "window.onload=function(){ window.focus(); window.print(); };" +
+      "</script>" +
+    "</body>" +
+    "</html>"
+  );
 
-  // ---------- Admin render ----------
-  function renderAdmin(){
-      const body=document.getElementById("reportsTableBody");
+  w.document.close();
+};
 
-      if(!reports.length){
-          body.innerHTML=`
-              <tr>
-                  <td colspan="10" class="empty">
-                    لا توجد بلاغات قيد التنفيذ حالياً. يوجد أرشيف: ${archivedReports.length}
-                  </td>
-              </tr>
-          `;
-      }else{
-          body.innerHTML=reports.map(report=>`
-              <tr>
-                  <td><span class="badge">${escapeHtml(formatBGNumber(report.reportNumber))}</span></td>
-                  <td>${formatDate(report.createdAt)}</td>
-                  <td>${escapeHtml(report.location)}</td>
-                  <td>${escapeHtml(report.type)}</td>
-                  <td>${escapeHtml(report.description)}</td>
+// ---------- Settings ----------
+function renderSettings(){
+  document.getElementById("departmentsList").innerHTML =
+    departments.map((item,index)=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;padding:10px 12px;border:1px solid rgba(221,231,245,.9);border-radius:12px;background:#fff;">
+        <span>${escapeHtml(item)}</span>
+        <button class="btn-danger" style="padding:6px 12px;border-radius:10px;" onclick="deleteDepartment(${index})">×</button>
+      </div>
+    `).join("");
 
-                  <td>${escapeHtml(report.reporterName || "")}</td>
-                  <td>${escapeHtml(report.reporterPhone || "")}</td>
+  document.getElementById("reportTypesList").innerHTML =
+    reportTypes.map((item,index)=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;padding:10px 12px;border:1px solid rgba(221,231,245,.9);border-radius:12px;background:#fff;">
+        <span>${escapeHtml(item)}</span>
+        <button class="btn-danger" style="padding:6px 12px;border-radius:10px;" onclick="deleteReportType(${index})">×</button>
+      </div>
+    `).join("");
+}
 
-                  <td>
-                      <input class="admin-input" id="technician-${report.id}" type="text"
-                             placeholder="اسم الفني" value="${escapeHtml(report.technician || '')}">
-                  </td>
-
-                  <td>
-                      <textarea class="admin-input notes-input" id="notes-${report.id}" placeholder="الملاحظات">
-                        ${escapeHtml(report.notes || '')}
-                      </textarea>
-                  </td>
-
-                  <td>
-                      <button class="btn-success" onclick="completeReport('${report.id}')">تم الإنجاز</button>
-                  </td>
-              </tr>
-          `).join("");
-      }
-
-      renderCharts();
-  }
-
-  // ---------- Auth ----------
-  async function loginAdmin(){
-      const email = document.getElementById("adminEmail").value.trim();
-      const password = document.getElementById("adminPassword").value;
-
-      if(!email || !password){
-          showAlert("loginAlert","الرجاء إدخال الإيميل وكلمة المرور.","error");
-          return;
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-      if(error){
-          showAlert("loginAlert", error.message, "error");
-          return;
-      }
-
-      document.getElementById("loginBox").style.display="none";
-      document.getElementById("adminPanel").classList.add("active");
-      document.getElementById("logoutButton").style.display="block";
-
-      renderSettings();
-
-      try{
-          await fetchReportsFromDB();
-          renderAdmin();
-          startRealtime();
-          showAlert("loginAlert","تم تسجيل الدخول بنجاح.","success");
-      }catch(e){
-          console.error(e);
-          showAlert("loginAlert",(e && e.message)?e.message:String(e),"error");
-      }
-  }
-
-  async function logoutAdmin(){
-      stopRealtime();
-
-      try{ await supabase.auth.signOut(); }catch(e){ console.warn(e); }
-
-      document.getElementById("adminPanel").classList.remove("active");
-      document.getElementById("loginBox").style.display="block";
-      document.getElementById("logoutButton").style.display="none";
-      document.getElementById("adminPassword").value="";
-      document.getElementById("adminEmail").value="";
-  }
-
-  // ---------- Actions ----------
-  window.completeReport = async function(id){
-      const technician=document.getElementById("technician-"+id).value.trim();
-      const notes=document.getElementById("notes-"+id).value.trim();
-
-      if(!technician){
-          alert("يرجى كتابة اسم القائم بالإنجاز.");
-          return;
-      }
-      if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟")) return;
-
-      try{
-          const { error } = await supabase
-            .from("reports")
-            .update({
-              status: "مكتمل",
-              technician,
-              notes,
-              completed_at: new Date().toISOString()
-            })
-            .eq("id", id);
-
-          if(error) throw error;
-
-          await fetchReportsFromDB();
-          renderAdmin();
-          alert("تم إنهاء البلاغ وأرشفته بنجاح.");
-      }catch(e){
-          console.error(e);
-          alert("حدث خطأ أثناء تحديث البلاغ.");
-      }
-  };
-
-  window.exportArchiveExcel = function(){
-      if(!archivedReports.length){
-          alert("لا توجد بلاغات مؤرشفة.");
-          return;
-      }
-
-      const rows=archivedReports.map(report=>(({
-          "رقم البلاغ": report.reportNumber ?? "",
-          "تاريخ الوصول":formatDate(report.createdAt),
-          "تاريخ الإنجاز":formatDate(report.completedAt),
-          "الإدارة أو الموقع":report.location,
-          "نوع البلاغ":report.type,
-          "وصف المشكلة":report.description,
-          "اسم المبلغ":report.reporterName || "",
-          "رقم المبلغ":report.reporterPhone || "",
-          "القائم بالإنجاز":report.technician || "",
-          "الملاحظات":report.notes || "",
-          "الحالة":report.status || "مكتمل"
-      })));
-
-      const sheet=XLSX.utils.json_to_sheet(rows);
-      const book=XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(book,sheet,"الأرشيف");
-      XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
-  };
-
-  window.refreshAdminPage = async function(){
-      try{
-          await fetchReportsFromDB();
-          renderAdmin();
-      }catch(e){
-          console.error(e);
-          alert("فشل تحديث الصفحة. تأكد من الاتصال وصلاحيات RLS.");
-      }
-  };
-
-  window.clearAllReports = async function(){
-      if(!reports.length){
-          alert("لا توجد بلاغات حالية.");
-          return;
-      }
-      if(!confirm("هل أنت متأكد من حذف جميع البلاغات الحالية؟")) return;
-
-      try{
-          const { error } = await supabase
-            .from("reports")
-            .delete()
-            .eq("status","قيد التنفيذ");
-
-          if(error) throw error;
-
-          await fetchReportsFromDB();
-          renderAdmin();
-      }catch(e){
-          console.error(e);
-          alert("حدث خطأ أثناء حذف البلاغات الحالية. تأكد من RLS/Policies.");
-      }
-  };
-
-  window.clearArchiveReports = async function(){
-      if(!archivedReports.length){
-          alert("لا توجد بلاغات مؤرشفة.");
-          return;
-      }
-      if(!confirm("هل أنت متأكد من حذف جميع البلاغات المؤرشفة؟")) return;
-
-      try{
-          const { error } = await supabase
-            .from("reports")
-            .delete()
-            .eq("status","مكتمل");
-
-          if(error) throw error;
-
-          await fetchReportsFromDB();
-          renderAdmin();
-          alert("تم حذف الأرشيف بنجاح ✅");
-      }catch(e){
-          console.error(e);
-          alert("حدث خطأ أثناء حذف الأرشيف. تأكد من RLS/Policies.");
-      }
-  };
-
-  // bind windows
-  window.showAlert = showAlert;
-  window.loginAdmin = loginAdmin;
-  window.logoutAdmin = logoutAdmin;
-  window.addDepartment = addDepartment;
-  window.addReportType = addReportType;
-  window.deleteDepartment = deleteDepartment;
-  window.deleteReportType = deleteReportType;
-  window.closeDetailsModal = closeDetailsModal;
-
-  // init
+function addDepartment(){
+  const input=document.getElementById("newDepartment");
+  const value=input.value.trim();
+  if(!value) return alert("اكتب اسم الإدارة أولاً.");
+  if(departments.includes(value)) return alert("هذه الإدارة موجودة مسبقاً.");
+  departments.push(value);
+  input.value="";
+  saveAll();
   renderSettings();
+}
+
+function addReportType(){
+  const input=document.getElementById("newReportType");
+  const value=input.value.trim();
+  if(!value) return alert("اكتب نوع البلاغ أولاً.");
+  if(reportTypes.includes(value)) return alert("هذا النوع موجود مسبقاً.");
+  reportTypes.push(value);
+  input.value="";
+  saveAll();
+  renderSettings();
+}
+
+function deleteDepartment(index){
+  if(confirm("هل تريد حذف هذه الإدارة؟")){
+    departments.splice(index,1);
+    saveAll();
+    renderSettings();
+  }
+}
+
+function deleteReportType(index){
+  if(confirm("هل تريد حذف نوع البلاغ هذا؟")){
+    reportTypes.splice(index,1);
+    saveAll();
+    renderSettings();
+  }
+}
+
+// ---------- Admin render ----------
+function renderAdmin(){
+  const body=document.getElementById("reportsTableBody");
+
+  if(!reports.length){
+    body.innerHTML=`
+      <tr>
+        <td colspan="10" class="empty">
+          لا توجد بلاغات قيد التنفيذ حالياً. يوجد أرشيف: ${archivedReports.length}
+        </td>
+      </tr>
+    `;
+  }else{
+    body.innerHTML=reports.map(report=>`
+      <tr>
+        <td><span class="badge">${escapeHtml(formatBGNumber(report.reportNumber))}</span></td>
+        <td>${formatDate(report.createdAt)}</td>
+        <td>${escapeHtml(report.location)}</td>
+        <td>${escapeHtml(report.type)}</td>
+        <td>${escapeHtml(report.description)}</td>
+
+        <td>${escapeHtml(report.reporterName || "")}</td>
+        <td>${escapeHtml(report.reporterPhone || "")}</td>
+
+        <td>
+          <input class="admin-input" id="technician-${report.id}" type="text"
+                 placeholder="اسم الفني" value="${escapeHtml(report.technician || '')}">
+        </td>
+
+        <td>
+          <textarea class="admin-input notes-input" id="notes-${report.id}" placeholder="الملاحظات">
+            ${escapeHtml(report.notes || '')}
+          </textarea>
+        </td>
+
+        <td>
+          <button class="btn-success" onclick="completeReport('${report.id}')">تم الإنجاز</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  renderCharts();
+}
+
+// ---------- Auth ----------
+async function loginAdmin(){
+  const email = document.getElementById("adminEmail").value.trim();
+  const password = document.getElementById("adminPassword").value;
+
+  if(!email || !password){
+    showAlert("loginAlert","الرجاء إدخال الإيميل وكلمة المرور.","error");
+    return;
+  }
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if(error){
+    showAlert("loginAlert", error.message, "error");
+    return;
+  }
+
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("adminPanel").classList.add("active");
+  document.getElementById("logoutButton").style.display="block";
+
+  renderSettings();
+
+  try{
+    await fetchReportsFromDB();
+    renderAdmin();
+    startRealtime();
+    showAlert("loginAlert","تم تسجيل الدخول بنجاح.","success");
+  }catch(e){
+    console.error(e);
+    showAlert("loginAlert",(e && e.message)?e.message:String(e),"error");
+  }
+}
+
+async function logoutAdmin(){
+  stopRealtime();
+
+  try{ await supabase.auth.signOut(); }catch(e){ console.warn(e); }
+
+  document.getElementById("adminPanel").classList.remove("active");
+  document.getElementById("loginBox").style.display="block";
+  document.getElementById("logoutButton").style.display="none";
+  document.getElementById("adminPassword").value="";
+  document.getElementById("adminEmail").value="";
+}
+
+// ---------- Actions ----------
+window.completeReport = async function(id){
+  const technician=document.getElementById("technician-"+id).value.trim();
+  const notes=document.getElementById("notes-"+id).value.trim();
+
+  if(!technician){
+    alert("يرجى كتابة اسم القائم بالإنجاز.");
+    return;
+  }
+  if(!confirm("هل تريد إنهاء البلاغ وأرشفته؟"))return;
+
+  try{
+    const { error } = await supabase
+      .from("reports")
+      .update({
+        status: "مكتمل",
+        technician,
+        notes,
+        completed_at: new Date().toISOString()
+      })
+      .eq("id", id);
+
+    if(error) throw error;
+
+    await fetchReportsFromDB();
+    renderAdmin();
+    alert("تم إنهاء البلاغ وأرشفته بنجاح.");
+  }catch(e){
+    console.error(e);
+    alert("حدث خطأ أثناء تحديث البلاغ.");
+  }
+};
+
+window.exportArchiveExcel = function(){
+  if(!archivedReports.length){
+    alert("لا توجد بلاغات مؤرشفة.");
+    return;
+  }
+
+  const rows=archivedReports.map(report=>({
+    "رقم البلاغ": report.reportNumber ?? "",
+    "تاريخ الوصول":formatDate(report.createdAt),
+    "تاريخ الإنجاز":formatDate(report.completedAt),
+    "الإدارة أو الموقع":report.location,
+    "نوع البلاغ":report.type,
+    "وصف المشكلة":report.description,
+    "اسم المبلغ":report.reporterName || "",
+    "رقم المبلغ":report.reporterPhone || "",
+    "القائم بالإنجاز":report.technician || "",
+    "الملاحظات":report.notes || "",
+    "الحالة":report.status || "مكتمل"
+  }));
+
+  const sheet=XLSX.utils.json_to_sheet(rows);
+  const book=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(book,sheet,"الأرشيف");
+  XLSX.writeFile(book,"أرشيف_البلاغات.xlsx");
+};
+
+window.refreshAdminPage = async function(){
+  try{
+    await fetchReportsFromDB();
+    renderAdmin();
+  }catch(e){
+    console.error(e);
+    alert("فشل تحديث الصفحة. تأكد من الاتصال وصلاحيات RLS.");
+  }
+};
+
+window.clearAllReports = async function(){
+  if(!reports.length){
+    alert("لا توجد بلاغات حالية.");
+    return;
+  }
+  if(!confirm("هل أنت متأكد من حذف جميع البلاغات الحالية؟")) return;
+
+  try{
+    const { error } = await supabase
+      .from("reports")
+      .delete()
+      .eq("status","قيد التنفيذ");
+    if(error) throw error;
+
+    await fetchReportsFromDB();
+    renderAdmin();
+  }catch(e){
+    console.error(e);
+    alert("حدث خطأ أثناء حذف البلاغات الحالية. تأكد من RLS/Policies.");
+  }
+};
+
+window.clearArchiveReports = async function(){
+  if(!archivedReports.length){
+    alert("لا توجد بلاغات مؤرشفة.");
+    return;
+  }
+  if(!confirm("هل أنت متأكد من حذف جميع البلاغات المؤرشفة؟")) return;
+
+  try{
+    const { error } = await supabase
+      .from("reports")
+      .delete()
+      .eq("status","مكتمل");
+    if(error) throw error;
+
+    await fetchReportsFromDB();
+    renderAdmin();
+    alert("تم حذف الأرشيف بنجاح ✅");
+  }catch(e){
+    console.error(e);
+    alert("حدث خطأ أثناء حذف الأرشيف. تأكد من RLS/Policies.");
+  }
+};
+
+// bind windows
+window.showAlert = showAlert;
+window.loginAdmin = loginAdmin;
+window.logoutAdmin = logoutAdmin;
+window.addDepartment = addDepartment;
+window.addReportType = addReportType;
+window.deleteDepartment = deleteDepartment;
+window.deleteReportType = deleteReportType;
+window.closeDetailsModal = closeDetailsModal;
+
+// init
+renderSettings();
 </script>
 
 </body>
