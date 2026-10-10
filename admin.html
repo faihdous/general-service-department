@@ -782,13 +782,13 @@ function renderCharts(){
   barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
 }
 
-// ✅ FIXED طباعة كرت الرسم (استبدلتها نسخة آمنة لمنع الخطأ)
+// ✅ Printing
 window.printChartCard = function(cardId){
   const card = document.getElementById(cardId);
   if(!card) return;
 
   const titleEl = card.querySelector("h3");
-  const chartTitle = (titleEl?.textContent || "رسم بياني").trim();
+  const chartTitle = (titleEl && titleEl.textContent ? titleEl.textContent : "رسم بياني").trim();
 
   const canvas = card.querySelector("canvas");
   if(!canvas || !canvas.toDataURL){
@@ -796,17 +796,15 @@ window.printChartCard = function(cardId){
     return;
   }
 
-  // النصوص تحت الرسم داخل نفس الكرت
   const noteEls = card.querySelectorAll(".chart-note, .clickHint");
-  let notesHtml = "";
+  var notesHtml = "";
   noteEls.forEach((el)=>{
     const text = (el.innerText || "").trim();
     if(!text) return;
-    notesHtml += `
-      <div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">
-        ${escapeHtml(text)}
-      </div>
-    `;
+    notesHtml +=
+      '<div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">' +
+        escapeHtml(text) +
+      '</div>';
   });
 
   const imgData = canvas.toDataURL("image/png");
