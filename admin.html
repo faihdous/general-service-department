@@ -437,9 +437,8 @@ tr:hover td{background:#fafbfd}
             <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
                 تسجيل الخروج
             </button>
-            <button class="btn-secondary" onclick="window.location.href='index.html'">
-                الرئيسية
-            </button>
+
+            <!-- تم حذف زر "الرئيسية" بالكامل -->
         </div>
     </div>
 
@@ -746,7 +745,6 @@ tr:hover td{background:#fafbfd}
   }
 
   function getStatsSource(){
-      // بنفس منطقك السابق: لو فيه reports نعرضها، وإلا أرشيف
       return reports.length ? reports : archivedReports;
   }
 
@@ -766,10 +764,9 @@ tr:hover td{background:#fafbfd}
       const el3 = document.getElementById("chartTopPendingTypes");
       if(!el1 || !el2 || !el3) return;
 
-      const sourceAll = getStatsSource(); // حسب منطقك
-      const pendingOnly = reports;        // "أكثر شي يتعطل" = قيد التنفيذ فقط
+      const sourceAll = getStatsSource();
+      const pendingOnly = reports;
 
-      // destroy old charts if exist
       if(window._charts){
         for(const k of Object.keys(window._charts)){
           try{ window._charts[k].destroy(); }catch(e){}
@@ -777,7 +774,6 @@ tr:hover td{background:#fafbfd}
       }
       window._charts = {};
 
-      // data
       const locCounts = getCounts(sourceAll, "location").slice(0,10);
       const labelsLoc = locCounts.map(x => x.name);
       const valuesLoc = locCounts.map(x => x.count);
@@ -841,9 +837,6 @@ tr:hover td{background:#fafbfd}
           if(!points || !points.length) return;
           const idx = points[0].index;
           const clickedName = labels[idx];
-          const count = data[idx];
-
-          // filter & show details (for location)
           const filtered = sourceAll.filter(r => (r.location || "غير محدد") === clickedName);
 
           openDetailsModalWithTitle(
@@ -911,7 +904,6 @@ tr:hover td{background:#fafbfd}
           const idx = points[0].index;
           const clickedLabel = labels[idx];
 
-          // clickedLabel format: "اسم — هاتف"
           const parts = String(clickedLabel).split(" — ");
           const clickedName = parts[0] || "";
           const clickedPhone = parts[1] || "";
@@ -1016,7 +1008,6 @@ tr:hover td{background:#fafbfd}
         window._charts[chartKey] = chart;
       }
 
-      // build charts
       barChart("topLocations", el1, labelsLoc, valuesLoc);
       doughnutChart("topReporter", el2, labelsRep, valuesRep);
       barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
@@ -1082,10 +1073,8 @@ tr:hover td{background:#fafbfd}
   // ---------- Admin render ----------
   function renderAdmin(){
       const body=document.getElementById("reportsTableBody");
-
       const sourceAll = getStatsSource();
 
-      // table current reports only (قيد التنفيذ)
       if(!reports.length){
           body.innerHTML=`
               <tr>
@@ -1124,7 +1113,6 @@ tr:hover td{background:#fafbfd}
           `).join("");
       }
 
-      // update charts
       renderCharts();
   }
 
