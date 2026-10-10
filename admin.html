@@ -6,6 +6,7 @@
 <title>لوحة الإدارة - بلاغ قسم الخدمات العامة</title>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
 <style>
 :root{
@@ -451,7 +452,44 @@ tr:hover td{background:#fafbfd}
 #detailsModalHideArea{position:absolute; inset:0;}
 #detailsModalCard{max-height:80vh; overflow:auto;}
 
-/* Responsive (تقريباً نفس كودك) */
+/* ✅ Charts section (جديد) */
+.charts-section{
+  margin-top:26px;
+  padding-top:6px;
+}
+
+.charts-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.chart-card{
+  background:rgba(255,255,255,.97);
+  border:1px solid rgba(221,231,245,.9);
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(15,39,66,.06);
+  padding:16px 16px 12px;
+}
+
+.chart-card h3{
+  margin:0 0 10px;
+  color:var(--navy);
+  font-size:16px;
+}
+
+.chart-note{
+  margin-top:10px;
+  color:#5b6b7e;
+  font-size:12.5px;
+  line-height:1.6;
+}
+
+/* Responsive */
+@media(max-width:1100px){
+  .charts-grid{ grid-template-columns:1fr; }
+}
+
 @media(max-width:800px){
     .topbar{align-items:flex-start;flex-direction:column}
     .topbar-actions{width:100%}
@@ -602,6 +640,32 @@ tr:hover td{background:#fafbfd}
                     <strong id="archiveCount">0</strong>
                 </p>
             </div>
+
+            <!-- ✅ الرسوم البيانية (جديد) -->
+            <div class="charts-section">
+              <h2 class="section-title">الرسوم البيانية (تفاصيل البلاغات)</h2>
+
+              <div class="charts-grid">
+                <div class="chart-card">
+                  <h3>المواقع الأكثر بلاغات</h3>
+                  <canvas id="chartTopLocations" height="160"></canvas>
+                  <div class="chart-note">أعلى 10 مواقع (حسب القيد التنفيذ + الأرشيف في نفس الصفحة)</div>
+                </div>
+
+                <div class="chart-card">
+                  <h3>أكثر شخص يطلب إصلاحات</h3>
+                  <canvas id="chartTopReporter" height="160"></canvas>
+                  <div class="chart-note">أعلى 8 مبلغين (اسم + رقم الهاتف)</div>
+                </div>
+
+                <div class="chart-card">
+                  <h3>أكثر شي يتعطل</h3>
+                  <canvas id="chartTopPendingTypes" height="160"></canvas>
+                  <div class="chart-note">أعلى 10 أنواع قيد التنفيذ</div>
+                </div>
+              </div>
+            </div>
+
         </div>
     </main>
 </div>
@@ -841,6 +905,94 @@ tr:hover td{background:#fafbfd}
       return reports.length ? reports : archivedReports;
   }
 
+  // ✅ Charts
+  let charts = {
+    topLocations: null,
+    topReporter: null,
+    topPendingTypes: null
+  };
+
+  function renderCharts(){
+      const el1 = document.getElementById("chartTopLocations");
+      const el2 = document.getElementById("chartTopReporter");
+      const el3 = document.getElementById("chartTopPendingTypes");
+      if(!el1 || !el2 || !el3) return;
+
+      const sourceAll = getStatsSource();   // حسب منطقك الحالي (قيد التنفيذ إن وجد)
+      const pendingOnly = reports;          // "أكثر شي يتعطل" = قيد التنفيذ فقط
+
+      // 1) Top Locations
+      const locCounts = getCounts(sourceAll, "location");
+      const topLoc = locCounts.slice(0,10);
+      const labelsLoc = topLoc.map(x => x.name);
+      const valuesLoc = topLoc.map(x => x.count);
+
+      // 2) Top Reporter (name + phone)
+      const repCounts = getCounts(sourceAll, null, true);
+      const topRep = repCounts.slice(0,8);
+      const labelsRep = topRep.map(x => x.name);
+      const valuesRep = topRep.map(x => x.count);
+
+      // 3) Top Pending Types (قيد التنفيذ)
+      const pendingTypeCounts = getCounts(pendingOnly, "type");
+      const topPending = pendingTypeCounts.slice(0,10);
+      const labelsPending = topPending.map(x => x.name);
+      const valuesPending = topPending.map(x => x.count);
+
+      function buildChart(chartKey, ctx, type, labels, data, legendDisplay){
+          if(charts[chartKey]) charts[chartKey].destroy();
+
+          const palette = [
+            "rgba(200,169,81,.70)",
+            "rgba(47,101,165,.55)",
+            "rgba(20,122,75,.50)",
+            "rgba(180,35,24,.45)",
+            "rgba(13,43,80,.45)",
+            "rgba(111,125,138,.45)",
+            "rgba(200,120,70,.45)",
+            "rgba(94,179,255,.45)",
+            "rgba(16,185,129,.45)",
+            "rgba(239,68,68,.40)"
+          ];
+
+          charts[chartKey] = new Chart(ctx, {
+              type,
+              data: {
+                  labels,
+                  datasets: [{
+                      label: "البيانات",
+                      data,
+                      backgroundColor:
+                          type === "bar"
+                          ? "rgba(200,169,81,.55)"
+                          : palette.slice(0, Math.max(1, labels.length)),
+                      borderColor:
+                          type === "bar"
+                          ? "rgba(200,169,81,1)"
+                          : "rgba(255,255,255,.12)",
+                      borderWidth: type === "bar" ? 1 : 0,
+                      borderRadius: type === "bar" ? 10 : 0
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: { display: legendDisplay !== false && type !== "bar" ? true : false },
+                      tooltip: { enabled: true }
+                  },
+                  scales: type === "bar" ? {
+                      x: { ticks: { color: "#3b4a5a" }, grid: { display:false } },
+                      y: { ticks: { color: "#3b4a5a" }, grid: { color: "rgba(7,26,51,.06)" } }
+                  } : {}
+              }
+          });
+      }
+
+      buildChart("topLocations", el1.getContext("2d"), "bar", labelsLoc, valuesLoc, false);
+      buildChart("topReporter", el2.getContext("2d"), "doughnut", labelsRep, valuesRep, true);
+      buildChart("topPendingTypes", el3.getContext("2d"), "bar", labelsPending, valuesPending, false);
+  }
+
   function renderSettings(){
       document.getElementById("departmentsList").innerHTML=
           departments.map((item,index)=>`
@@ -867,7 +1019,6 @@ tr:hover td{background:#fafbfd}
       departments.push(value);
       input.value="";
       saveAll();
-      loadFormOptions(); // (لا توجد هنا عندي، لكن وظائف admin لا تعتمد عليها. نتركها بدون تأثير)
       renderSettings();
   }
 
@@ -879,11 +1030,10 @@ tr:hover td{background:#fafbfd}
       reportTypes.push(value);
       input.value="";
       saveAll();
-      loadFormOptions(); // نفس ملاحظة addDepartment
       renderSettings();
   }
 
-  // Dummy لتجنب أي خطأ إن كان استدعاؤها سابقاً في نسخة أخرى
+  // Dummy (بقيت من نسختك كما هي)
   function loadFormOptions(){}
 
   function deleteDepartment(index){
@@ -1071,6 +1221,7 @@ tr:hover td{background:#fafbfd}
                   <td colspan="10" class="empty">لا توجد بلاغات قيد التنفيذ حالياً. يوجد أرشيف: ${archivedReports.length}</td>
               </tr>
           `;
+          renderCharts();
           return;
       }
 
@@ -1101,6 +1252,9 @@ tr:hover td{background:#fafbfd}
               </td>
           </tr>
       `).join("");
+
+      // ✅ تحديث الرسوم
+      renderCharts();
   }
 
   async function loginAdmin(){
