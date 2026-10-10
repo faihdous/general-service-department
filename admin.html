@@ -378,6 +378,29 @@ tr:hover td{background:#fafbfd}
   user-select:none;
 }
 
+/* --- تعديل مهم لظهور زر الطباعة --- */
+.chart-header-row{
+  position:relative;
+  z-index:6;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.chart-card canvas{
+  position:relative;
+  z-index:1;
+  display:block;
+}
+
+.print-btn{
+  position:relative;
+  z-index:10; /* فوق canvas */
+  flex:0 0 auto;
+}
+
 .chart-card h3{
   margin:0 0 10px;
   color:var(--navy);
@@ -548,9 +571,9 @@ tr:hover td{background:#fafbfd}
               <div class="charts-grid">
                 <!-- ✅ Card 1 -->
                 <div class="chart-card" id="chartCardTopLocations">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+                  <div class="chart-header-row">
                     <h3 style="margin:0;">المواقع الأكثر بلاغات</h3>
-                    <button class="btn-secondary"
+                    <button class="btn-secondary print-btn"
                             style="padding:10px 14px;border-radius:12px;"
                             onclick="printChartCard('chartCardTopLocations')"
                             type="button">
@@ -565,9 +588,9 @@ tr:hover td{background:#fafbfd}
 
                 <!-- ✅ Card 2 -->
                 <div class="chart-card" id="chartCardTopReporter">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+                  <div class="chart-header-row">
                     <h3 style="margin:0;">أكثر شخص يطلب إصلاحات</h3>
-                    <button class="btn-secondary"
+                    <button class="btn-secondary print-btn"
                             style="padding:10px 14px;border-radius:12px;"
                             onclick="printChartCard('chartCardTopReporter')"
                             type="button">
@@ -581,9 +604,9 @@ tr:hover td{background:#fafbfd}
 
                 <!-- ✅ Card 3 -->
                 <div class="chart-card" id="chartCardTopPendingTypes">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+                  <div class="chart-header-row">
                     <h3 style="margin:0;">الأعطال الأكثر تكرارا</h3>
-                    <button class="btn-secondary"
+                    <button class="btn-secondary print-btn"
                             style="padding:10px 14px;border-radius:12px;"
                             onclick="printChartCard('chartCardTopPendingTypes')"
                             type="button">
@@ -1050,42 +1073,42 @@ tr:hover td{background:#fafbfd}
       barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
   }
 
-  /* ✅ الطباعة (تم تعديلها للتخلص من SyntaxError) */
- window.printChartCard = function(cardId){
-  const card = document.getElementById(cardId);
-  if(!card) return;
+  // ✅ الطباعة
+  window.printChartCard = function(cardId){
+    const card = document.getElementById(cardId);
+    if(!card) return;
 
-  const titleEl = card.querySelector("h3");
-  const chartTitle = (titleEl && titleEl.textContent ? titleEl.textContent : "رسم بياني").trim();
+    const titleEl = card.querySelector("h3");
+    const chartTitle = (titleEl && titleEl.textContent ? titleEl.textContent : "رسم بياني").trim();
 
-  const canvas = card.querySelector("canvas");
-  if(!canvas || typeof canvas.toDataURL !== "function"){
-    alert("لم يتم العثور على الرسم أو لا يدعم الطباعة.");
-    return;
-  }
+    const canvas = card.querySelector("canvas");
+    if(!canvas || typeof canvas.toDataURL !== "function"){
+      alert("لم يتم العثور على الرسم أو لا يدعم الطباعة.");
+      return;
+    }
 
-  const noteEls = card.querySelectorAll(".chart-note, .clickHint");
-  let notesHtml = "";
-  noteEls.forEach((el)=>{
-    const text = (el.innerText || "").trim();
-    if(!text) return;
-    notesHtml += `
-      <div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">
-        ${escapeHtml(text)}
-      </div>
-    `;
-  });
+    const noteEls = card.querySelectorAll(".chart-note, .clickHint");
+    let notesHtml = "";
+    noteEls.forEach((el)=>{
+      const text = (el.innerText || "").trim();
+      if(!text) return;
+      notesHtml += `
+        <div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">
+          ${escapeHtml(text)}
+        </div>
+      `;
+    });
 
-  const imgData = canvas.toDataURL("image/png");
-  const safeTitle = escapeHtml(chartTitle);
+    const imgData = canvas.toDataURL("image/png");
+    const safeTitle = escapeHtml(chartTitle);
 
-  const w = window.open("", "_blank", "width=950,height=900");
-  if(!w){
-    alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
-    return;
-  }
+    const w = window.open("", "_blank", "width=950,height=900");
+    if(!w){
+      alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
+      return;
+    }
 
-  const html = `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -1116,11 +1139,10 @@ tr:hover td{background:#fafbfd}
 </body>
 </html>`;
 
-  w.document.open();
-  w.document.write(html);
-  w.document.close();
-};
-
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  };
 
   // ---------- Settings ----------
   function renderSettings(){
