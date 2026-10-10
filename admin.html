@@ -437,8 +437,7 @@ tr:hover td{background:#fafbfd}
             <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
                 تسجيل الخروج
             </button>
-
-            <!-- تم حذف زر "الرئيسية" بالكامل -->
+            <!-- تم حذف زر "الرئيسية" -->
         </div>
     </div>
 
@@ -520,26 +519,26 @@ tr:hover td{background:#fafbfd}
 
             <!-- ✅ الرسوم البيانية -->
             <div class="charts-section">
-              <h2 class="section-title">الرسوم البيانية (اضغط لعرض التفاصيل)</h2>
+              <h2 class="section-title">الرسوم البيانية (بيانات الأرشيف)</h2>
 
               <div class="charts-grid">
                 <div class="chart-card">
                   <h3>المواقع الأكثر بلاغات</h3>
                   <canvas id="chartTopLocations" height="160"></canvas>
-                  <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات</div>
-                  <div class="clickHint">* يعتمد على جميع البيانات المتوفرة في نفس الصفحة</div>
+                  <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات من الأرشيف</div>
+                  <div class="clickHint">* يعتمد على جميع بيانات الأرشيف المتوفرة في نفس الصفحة</div>
                 </div>
 
                 <div class="chart-card">
                   <h3>أكثر شخص يطلب إصلاحات</h3>
                   <canvas id="chartTopReporter" height="160"></canvas>
-                  <div class="chart-note">اضغط على القطعة لعرض البلاغات</div>
+                  <div class="chart-note">اضغط على القطعة لعرض البلاغات من الأرشيف</div>
                 </div>
 
                 <div class="chart-card">
-                  <h3>أكثر شي يتعطل</h3>
+                  <h3>أكثر شي يتعطل (حسب الأرشيف)</h3>
                   <canvas id="chartTopPendingTypes" height="160"></canvas>
-                  <div class="chart-note">اضغط على نوع البلاغ لعرض التفاصيل (قيد التنفيذ)</div>
+                  <div class="chart-note">اضغط على نوع البلاغ لعرض التفاصيل (من الأرشيف)</div>
                 </div>
               </div>
             </div>
@@ -745,7 +744,8 @@ tr:hover td{background:#fafbfd}
   }
 
   function getStatsSource(){
-      return reports.length ? reports : archivedReports;
+      // لم يعد مستخدم في هذا التعديل، لكن تركته لتوافق الكود
+      return archivedReports;
   }
 
   function openDetailsModalWithTitle(title, html){
@@ -764,8 +764,9 @@ tr:hover td{background:#fafbfd}
       const el3 = document.getElementById("chartTopPendingTypes");
       if(!el1 || !el2 || !el3) return;
 
-      const sourceAll = getStatsSource();
-      const pendingOnly = reports;
+      // ✅ التعديل المطلوب: كل الرسوم من الأرشيف فقط
+      const sourceAll = archivedReports;
+      const pendingOnly = archivedReports;
 
       if(window._charts){
         for(const k of Object.keys(window._charts)){
@@ -837,10 +838,12 @@ tr:hover td{background:#fafbfd}
           if(!points || !points.length) return;
           const idx = points[0].index;
           const clickedName = labels[idx];
+          const count = data[idx];
+
           const filtered = sourceAll.filter(r => (r.location || "غير محدد") === clickedName);
 
           openDetailsModalWithTitle(
-            "تفاصيل الموقع",
+            "تفاصيل الموقع (من الأرشيف)",
             `
               <p style="color:#536477;line-height:1.8">
                 الموقع: <b>${escapeHtml(clickedName)}</b><br>
@@ -915,7 +918,7 @@ tr:hover td{background:#fafbfd}
           });
 
           openDetailsModalWithTitle(
-            "تفاصيل المبلغ",
+            "تفاصيل المبلغ (من الأرشيف)",
             `
               <p style="color:#536477;line-height:1.8">
                 المبلغ: <b>${escapeHtml(clickedName)}</b><br>
@@ -983,11 +986,11 @@ tr:hover td{background:#fafbfd}
           const filtered = pendingOnly.filter(r => (r.type || "غير محدد") === clickedType);
 
           openDetailsModalWithTitle(
-            "تفاصيل نوع البلاغ (قيد التنفيذ)",
+            "تفاصيل نوع البلاغ (من الأرشيف)",
             `
               <p style="color:#536477;line-height:1.8">
                 النوع: <b>${escapeHtml(clickedType)}</b><br>
-                عدد البلاغات قيد التنفيذ: <b>${filtered.length}</b>
+                عدد البلاغات في الأرشيف: <b>${filtered.length}</b>
               </p>
               ${
                 filtered.length
@@ -1073,7 +1076,6 @@ tr:hover td{background:#fafbfd}
   // ---------- Admin render ----------
   function renderAdmin(){
       const body=document.getElementById("reportsTableBody");
-      const sourceAll = getStatsSource();
 
       if(!reports.length){
           body.innerHTML=`
