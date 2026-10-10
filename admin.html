@@ -428,7 +428,6 @@ tr:hover td{background:#fafbfd}
         </div>
 
         <div class="topbar-actions">
-            <!-- شيلت زر الرئيسية نهائياً -->
             <button id="logoutButton" class="btn-secondary" onclick="logoutAdmin()" style="display:none">
                 تسجيل الخروج
             </button>
@@ -511,7 +510,6 @@ tr:hover td{background:#fafbfd}
                 </div>
             </div>
 
-            <!-- ✅ الرسوم البيانية -->
             <div class="charts-section">
               <h2 class="section-title">الرسوم البيانية (اضغط لعرض التفاصيل)</h2>
 
@@ -519,20 +517,19 @@ tr:hover td{background:#fafbfd}
                 <div class="chart-card">
                   <h3>المواقع الأكثر بلاغات</h3>
                   <canvas id="chartTopLocations" height="160"></canvas>
-                  <div class="chart-note">اضغط على عمود الموقع لعرض البلاغات</div>
-                  <div class="clickHint">* يعتمد على جميع البيانات المتوفرة في نفس الصفحة</div>
+                  <div class="chart-note">* يعتمد على جميع البيانات المتوفرة في نفس الصفحة (الحالي + الأرشيف)</div>
                 </div>
 
                 <div class="chart-card">
                   <h3>أكثر شخص يطلب إصلاحات</h3>
                   <canvas id="chartTopReporter" height="160"></canvas>
-                  <div class="chart-note">اضغط على القطعة لعرض البلاغات</div>
+                  <div class="chart-note">* يعتمد على جميع البيانات المتوفرة في نفس الصفحة (الحالي + الأرشيف)</div>
                 </div>
 
                 <div class="chart-card">
                   <h3>أكثر شي يتعطل</h3>
                   <canvas id="chartTopPendingTypes" height="160"></canvas>
-                  <div class="chart-note">يعرض نوع العطل الأكثر قيد التنفيذ (مثل: طابعة/كمبيوتر…)</div>
+                  <div class="chart-note">يعرض نوع العطل الأكثر قيد التنفيذ (قائمة الحالية)</div>
                 </div>
               </div>
             </div>
@@ -684,7 +681,7 @@ tr:hover td{background:#fafbfd}
           id: r.id,
           reportNumber: r.report_number,
           location: r.title || "",
-          type: (r.type || "").toString(),   // ✅ نوع العطل الحقيقي من العمود type
+          type: (r.type || "").toString(),
           description: r.description || "",
           createdAt: r.created_at,
           technician: r.technician || "",
@@ -699,7 +696,7 @@ tr:hover td{background:#fafbfd}
           id: r.id,
           reportNumber: r.report_number,
           location: r.title || "",
-          type: (r.type || "").toString(),   // ✅ نوع العطل الحقيقي من العمود type
+          type: (r.type || "").toString(),
           description: r.description || "",
           createdAt: r.created_at,
           technician: r.technician || "",
@@ -737,8 +734,9 @@ tr:hover td{background:#fafbfd}
         .map(([name,count])=>({name,count}));
   }
 
+  // ✅ التعديل المطلوب: الرسوم تعتمد على (الحالي + الأرشيف)
   function getStatsSource(){
-      return reports.length ? reports : archivedReports;
+      return [...reports, ...archivedReports];
   }
 
   function openDetailsModalWithTitle(title, html){
@@ -757,8 +755,8 @@ tr:hover td{background:#fafbfd}
       const el3 = document.getElementById("chartTopPendingTypes");
       if(!el1 || !el2 || !el3) return;
 
-      const sourceAll = getStatsSource();
-      const pendingOnly = reports;
+      const sourceAll = getStatsSource(); // ✅ الآن إجمالي (الحالي + الأرشيف)
+      const pendingOnly = reports;        // يبقى قيد التنفيذ للحقل الثالث
 
       if(window._charts){
         for(const k of Object.keys(window._charts)){
@@ -775,7 +773,6 @@ tr:hover td{background:#fafbfd}
       const labelsRep = repCounts.map(x => x.name);
       const valuesRep = repCounts.map(x => x.count);
 
-      // ✅ أكثر شي يتعطل = نوع العطل من pendingOnly.type مع تجاهل غير محدد/فارغ
       const filteredPendingTypes = pendingOnly.filter(r=>{
         const t = (r.type || "").trim();
         return t && t !== "غير محدد";
