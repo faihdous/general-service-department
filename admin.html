@@ -165,11 +165,16 @@ button:hover{
 .btn-danger{color:#fff;background:var(--danger)}
 .btn-success{color:#fff;background:var(--success)}
 
-/* ✅ زر الطباعة أعلى الكروت لازم يكون نفس لون btn-secondary */
+/* ✅ زر الطباعة أعلى الكروت: نفس لون زر الطباعة داخل الكروت (ذهبي ونص غامق) */
 .charts-print-top{
-    color:#fff !important;
-    background:rgba(255,255,255,.08) !important;
-    border:1px solid rgba(255,255,255,.28) !important;
+    color:#0b1f3a !important;
+    background: rgba(200,169,81,.22) !important;
+    border:1px solid rgba(200,169,81,.55) !important;
+    box-shadow: 0 6px 14px rgba(200,169,81,.20);
+    font-weight:800;
+}
+.charts-print-top:hover{
+    background: rgba(200,169,81,.32) !important;
 }
 
 /* ✅ Fields */
@@ -578,7 +583,6 @@ tr:hover td{background:#fafbfd}
             </div>
 
             <div class="charts-section">
-              <!-- ✅ زر الطباعة فوق الثلاث رسوم (لون واضح مثل أزرار الطباعة) -->
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
                 <h2 class="section-title" style="margin:0;">الرسوم البيانية (بيانات الأرشيف)</h2>
 
@@ -594,7 +598,6 @@ tr:hover td{background:#fafbfd}
 
               <div class="charts-grid">
 
-                <!-- ✅ Card 1 -->
                 <div class="chart-card" id="chartCardTopLocations">
                   <div class="chart-header-row">
                     <h3 style="margin:0;">معدل البلاغات حسب الإدارة</h3>
@@ -608,7 +611,6 @@ tr:hover td{background:#fafbfd}
                   <canvas id="chartTopLocations" height="160"></canvas>
                 </div>
 
-                <!-- ✅ Card 2 -->
                 <div class="chart-card" id="chartCardTopReporter">
                   <div class="chart-header-row">
                     <h3 style="margin:0;">أكثر شخص يطلب إصلاحات</h3>
@@ -622,7 +624,6 @@ tr:hover td{background:#fafbfd}
                   <canvas id="chartTopReporter" height="160"></canvas>
                 </div>
 
-                <!-- ✅ Card 3 -->
                 <div class="chart-card" id="chartCardTopPendingTypes">
                   <div class="chart-header-row">
                     <h3 style="margin:0;">الأعطال الأكثر تكرارا</h3>
@@ -1145,7 +1146,7 @@ tr:hover td{background:#fafbfd}
     w.document.close();
   };
 
-  // ✅ الطباعة الجديدة: زر واحد يطبع الرسوم الثلاثة في صفحة واحدة (بدون 3 صفحات)
+  /* ✅ الطباعة الجديدة: زر واحد يطبع الرسوم الثلاثة في صفحة واحدة */
   window.printAllChartsCards = function(){
     const cardIds = ["chartCardTopLocations", "chartCardTopReporter", "chartCardTopPendingTypes"];
 
@@ -1178,100 +1179,109 @@ tr:hover td{background:#fafbfd}
       return;
     }
 
+    const escape = (s) => String(s ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+
+    // ✅ scale داخل صفحة الطباعة عشان لا تنقسم لصفحتين (Edge + الموبايل)
+    const SCALE = 0.66; // جرّب 0.62 أو 0.65 إذا لزم
+
     const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>طباعة الرسوم البيانية - الأرشيف</title>
+
   <style>
-    @page { size: auto; margin: 10mm; }
+    @page { size: A4 landscape; margin: 6mm; }
+
     body{
       font-family: Tahoma, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+      margin:0;
+      padding:0;
       direction: rtl;
       color:#0b1f3a;
       background:#fff;
     }
 
-    .wrap{ padding: 0 0 6px; }
+    .wrap{
+      transform: scale(${SCALE});
+      transform-origin: top right;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+    }
 
     .print-header{
       text-align:center;
-      margin: 0 0 10px;
-      padding: 0;
+      margin: 0 0 3mm 0;
     }
     .print-header h2{
       margin: 0;
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 900;
       color:#071a33;
     }
     .print-header .sub{
-      margin-top: 6px;
-      font-size: 14px;
+      margin-top: 1.5mm;
+      font-size: 12px;
+      font-weight: 800;
       color:#536477;
-      font-weight: 700;
     }
 
     .card{
       border:1px solid #e5e7eb;
-      border-radius:14px;
-      padding: 10px 10px 8px;
-      margin: 8px 0 10px;
+      border-radius:10px;
+      padding: 2mm 2mm 1mm;
+      margin: 0 0 2mm 0;
 
       page-break-inside: avoid;
       break-inside: avoid;
     }
 
     .card h3{
-      margin: 0 0 8px;
-      font-size: 16px;
+      margin: 0 0 2mm 0;
+      font-size: 13px;
+      font-weight: 900;
       text-align:center;
       color:#071a33;
-      font-weight: 900;
-    }
-
-    .img{
-      width:100%;
-      display:flex;
-      justify-content:center;
     }
 
     img{
       width:100%;
-      max-width: 980px;
-      border: 1px solid #e6e6e6;
-      border-radius: 10px;
-      background:#fff;
+      height:auto;
+      display:block;
 
-      /* ✅ مهم لمنع كسر الصفحة داخل الصورة */
       page-break-inside: avoid;
       break-inside: avoid;
+
+      max-height: 210px;
+      object-fit: contain;
+      background:#fff;
     }
 
     @media print{
-      /* محاولة قوية لمنع تقسيم المحتوى لعدة صفحات */
       .card{ page-break-inside: avoid; break-inside: avoid; }
       img{ page-break-inside: avoid; break-inside: avoid; }
     }
   </style>
 </head>
 
-<body onload="try{window.focus();}catch(e){} setTimeout(()=>window.print(), 200);">
+<body onload="setTimeout(()=>{ try{window.focus();}catch(e){} window.print(); }, 150);">
   <div class="wrap">
     <div class="print-header">
       <h2>الرسوم البيانية - الأرشيف</h2>
       <div class="sub">طباعة جميع الرسوم الثلاثة في صفحة واحدة</div>
     </div>
 
-    ${imgs.map((x)=>`
+    ${imgs.map(x => `
       <div class="card">
-        <h3>${String(x.title ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}</h3>
-        <div class="img">
-          <img src="${x.imgData}" alt="${String(x.title ?? "")}">
-        </div>
+        <h3>${escape(x.title)}</h3>
+        <img src="${x.imgData}" alt="${escape(x.title)}" />
       </div>
     `).join("")}
   </div>
