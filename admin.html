@@ -156,7 +156,7 @@ button:hover{
 }
 
 .btn-secondary{
-    color:#fff;
+    color:#fff; /* ✅ أهم شيء: خلي لون النص أبيض وواضح */
     background:rgba(255,255,255,.08);
     border:1px solid rgba(255,255,255,.28);
     border-radius:12px;
@@ -165,16 +165,11 @@ button:hover{
 .btn-danger{color:#fff;background:var(--danger)}
 .btn-success{color:#fff;background:var(--success)}
 
-/* ✅ زر الطباعة أعلى الثلاث رسوم: نفس شكل أزرار "طباعة" داخل الكروت */
+/* ✅ زر الطباعة أعلى الكروت لازم يكون نفس لون btn-secondary */
 .charts-print-top{
-    color:#0b1f3a !important;
-    background: rgba(200,169,81,.22) !important;
-    border: 1px solid rgba(200,169,81,.55) !important;
-    box-shadow: 0 6px 14px rgba(200,169,81,.20);
-    font-weight:800;
-}
-.charts-print-top:hover{
-    background: rgba(200,169,81,.32) !important;
+    color:#fff !important;
+    background:rgba(255,255,255,.08) !important;
+    border:1px solid rgba(255,255,255,.28) !important;
 }
 
 /* ✅ Fields */
@@ -390,6 +385,7 @@ tr:hover td{background:#fafbfd}
   user-select:none;
 }
 
+/* --- تعديل مهم لظهور زر الطباعة --- */
 .chart-header-row{
   position:relative;
   z-index:6;
@@ -582,10 +578,10 @@ tr:hover td{background:#fafbfd}
             </div>
 
             <div class="charts-section">
+              <!-- ✅ زر الطباعة فوق الثلاث رسوم (لون واضح مثل أزرار الطباعة) -->
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
                 <h2 class="section-title" style="margin:0;">الرسوم البيانية (بيانات الأرشيف)</h2>
 
-                <!-- ✅ زر الطباعة الثلاثة: لون مطابق لأزرار الطباعة داخل الكروت -->
                 <button
                   class="btn-secondary charts-print-top"
                   type="button"
@@ -598,6 +594,7 @@ tr:hover td{background:#fafbfd}
 
               <div class="charts-grid">
 
+                <!-- ✅ Card 1 -->
                 <div class="chart-card" id="chartCardTopLocations">
                   <div class="chart-header-row">
                     <h3 style="margin:0;">معدل البلاغات حسب الإدارة</h3>
@@ -611,6 +608,7 @@ tr:hover td{background:#fafbfd}
                   <canvas id="chartTopLocations" height="160"></canvas>
                 </div>
 
+                <!-- ✅ Card 2 -->
                 <div class="chart-card" id="chartCardTopReporter">
                   <div class="chart-header-row">
                     <h3 style="margin:0;">أكثر شخص يطلب إصلاحات</h3>
@@ -624,6 +622,7 @@ tr:hover td{background:#fafbfd}
                   <canvas id="chartTopReporter" height="160"></canvas>
                 </div>
 
+                <!-- ✅ Card 3 -->
                 <div class="chart-card" id="chartCardTopPendingTypes">
                   <div class="chart-header-row">
                     <h3 style="margin:0;">الأعطال الأكثر تكرارا</h3>
@@ -678,6 +677,7 @@ tr:hover td{background:#fafbfd}
   let reports = [];
   let archivedReports = [];
 
+  // Realtime
   let realtimeChannel = null;
   let realtimeBusy = false;
 
@@ -712,6 +712,7 @@ tr:hover td{background:#fafbfd}
     }
   }
 
+  // LocalStorage lists
   let departments=JSON.parse(localStorage.getItem(DEPARTMENTS_KEY))||[
       "إدارة الخدمات المالية و الادارية و الصيانة",
       "إدارة الجنسية",
@@ -753,7 +754,7 @@ tr:hover td{background:#fafbfd}
           .replaceAll("&","&amp;")
           .replaceAll("<","&lt;")
           .replaceAll(">","&gt;")
-          .replaceAll('"',"&quot;')
+          .replaceAll('"',"&quot;")
           .replaceAll("'","&#039;");
   }
 
@@ -817,6 +818,7 @@ tr:hover td{background:#fafbfd}
 
   function getCounts(list, prop, byNamePhone=false){
       const counts = {};
+
       list.forEach(r=>{
           if(byNamePhone){
               const name = (r.reporterName || "").trim() || "غير محدد";
@@ -825,6 +827,7 @@ tr:hover td{background:#fafbfd}
               counts[key] = (counts[key] || 0) + 1;
               return;
           }
+
           const key = (prop && r[prop] && String(r[prop]).trim()) ? r[prop] : "غير محدد";
           counts[key] = (counts[key] || 0) + 1;
       });
@@ -1142,7 +1145,7 @@ tr:hover td{background:#fafbfd}
     w.document.close();
   };
 
-  // ✅ تعديل الطباعة: الثلاث رسوم في صفحة واحدة (قدر الإمكان) عبر Scale
+  // ✅ الطباعة الجديدة: زر واحد يطبع الرسوم الثلاثة في صفحة واحدة (بدون 3 صفحات)
   window.printAllChartsCards = function(){
     const cardIds = ["chartCardTopLocations", "chartCardTopReporter", "chartCardTopPendingTypes"];
 
@@ -1169,18 +1172,11 @@ tr:hover td{background:#fafbfd}
       });
     }
 
-    const w = window.open("", "_blank", "width=1400,height=900");
+    const w = window.open("", "_blank", "width=1200,height=950");
     if(!w){
       alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
       return;
     }
-
-    const escape = (s) => String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
 
     const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -1189,85 +1185,93 @@ tr:hover td{background:#fafbfd}
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>طباعة الرسوم البيانية - الأرشيف</title>
   <style>
-    @page{
-      size: A4 landscape;
-      margin: 4mm;
-    }
-
+    @page { size: auto; margin: 10mm; }
     body{
       font-family: Tahoma, Arial, sans-serif;
-      margin:0;
-      padding:0;
+      margin: 0;
+      padding: 0;
       direction: rtl;
-      color:#071a33;
+      color:#0b1f3a;
       background:#fff;
     }
 
-    /* ✅ Scale هو المفتاح عشان الثلاثة يركبون في صفحة وحدة */
-    .wrap{
-      transform: scale(0.72);
-      transform-origin: top right;
-      width: 100%;
-      padding: 0;
-      margin: 0;
-    }
+    .wrap{ padding: 0 0 6px; }
 
     .print-header{
       text-align:center;
-      margin: 0 0 6mm 0;
+      margin: 0 0 10px;
       padding: 0;
     }
     .print-header h2{
-      margin:0;
-      font-size:16px;
-      font-weight:900;
+      margin: 0;
+      font-size: 20px;
+      font-weight: 900;
+      color:#071a33;
     }
     .print-header .sub{
-      margin-top:2mm;
-      font-size:12px;
-      font-weight:800;
+      margin-top: 6px;
+      font-size: 14px;
       color:#536477;
+      font-weight: 700;
     }
 
     .card{
       border:1px solid #e5e7eb;
-      border-radius:10px;
-      padding: 2mm 2mm 1mm;
-      margin: 0 0 2mm 0;
+      border-radius:14px;
+      padding: 10px 10px 8px;
+      margin: 8px 0 10px;
+
       page-break-inside: avoid;
       break-inside: avoid;
     }
 
     .card h3{
-      margin:0 0 2mm 0;
-      font-size:13px;
-      font-weight:900;
+      margin: 0 0 8px;
+      font-size: 16px;
       text-align:center;
       color:#071a33;
+      font-weight: 900;
+    }
+
+    .img{
+      width:100%;
+      display:flex;
+      justify-content:center;
     }
 
     img{
       width:100%;
-      height:auto;
-      display:block;
+      max-width: 980px;
+      border: 1px solid #e6e6e6;
+      border-radius: 10px;
+      background:#fff;
+
+      /* ✅ مهم لمنع كسر الصفحة داخل الصورة */
       page-break-inside: avoid;
       break-inside: avoid;
-      max-height: 210px; /* يقلل احتمال تقسيم */
-      object-fit: contain;
+    }
+
+    @media print{
+      /* محاولة قوية لمنع تقسيم المحتوى لعدة صفحات */
+      .card{ page-break-inside: avoid; break-inside: avoid; }
+      img{ page-break-inside: avoid; break-inside: avoid; }
     }
   </style>
 </head>
-<body onload="try{window.focus();}catch(e){} setTimeout(()=>{window.print();}, 150);">
+
+<body onload="try{window.focus();}catch(e){} setTimeout(()=>window.print(), 200);">
   <div class="wrap">
     <div class="print-header">
       <h2>الرسوم البيانية - الأرشيف</h2>
       <div class="sub">طباعة جميع الرسوم الثلاثة في صفحة واحدة</div>
     </div>
 
-    ${imgs.map(x=>`
+    ${imgs.map((x)=>`
       <div class="card">
-        <h3>${escape(x.title)}</h3>
-        <img src="${x.imgData}" alt="${escape(x.title)}">
+        <h3>${String(x.title ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}</h3>
+        <div class="img">
+          <img src="${x.imgData}" alt="${String(x.title ?? "")}">
+        </div>
       </div>
     `).join("")}
   </div>
@@ -1279,22 +1283,27 @@ tr:hover td{background:#fafbfd}
     w.document.close();
   };
 
+  // ---------- Settings ----------
   function renderSettings(){
       document.getElementById("departmentsList").innerHTML=
-          departments.map((item,index)=>`
+          departments.map((item,index)=>
+              `
               <div class="setting-item">
                   <span>${escapeHtml(item)}</span>
                   <button class="delete-item" onclick="deleteDepartment(${index})">×</button>
               </div>
-          `).join("");
+              `
+          ).join("");
 
       document.getElementById("reportTypesList").innerHTML=
-          reportTypes.map((item,index)=>`
+          reportTypes.map((item,index)=>
+              `
               <div class="setting-item">
                   <span>${escapeHtml(item)}</span>
                   <button class="delete-item" onclick="deleteReportType(${index})">×</button>
               </div>
-          `).join("");
+              `
+          ).join("");
   }
 
   function addDepartment(){
@@ -1335,6 +1344,7 @@ tr:hover td{background:#fafbfd}
       }
   }
 
+  // ---------- Admin render ----------
   function renderAdmin(){
       const body=document.getElementById("reportsTableBody");
 
@@ -1379,6 +1389,7 @@ tr:hover td{background:#fafbfd}
       renderCharts();
   }
 
+  // ---------- Auth ----------
   async function loginAdmin(){
       const email = document.getElementById("adminEmail").value.trim();
       const password = document.getElementById("adminPassword").value;
@@ -1414,6 +1425,7 @@ tr:hover td{background:#fafbfd}
 
   async function logoutAdmin(){
       stopRealtime();
+
       try{ await supabase.auth.signOut(); }catch(e){ console.warn(e); }
 
       document.getElementById("adminPanel").classList.remove("active");
@@ -1423,6 +1435,7 @@ tr:hover td{background:#fafbfd}
       document.getElementById("adminEmail").value="";
   }
 
+  // ---------- Actions ----------
   window.completeReport = async function(id){
       const technician=document.getElementById("technician-"+id).value.trim();
       const notes=document.getElementById("notes-"+id).value.trim();
@@ -1538,6 +1551,7 @@ tr:hover td{background:#fafbfd}
       }
   };
 
+  // bind windows
   window.showAlert = showAlert;
   window.loginAdmin = loginAdmin;
   window.logoutAdmin = logoutAdmin;
@@ -1547,6 +1561,7 @@ tr:hover td{background:#fafbfd}
   window.deleteReportType = deleteReportType;
   window.closeDetailsModal = closeDetailsModal;
 
+  // init
   renderSettings();
 </script>
 
