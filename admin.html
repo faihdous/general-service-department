@@ -156,7 +156,7 @@ button:hover{
 }
 
 .btn-secondary{
-    color:#fff; /* ✅ أهم شيء: خلي لون النص أبيض وواضح */
+    color:#fff;
     background:rgba(255,255,255,.08);
     border:1px solid rgba(255,255,255,.28);
     border-radius:12px;
@@ -165,7 +165,7 @@ button:hover{
 .btn-danger{color:#fff;background:var(--danger)}
 .btn-success{color:#fff;background:var(--success)}
 
-/* ✅ زر الطباعة أعلى الكروت: نفس لون زر الطباعة داخل الكروت (ذهبي ونص غامق) */
+/* زر الطباعة أعلى الكروت */
 .charts-print-top{
     color:#0b1f3a !important;
     background: rgba(200,169,81,.22) !important;
@@ -177,7 +177,7 @@ button:hover{
     background: rgba(200,169,81,.32) !important;
 }
 
-/* ✅ Fields */
+/* Fields */
 .field{
     display:flex;
     flex-direction:column;
@@ -368,7 +368,7 @@ tr:hover td{background:#fafbfd}
 }
 .delete-item:hover{transform:translateY(-1px) scale(1.04)}
 
-/* ✅ Charts section */
+/* Charts */
 .charts-section{
   margin-top:26px;
   padding-top:6px;
@@ -386,11 +386,9 @@ tr:hover td{background:#fafbfd}
   border-radius:16px;
   box-shadow:0 10px 30px rgba(15,39,66,.06);
   padding:16px 16px 12px;
-
   user-select:none;
 }
 
-/* --- تعديل مهم لظهور زر الطباعة --- */
 .chart-header-row{
   position:relative;
   z-index:6;
@@ -407,7 +405,6 @@ tr:hover td{background:#fafbfd}
   display:block;
 }
 
-/* زر الطباعة داخل الكروت */
 .chart-card .print-btn{
   color:#0b1f3a !important;
   background: rgba(200,169,81,.22) !important;
@@ -439,10 +436,9 @@ tr:hover td{background:#fafbfd}
   margin-top:8px;
 }
 
-/* ✅ إلغاء مربعات الإحصائيات */
+/* إلغاء مربعات الإحصائيات */
 .stats, .summary { display:none !important; }
 
-/* ✅ Modal */
 #detailsModal.show{display:flex;}
 #detailsModalHideArea{position:absolute; inset:0;}
 
@@ -487,7 +483,6 @@ tr:hover td{background:#fafbfd}
 </head>
 
 <body>
-
 <div id="pagesWrap">
 
     <div class="topbar">
@@ -1146,7 +1141,8 @@ tr:hover td{background:#fafbfd}
     w.document.close();
   };
 
-  /* ✅ الطباعة الجديدة: زر واحد يطبع الرسوم الثلاثة في صفحة واحدة */
+  /* ✅ الطباعة الجديدة: زر واحد يطبع الثلاثة في صفحة واحدة
+     التعديل المطلوب: A4 Portrait (عمودي) + تحت بعض + بدون تصغير */
   window.printAllChartsCards = function(){
     const cardIds = ["chartCardTopLocations", "chartCardTopReporter", "chartCardTopPendingTypes"];
 
@@ -1173,7 +1169,7 @@ tr:hover td{background:#fafbfd}
       });
     }
 
-    const w = window.open("", "_blank", "width=1200,height=950");
+    const w = window.open("", "_blank", "width=1100,height=900");
     if(!w){
       alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
       return;
@@ -1186,8 +1182,8 @@ tr:hover td{background:#fafbfd}
       .replaceAll('"',"&quot;")
       .replaceAll("'","&#039;");
 
-    // ✅ scale داخل صفحة الطباعة عشان لا تنقسم لصفحتين (Edge + الموبايل)
-    const SCALE = 0.66; // جرّب 0.62 أو 0.65 إذا لزم
+    // A4 Portrait بدون scale
+    const SCALE = 1;
 
     const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -1197,7 +1193,7 @@ tr:hover td{background:#fafbfd}
   <title>طباعة الرسوم البيانية - الأرشيف</title>
 
   <style>
-    @page { size: A4 landscape; margin: 6mm; }
+    @page { size: A4 portrait; margin: 6mm; }
 
     body{
       font-family: Tahoma, Arial, sans-serif;
@@ -1212,13 +1208,14 @@ tr:hover td{background:#fafbfd}
       transform: scale(${SCALE});
       transform-origin: top right;
       width: 100%;
-      padding: 0;
       margin: 0;
+      padding: 0 0 2mm;
     }
 
     .print-header{
       text-align:center;
       margin: 0 0 3mm 0;
+      padding: 0;
     }
     .print-header h2{
       margin: 0;
@@ -1238,6 +1235,9 @@ tr:hover td{background:#fafbfd}
       border-radius:10px;
       padding: 2mm 2mm 1mm;
       margin: 0 0 2mm 0;
+
+      width: 100%;
+      box-sizing: border-box;
 
       page-break-inside: avoid;
       break-inside: avoid;
@@ -1259,7 +1259,7 @@ tr:hover td{background:#fafbfd}
       page-break-inside: avoid;
       break-inside: avoid;
 
-      max-height: 210px;
+      max-width: 100%;
       object-fit: contain;
       background:#fff;
     }
