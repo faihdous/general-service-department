@@ -395,14 +395,8 @@ tr:hover td{background:#fafbfd}
   display:block;
 }
 
-.print-btn{
-  position:relative;
-  z-index:10;
-  flex:0 0 auto;
-}
-
-/* ✅ التعديل الأساسي الذي يجعل الزر ظاهر داخل الكروت البيضاء */
-.chart-card .btn-secondary.print-btn{
+/* زر الطباعة داخل الكروت */
+.chart-card .print-btn{
   color:#0b1f3a !important;
   background: rgba(200,169,81,.22) !important;
   border: 1px solid rgba(200,169,81,.55) !important;
@@ -410,11 +404,10 @@ tr:hover td{background:#fafbfd}
   font-weight:800;
 }
 
-.chart-card .btn-secondary.print-btn:hover{
+.chart-card .print-btn:hover{
   background: rgba(200,169,81,.32) !important;
 }
 
-/* باقي الستايلات */
 .chart-card h3{
   margin:0 0 10px;
   color:var(--navy);
@@ -441,7 +434,6 @@ tr:hover td{background:#fafbfd}
 #detailsModal.show{display:flex;}
 #detailsModalHideArea{position:absolute; inset:0;}
 
-/* --- التعديل الأساسي لحل سكرول Edge --- */
 #detailsModalCard{
   width:min(900px,94%);
   padding:22px;
@@ -450,7 +442,6 @@ tr:hover td{background:#fafbfd}
   border:1px solid rgba(221,231,245,.9);
 
   height:min(84vh, 820px);
-
   overflow:hidden;
   display:block;
 }
@@ -580,9 +571,22 @@ tr:hover td{background:#fafbfd}
             </div>
 
             <div class="charts-section">
-              <h2 class="section-title">الرسوم البيانية (بيانات الأرشيف)</h2>
+              <!-- ✅ زر الطباعة فوق الثلاث رسوم -->
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+                <h2 class="section-title" style="margin:0;">الرسوم البيانية (بيانات الأرشيف)</h2>
+
+                <button
+                  class="btn-secondary print-btn"
+                  type="button"
+                  style="padding:10px 14px;border-radius:12px;"
+                  onclick="printAllChartsCards()"
+                >
+                  طباعة الرسوم الثلاثة
+                </button>
+              </div>
 
               <div class="charts-grid">
+
                 <!-- ✅ Card 1 -->
                 <div class="chart-card" id="chartCardTopLocations">
                   <div class="chart-header-row">
@@ -594,7 +598,6 @@ tr:hover td{background:#fafbfd}
                       طباعة
                     </button>
                   </div>
-
                   <canvas id="chartTopLocations" height="160"></canvas>
                 </div>
 
@@ -609,7 +612,6 @@ tr:hover td{background:#fafbfd}
                       طباعة
                     </button>
                   </div>
-
                   <canvas id="chartTopReporter" height="160"></canvas>
                 </div>
 
@@ -624,9 +626,9 @@ tr:hover td{background:#fafbfd}
                       طباعة
                     </button>
                   </div>
-
                   <canvas id="chartTopPendingTypes" height="160"></canvas>
                 </div>
+
               </div>
             </div>
 
@@ -1083,7 +1085,7 @@ tr:hover td{background:#fafbfd}
       barChartForPending("topPendingTypes", el3, labelsPending, valuesPending);
   }
 
-  // ✅ الطباعة
+  // ✅ الطباعة (لكل كرت على حدة - عندك موجود بالأساس في كودك، خلّيته كما هو لو ما تغيّر)
   window.printChartCard = function(cardId){
     const card = document.getElementById(cardId);
     if(!card) return;
@@ -1097,18 +1099,7 @@ tr:hover td{background:#fafbfd}
       return;
     }
 
-    const noteEls = card.querySelectorAll(".chart-note, .clickHint");
-    let notesHtml = "";
-    noteEls.forEach((el)=>{
-      const text = (el.innerText || "").trim();
-      if(!text) return;
-      notesHtml += `
-        <div style="margin-top:10px;color:#5b6b7e;font-size:13px;line-height:1.7;">
-          ${escapeHtml(text)}
-        </div>
-      `;
-    });
-
+    const notesHtml = "";
     const imgData = canvas.toDataURL("image/png");
     const safeTitle = escapeHtml(chartTitle);
 
@@ -1132,13 +1123,11 @@ tr:hover td{background:#fafbfd}
     .sub{color:#5b6b7e;margin-top:6px;font-size:14px;}
     .img-wrap{text-align:center;margin-top:10px;}
     img{width:100%;max-width:820px;border:1px solid #ddd;border-radius:10px;}
-    .notes{margin-top:12px;}
   </style>
 </head>
 <body onload="try{window.focus();}catch(e){} window.print();">
   <div class="header">
     <h2>${safeTitle}</h2>
-    
   </div>
 
   <div class="img-wrap">
@@ -1146,6 +1135,123 @@ tr:hover td{background:#fafbfd}
   </div>
 
   <div class="notes">${notesHtml}</div>
+</body>
+</html>`;
+
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  };
+
+  // ✅ الطباعة الجديدة: زر واحد يطبع الرسوم الثلاثة تحت بعض في صفحة واحدة
+  window.printAllChartsCards = function(){
+    const cardIds = ["chartCardTopLocations", "chartCardTopReporter", "chartCardTopPendingTypes"];
+
+    const cards = cardIds
+      .map(id => document.getElementById(id))
+      .filter(Boolean);
+
+    if (!cards.length) return;
+
+    const imgs = [];
+    for (const card of cards){
+      const titleEl = card.querySelector("h3");
+      const chartTitle = (titleEl?.textContent || "رسم بياني").trim();
+
+      const canvas = card.querySelector("canvas");
+      if (!canvas || typeof canvas.toDataURL !== "function"){
+        alert("لم يتم العثور على الرسم أو لا يدعم الطباعة.");
+        return;
+      }
+
+      imgs.push({
+        title: chartTitle,
+        imgData: canvas.toDataURL("image/png")
+      });
+    }
+
+    const w = window.open("", "_blank", "width=980,height=1100");
+    if(!w){
+      alert("من فضلك فعّل النوافذ المنبثقة (Popup) للطباعة.");
+      return;
+    }
+
+    const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>طباعة الرسوم البيانية</title>
+  <style>
+    @page { size: auto; margin: 14mm; }
+    body{
+      font-family: Tahoma, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      color:#0b1f3a;
+      background:#fff;
+    }
+    .wrap{ padding: 0; }
+    .print-header{
+      text-align:center;
+      margin-bottom: 12px;
+    }
+    .print-header h2{
+      margin: 0;
+      font-size: 20px;
+    }
+    .print-header .sub{
+      margin-top: 6px;
+      color:#5b6b7e;
+      font-size: 14px;
+    }
+    .card{
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding: 12px 12px 8px;
+      margin: 10px 0 14px;
+      page-break-inside: avoid;
+    }
+    .card h3{
+      margin: 0 0 10px;
+      font-size: 16px;
+      text-align:center;
+    }
+    .img{
+      width:100%;
+      display:flex;
+      justify-content:center;
+    }
+    img{
+      width:100%;
+      max-width: 860px;
+      border: 1px solid #e6e6e6;
+      border-radius: 10px;
+      background:#fff;
+    }
+    .footer-note{
+      margin-top: 6px;
+      color:#5b6b7e;
+      font-size: 12.5px;
+      text-align:center;
+    }
+  </style>
+</head>
+<body onload="try{window.focus();}catch(e){} setTimeout(()=>window.print(), 200);">
+  <div class="wrap">
+    <div class="print-header">
+      <h2>الرسوم البيانية - الأرشيف</h2>
+      <div class="sub">طباعة جميع الرسوم الثلاثة في صفحة واحدة</div>
+    </div>
+
+    ${imgs.map((x)=>`
+      <div class="card">
+        <h3>${escapeHtml(x.title)}</h3>
+        <div class="img"><img src="${x.imgData}" alt="${escapeHtml(x.title)}"></div>
+      </div>
+    `).join("")}
+  </div>
 </body>
 </html>`;
 
