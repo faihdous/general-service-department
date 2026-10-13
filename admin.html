@@ -164,6 +164,22 @@ button:hover{
 .btn-danger{color:#fff;background:var(--danger)}
 .btn-success{color:#fff;background:var(--success)}
 
+/* ✅ زر برتقالي للإعدادات (بدون التأثير على باقي الأزرار) */
+.btn-orange{
+    color:#fff;
+    background:linear-gradient(135deg,#fb923c,#f97316);
+    box-shadow:0 10px 24px rgba(249,115,22,.30);
+    border-radius:12px;
+    padding:13px 18px;
+    font-size:14px;
+    font-weight:bold;
+    border:1px solid rgba(249,115,22,.45);
+}
+
+.btn-orange:hover{
+    filter:brightness(1.08);
+}
+
 /* زر الطباعة أعلى الكروت */
 .charts-print-top{
     color:#0b1f3a !important;
@@ -371,13 +387,19 @@ tr:hover td{background:#fafbfd}
 .settings-wrap{ display:none; }
 .settings-wrap.active{ display:block; }
 
+/* ✅ زر رجوع برتقالي */
 .back-btn{
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.28);
     color:#fff;
+    background:linear-gradient(135deg,#fb923c,#f97316);
+    border:1px solid rgba(249,115,22,.55);
     border-radius:12px;
     padding:10px 14px;
     font-weight:900;
+    box-shadow:0 10px 22px rgba(249,115,22,.25);
+}
+
+.back-btn:hover{
+    filter:brightness(1.08);
 }
 
 /* Charts */
@@ -536,9 +558,13 @@ tr:hover td{background:#fafbfd}
                 <button class="btn-danger" onclick="clearAllReports()">حذف البلاغات الحالية</button>
                 <button class="btn-danger" onclick="clearArchiveReports()">حذف الأرشيف</button>
 
-                <!-- ✅ Settings toggle button -->
-                <button class="btn-secondary" style="padding:13px 18px;" type="button" onclick="openSettings()">
-                    إعدادات البلاغات
+                <!-- ✅ زر إعدادات البلاغات برتقالي -->
+                <button
+                  class="btn-orange"
+                  type="button"
+                  onclick="openSettings()"
+                >
+                  إعدادات البلاغات
                 </button>
             </div>
 
@@ -831,7 +857,6 @@ tr:hover td{background:#fafbfd}
       return new Intl.DateTimeFormat("ar-KW",{dateStyle:"medium",timeStyle:"short"}).format(new Date(value));
   }
 
-  // عام للإحصائيات غير الخاصة بالمبلغ
   function getCounts(list, prop){
       const counts = {};
       list.forEach(r=>{
@@ -844,8 +869,7 @@ tr:hover td{background:#fafbfd}
         .map(([name,count])=>({name,count}));
   }
 
-  /* ✅ جديد: تجميع “أكثر شخص يطلب إصلاحات” حسب PHONE فقط
-     ويختار اسم مناسب لنفس الرقم (الاسم الأكثر تكراراً لنفس الرقم) */
+  // تجميع “أكثر شخص يطلب إصلاحات” حسب PHONE فقط
   function getReporterCountsByPhone(list, topN=8){
     const map = {}; // phone -> { count, namesFreq:{} }
 
@@ -900,7 +924,7 @@ tr:hover td{background:#fafbfd}
       if(!el1 || !el2 || !el3) return;
 
       const sourceAll = archivedReports;
-      const pendingOnly = archivedReports; // كما هو عندك
+      const pendingOnly = archivedReports;
 
       if(window._charts){
         for(const k of Object.keys(window._charts)){
@@ -913,7 +937,6 @@ tr:hover td{background:#fafbfd}
       const labelsLoc = locCounts.map(x => x.name);
       const valuesLoc = locCounts.map(x => x.count);
 
-      // ✅ هنا التعديل: تجميع حسب الهاتف فقط
       const repCounts = getReporterCountsByPhone(sourceAll, 8);
       const labelsRep = repCounts.map(x => `${x.name} — ${x.phone}`);
       const valuesRep = repCounts.map(x => x.count);
@@ -1034,9 +1057,8 @@ tr:hover td{background:#fafbfd}
 
           const parts = String(clickedLabel).split(" — ");
           const clickedName = parts[0] || "";
-          const clickedPhone = (parts[1] || "").trim(); // ✅ استخراج الهاتف
+          const clickedPhone = (parts[1] || "").trim();
 
-          // ✅ التصفية حسب الهاتف فقط
           const filtered = sourceAll.filter(r=>{
             return String((r.reporterPhone || "").trim()) === clickedPhone;
           });
@@ -1237,6 +1259,7 @@ tr:hover td{background:#fafbfd}
 
   <style>
     @page { size: A4 portrait; margin: 6mm; }
+
     body{
       font-family: Tahoma, Arial, sans-serif;
       margin:0;
@@ -1245,6 +1268,7 @@ tr:hover td{background:#fafbfd}
       color:#0b1f3a;
       background:#fff;
     }
+
     .wrap{
       transform: scale(${SCALE});
       transform-origin: top right;
@@ -1252,10 +1276,10 @@ tr:hover td{background:#fafbfd}
       margin: 0;
       padding: 0 0 2mm;
     }
+
     .print-header{
       text-align:center;
       margin: 0 0 3mm 0;
-      padding: 0;
     }
     .print-header h2{
       margin: 0;
@@ -1263,6 +1287,7 @@ tr:hover td{background:#fafbfd}
       font-weight: 900;
       color:#071a33;
     }
+
     .card{
       border:1px solid #e5e7eb;
       border-radius:10px;
@@ -1275,6 +1300,7 @@ tr:hover td{background:#fafbfd}
       page-break-inside: avoid;
       break-inside: avoid;
     }
+
     .card h3{
       margin: 0 0 2mm 0;
       font-size: 13px;
@@ -1282,6 +1308,7 @@ tr:hover td{background:#fafbfd}
       text-align:center;
       color:#071a33;
     }
+
     img{
       width:100%;
       height:auto;
@@ -1468,7 +1495,6 @@ tr:hover td{background:#fafbfd}
       document.getElementById("adminPassword").value="";
       document.getElementById("adminEmail").value="";
 
-      // hide settings
       document.getElementById("settingsWrap").classList.remove("active");
   }
 
@@ -1600,7 +1626,6 @@ tr:hover td{background:#fafbfd}
 
   // init
   renderSettings();
-  // keep settings hidden initially
   document.getElementById("settingsWrap").classList.remove("active");
 </script>
 
